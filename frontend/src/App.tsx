@@ -203,19 +203,19 @@ function App() {
   return (
     <div className="min-h-screen bg-[#03000a] flex flex-col font-sans relative">
       {/* Background Decorative Blur Blobs */}
-      <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-violet-600/5 rounded-full filter blur-[120px] pointer-events-none" />
-      <div className="absolute bottom-10 right-1/4 w-[400px] h-[400px] bg-indigo-600/5 rounded-full filter blur-[100px] pointer-events-none" />
+      <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-yellow-600/3 rounded-full filter blur-[120px] pointer-events-none" />
+      <div className="absolute bottom-10 right-1/4 w-[400px] h-[400px] bg-amber-600/2 rounded-full filter blur-[100px] pointer-events-none" />
 
       {/* Cryptographic WebAssembly Initializing Overlay Screen */}
       {isConnected && isFheInitializing && (
         <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-[#03000a]/90 backdrop-blur-md px-4">
           <div className="relative flex items-center justify-center mb-6">
             {/* Spinning decorative ring */}
-            <div className="absolute w-24 h-24 rounded-full border border-violet-500/20 border-t-violet-500 animate-spin" />
-            <div className="absolute w-20 h-20 rounded-full border border-indigo-500/10 border-b-indigo-500 animate-spin [animation-direction:reverse]" />
-            <Lock className="h-8 w-8 text-violet-400 animate-pulse" />
+            <div className="absolute w-24 h-24 rounded-full border border-yellow-500/20 border-t-yellow-500 animate-spin" />
+            <div className="absolute w-20 h-20 rounded-full border border-amber-500/10 border-b-amber-500 animate-spin [animation-direction:reverse]" />
+            <Lock className="h-8 w-8 text-yellow-400 animate-pulse" />
           </div>
-          <h2 className="text-2xl font-black font-sans bg-gradient-to-r from-white via-slate-100 to-violet-300 bg-clip-text text-transparent text-center">
+          <h2 className="text-2xl font-black font-sans bg-gradient-to-r from-white via-slate-100 to-yellow-300 bg-clip-text text-transparent text-center">
             Initializing FHE WebAssembly
           </h2>
           <p className="text-xs text-slate-500 font-semibold uppercase tracking-wider mt-2.5 text-center max-w-sm leading-relaxed">
@@ -262,7 +262,7 @@ function App() {
               {elections.length > 0 && (
                 <div className="w-full lg:w-80 shrink-0 space-y-4">
                   <div className="glass-panel p-5 space-y-4">
-                    <span className="text-[10px] font-black text-violet-400 uppercase tracking-widest block">Available Elections</span>
+                    <span className="text-[10px] font-black text-yellow-400 uppercase tracking-widest block">Available Elections</span>
                     <div className="flex flex-col gap-2.5 max-h-[500px] overflow-y-auto pr-1">
                       {elections.map((addr) => (
                         <button
@@ -270,14 +270,14 @@ function App() {
                           onClick={() => setSelectedElectionAddr(addr)}
                           className={`text-left p-3.5 rounded-xl border text-xs transition duration-200 ${
                             selectedElectionAddr === addr
-                              ? 'border-violet-500 bg-violet-500/5 text-slate-100 font-bold shadow-[0_0_15px_rgba(139,92,246,0.1)]'
-                              : 'border-violet-950/20 hover:border-violet-500/20 bg-[#070414]/40 text-slate-400 hover:text-slate-200'
+                              ? 'border-yellow-500 bg-yellow-500/5 text-slate-100 font-bold shadow-[0_0_15px_rgba(255,210,8,0.1)]'
+                              : 'border-yellow-950/20 hover:border-yellow-500/20 bg-[#070414]/40 text-slate-400 hover:text-slate-200'
                           }`}
                         >
                           <p className="font-semibold truncate">Address: {addr.substring(0, 10)}...{addr.substring(addr.length - 8)}</p>
                           {selectedElectionAddr === addr && (
-                            <span className="text-[10px] text-violet-400 font-bold block mt-1.5 flex items-center gap-1">
-                              <span className="h-1.5 w-1.5 rounded-full bg-violet-400 animate-pulse"></span>
+                            <span className="text-[10px] text-yellow-400 font-bold block mt-1.5 flex items-center gap-1">
+                              <span className="h-1.5 w-1.5 rounded-full bg-yellow-400 animate-pulse"></span>
                               Active Selection
                             </span>
                           )}
@@ -292,7 +292,7 @@ function App() {
               <div className="flex-1 space-y-6">
                 {isDetailLoading ? (
                   <div className="glass-panel p-16 text-center flex flex-col items-center justify-center gap-4 bg-slate-900/10">
-                    <RefreshCw className="h-8 w-8 text-violet-455 animate-spin" />
+                    <RefreshCw className="h-8 w-8 text-[#FFD208] animate-spin" />
                     <span className="text-sm text-slate-400 font-semibold tracking-wide">Loading election details...</span>
                   </div>
                 ) : selectedElection ? (
@@ -364,13 +364,13 @@ function App() {
           {/* Hero Section */}
           <div className="flex flex-col lg:flex-row items-center justify-between gap-12 pt-8">
             <div className="space-y-6 max-w-2xl text-left">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-violet-500/20 bg-violet-500/5 text-xs font-bold text-violet-400 shadow-md">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-yellow-500/20 bg-yellow-500/5 text-xs font-bold text-[#FFD208] shadow-md">
                 <ShieldCheck className="h-3.5 w-3.5" />
                 Fully Homomorphic Encryption (FHE)
               </div>
               
               <h1 className="text-4xl font-extrabold tracking-tight sm:text-6xl font-sans text-slate-100 leading-[1.1]">
-                Unleashing the Power of <span className="bg-gradient-to-r from-violet-400 via-purple-400 to-indigo-400 bg-clip-text text-transparent">Confidential Voting</span>
+                Unleashing the Power of <span className="bg-gradient-to-r from-[#FFD208] via-yellow-300 to-amber-400 bg-clip-text text-transparent">Confidential Voting</span>
               </h1>
               
               <p className="text-slate-400 text-sm sm:text-base leading-relaxed font-medium">
@@ -402,13 +402,13 @@ function App() {
             {/* Glowing Shield Graphic Overlay */}
             <div className="relative flex h-80 w-80 items-center justify-center shrink-0">
               {/* Outer decorative glowing ring */}
-              <div className="absolute inset-0 rounded-full bg-gradient-to-tr from-violet-500/10 to-indigo-500/10 blur-xl animate-pulse-slow" />
-              <div className="absolute w-72 h-72 rounded-full border border-violet-500/10 animate-spin [animation-duration:15s]" />
-              <div className="absolute w-60 h-60 rounded-full border border-indigo-500/5 animate-spin [animation-direction:reverse] [animation-duration:10s]" />
+              <div className="absolute inset-0 rounded-full bg-gradient-to-tr from-yellow-500/10 to-amber-500/10 blur-xl animate-pulse-slow" />
+              <div className="absolute w-72 h-72 rounded-full border border-yellow-500/10 animate-spin [animation-duration:15s]" />
+              <div className="absolute w-60 h-60 rounded-full border border-amber-500/5 animate-spin [animation-direction:reverse] [animation-duration:10s]" />
               
               {/* Core Shield */}
-              <div className="z-10 flex h-40 w-40 items-center justify-center rounded-3xl bg-slate-950 border border-violet-500/20 shadow-2xl shadow-violet-500/10">
-                <Shield className="h-16 w-16 text-violet-455 animate-float" />
+              <div className="z-10 flex h-40 w-40 items-center justify-center rounded-3xl bg-slate-950 border border-yellow-500/20 shadow-2xl shadow-yellow-500/10">
+                <Shield className="h-16 w-16 text-[#FFD208] animate-float" />
               </div>
             </div>
           </div>
@@ -422,7 +422,7 @@ function App() {
 
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
               <div className="glow-card">
-                <div className="h-10 w-10 flex items-center justify-center rounded-xl bg-violet-500/10 border border-violet-500/20 mb-4 text-violet-400">
+                <div className="h-10 w-10 flex items-center justify-center rounded-xl bg-yellow-500/10 border border-yellow-500/20 mb-4 text-yellow-400">
                   <Lock className="h-5 w-5" />
                 </div>
                 <h3 className="text-sm font-bold text-slate-100 mb-1.5">End-to-End Encryption</h3>
@@ -432,7 +432,7 @@ function App() {
               </div>
 
               <div className="glow-card">
-                <div className="h-10 w-10 flex items-center justify-center rounded-xl bg-indigo-500/10 border border-indigo-500/20 mb-4 text-indigo-400">
+                <div className="h-10 w-10 flex items-center justify-center rounded-xl bg-amber-500/10 border border-amber-500/20 mb-4 text-amber-400">
                   <EyeOff className="h-5 w-5" />
                 </div>
                 <h3 className="text-sm font-bold text-slate-100 mb-1.5">Voter Privacy</h3>
@@ -480,7 +480,7 @@ function App() {
       )}
 
       {/* Footer */}
-      <footer className="border-t border-violet-500/5 bg-[#03000a] py-6 text-center text-[10px] text-slate-500 font-semibold uppercase tracking-wider mt-auto">
+      <footer className="border-t border-yellow-500/5 bg-black py-6 text-center text-[10px] text-slate-500 font-semibold uppercase tracking-wider mt-auto">
         CipherBallot © 2026. Powered by Zama FHEVM public decryption.
       </footer>
     </div>
