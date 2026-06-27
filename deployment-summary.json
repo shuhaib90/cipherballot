@@ -1,0 +1,9 @@
+{
+  "network": "sepolia",
+  "VoterRegistry": "0x82F9d38b55Cb2F85DC7ad59f1f47344990d963Bd",
+  "ElectionFactory": "0xaAD66b51916953b274d15f039340DB38Ed96aD7C",
+  "FHEIdentityRegistry": "0x768004328E7F54E0dBb9fff61BB339675bA85b8c",
+  "DemoElection": "0xC7A243feaaD601284C003E8fb07165ED7753Dfe9",
+  "deployer": "0x9dd428188e36D9446c0D7428c08fCD022574C034",
+  "timestamp": "2026-06-27T05:14:14.645Z"
+}
