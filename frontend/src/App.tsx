@@ -7,6 +7,7 @@ import { ResultsDashboard } from './components/ResultsDashboard';
 import { CommissionPanel } from './components/CommissionPanel';
 import { IdentityVerification } from './components/IdentityVerification';
 import { HowItWorks } from './components/HowItWorks';
+import { Documentation } from './components/Documentation';
 import { ElectionShareCard } from './components/ElectionShareCard';
 import { useWallet } from './hooks/useWallet';
 import { useFhevm } from './hooks/useFhevm';
@@ -60,7 +61,7 @@ function App() {
     fetchCommissionersList
   } = useContract(provider, signer, address);
 
-  const [activeTab, setActiveTab] = useState<'landing' | 'register' | 'elections' | 'voter-status' | 'commission' | 'how-it-works'>('landing');
+  const [activeTab, setActiveTab] = useState<'landing' | 'register' | 'elections' | 'voter-status' | 'commission' | 'how-it-works' | 'docs'>('landing');
   const [elections, setElections] = useState<string[]>([]);
   const [selectedElectionAddr, setSelectedElectionAddr] = useState<string>('');
   const [selectedElection, setSelectedElection] = useState<ElectionDetails | null>(null);
@@ -350,6 +351,10 @@ function App() {
 
           {activeTab === 'how-it-works' && (
             <HowItWorks />
+          )}
+
+          {activeTab === 'docs' && (
+            <Documentation />
           )}
 
           {activeTab === 'commission' && (

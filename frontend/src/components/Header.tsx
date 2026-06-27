@@ -1,4 +1,4 @@
-import { Vote, Wallet, Shield, Key, RefreshCw, HelpCircle, Users, ClipboardList } from 'lucide-react';
+import { Vote, Wallet, Shield, Key, RefreshCw, HelpCircle, Users, ClipboardList, FileText } from 'lucide-react';
 
 interface HeaderProps {
   address: string;
@@ -10,8 +10,8 @@ interface HeaderProps {
   connectWallet: () => void;
   disconnectWallet: () => void;
   reinitFhe: () => void;
-  activeTab: 'landing' | 'register' | 'elections' | 'voter-status' | 'commission' | 'how-it-works';
-  setActiveTab: (tab: 'landing' | 'register' | 'elections' | 'voter-status' | 'commission' | 'how-it-works') => void;
+  activeTab: 'landing' | 'register' | 'elections' | 'voter-status' | 'commission' | 'how-it-works' | 'docs';
+  setActiveTab: (tab: 'landing' | 'register' | 'elections' | 'voter-status' | 'commission' | 'how-it-works' | 'docs') => void;
 }
 
 export function Header({
@@ -37,6 +37,7 @@ export function Header({
     { id: 'elections' as const, label: 'Active Elections', icon: <Vote className="h-4 w-4" /> },
     { id: 'voter-status' as const, label: 'Voter Status', icon: <Users className="h-4 w-4" /> },
     { id: 'how-it-works' as const, label: 'How It Works', icon: <HelpCircle className="h-4 w-4" /> },
+    { id: 'docs' as const, label: 'Whitepaper', icon: <FileText className="h-4 w-4" /> },
     ...(isOfficer
       ? [{ id: 'commission' as const, label: 'Commission Panel', icon: <ClipboardList className="h-4 w-4" /> }]
       : [])
