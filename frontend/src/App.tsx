@@ -52,7 +52,10 @@ function App() {
     fetchAllRequests,
     approveIdentityRequest,
     rejectIdentityRequest,
-    decryptIdentityDocument
+    decryptIdentityDocument,
+    appointCommissioner,
+    delegateRequestAccess,
+    fetchCommissionersList
   } = useContract(provider, signer, address);
 
   const [activeTab, setActiveTab] = useState<'register' | 'elections' | 'voter-status' | 'commission' | 'how-it-works'>('register');
@@ -354,6 +357,9 @@ function App() {
               error={contractError}
               fhevmInstance={fhevmInstance}
               decryptIdentityDocument={decryptIdentityDocument}
+              appointCommissioner={appointCommissioner}
+              delegateRequestAccess={delegateRequestAccess}
+              fetchCommissionersList={fetchCommissionersList}
             />
           )}
         </main>

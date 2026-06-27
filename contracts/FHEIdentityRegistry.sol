@@ -65,6 +65,9 @@ contract FHEIdentityRegistry is
 
     VoterRegistry public immutable voterRegistry;
     address public commission;
+    
+    mapping(address => bool) public isCommissioner;
+    address[] public commissioners;
 
     // ─── Events ───────────────────────────────────────
     event IdentityRequestSubmitted(
@@ -99,7 +102,7 @@ contract FHEIdentityRegistry is
     // ─── Modifiers ────────────────────────────────────
     modifier onlyCommission() {
         require(
-            msg.sender == commission,
+            msg.sender == commission || isCommissioner[msg.sender],
             "Only Election Commission"
         );
         _;
@@ -112,6 +115,8 @@ contract FHEIdentityRegistry is
     ) Ownable(msg.sender) {
         voterRegistry = VoterRegistry(_voterRegistry);
         commission    = _commission;
+        isCommissioner[_commission] = true;
+        commissioners.push(_commission);
     }
 
     // ─────────────────────────────────────────────────
@@ -455,6 +460,42 @@ contract FHEIdentityRegistry is
         external onlyOwner {
         emit CommissionChanged(commission, newCommission);
         commission = newCommission;
+        if (!isCommissioner[newCommission]) {
+            isCommissioner[newCommission] = true;
+            commissioners.push(newCommission);
+        }
+    }
+
+    event CommissionerAppointed(address indexed appointedBy, address indexed newCommissioner);
+
+    // Appoint a new commissioner
+    function appointCommissioner(address newCommissioner)
+        external onlyCommission {
+        require(newCommissioner != address(0), "Invalid address");
+        require(!isCommissioner[newCommissioner], "Already commissioner");
+        isCommissioner[newCommissioner] = true;
+        commissioners.push(newCommissioner);
+        emit CommissionerAppointed(msg.sender, newCommissioner);
+    }
+
+    // Delegate FHE decryption access for a request to a new commissioner
+    function delegateRequestAccess(uint256 requestId, address targetCommissioner)
+        external onlyCommission {
+        require(isCommissioner[targetCommissioner], "Target must be commissioner");
+        
+        euint256[] storage chunks = encryptedDocChunks[requestId];
+        require(chunks.length > 0, "Request not found");
+
+        for (uint8 i = 0; i < chunks.length; i++) {
+            FHE.allow(chunks[i], targetCommissioner);
+        }
+        FHE.allow(encryptedDocType[requestId], targetCommissioner);
+    }
+
+    // Get the list of all active commissioners
+    function getCommissioners()
+        external view returns (address[] memory) {
+        return commissioners;
     }
 
     // ─────────────────────────────────────────────────

@@ -43,6 +43,9 @@ interface CommissionPanelProps {
     docChunkCount: number,
     fhevmInstance: any
   ) => Promise<{ docType: number; documentContent: string } | null>;
+  appointCommissioner: (address: string) => Promise<boolean>;
+  delegateRequestAccess: (requestId: number, target: string) => Promise<boolean>;
+  fetchCommissionersList: () => Promise<string[]>;
 }
 
 export function CommissionPanel({
@@ -57,7 +60,10 @@ export function CommissionPanel({
   loading,
   error,
   fhevmInstance,
-  decryptIdentityDocument
+  decryptIdentityDocument,
+  appointCommissioner,
+  delegateRequestAccess,
+  fetchCommissionersList
 }: CommissionPanelProps) {
   // Identity Requests Queue states
   const [pendingRequests, setPendingRequests] = useState<IdentityRequest[]>([]);
@@ -95,6 +101,58 @@ export function CommissionPanel({
       console.error(err);
     } finally {
       setDecryptingReqId(null);
+    }
+  };
+
+  // Commissioners list & appointment states
+  const [commissioners, setCommissioners] = useState<string[]>([]);
+  const [newCommissionerAddr, setNewCommissionerAddr] = useState<string>('');
+  const [appointing, setAppointing] = useState<boolean>(false);
+  const [delegatingReqId, setDelegatingReqId] = useState<number | null>(null);
+  const [selectedTargetComm, setSelectedTargetComm] = useState<Record<number, string>>({});
+
+  const handleAppointCommissioner = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newCommissionerAddr || !ethers.isAddress(newCommissionerAddr)) {
+      alert('Please enter a valid Ethereum address.');
+      return;
+    }
+    setAppointing(true);
+    try {
+      const success = await appointCommissioner(newCommissionerAddr);
+      if (success) {
+        alert(`Successfully appointed ${newCommissionerAddr} as a Commissioner!`);
+        setNewCommissionerAddr('');
+        const list = await fetchCommissionersList();
+        setCommissioners(list);
+      } else {
+        alert('Failed to appoint commissioner. Check if you have owner permissions.');
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setAppointing(false);
+    }
+  };
+
+  const handleDelegateAccess = async (requestId: number) => {
+    const target = selectedTargetComm[requestId];
+    if (!target) {
+      alert('Please select a target commissioner.');
+      return;
+    }
+    setDelegatingReqId(requestId);
+    try {
+      const success = await delegateRequestAccess(requestId, target);
+      if (success) {
+        alert(`Successfully delegated FHE decryption access to ${target} for Request #${requestId}!`);
+      } else {
+        alert('Failed to delegate FHE access.');
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setDelegatingReqId(null);
     }
   };
 
@@ -139,18 +197,20 @@ export function CommissionPanel({
     if (!isOfficer) return;
     setLoadingReqs(true);
     try {
-      const [pending, all] = await Promise.all([
+      const [pending, all, list] = await Promise.all([
         fetchPendingRequests(),
-        fetchAllRequests()
+        fetchAllRequests(),
+        fetchCommissionersList()
       ]);
       setPendingRequests(pending);
       setAllRequests(all);
+      setCommissioners(list);
     } catch (err) {
       console.error('Failed to load identity requests:', err);
     } finally {
       setLoadingReqs(false);
     }
-  }, [isOfficer, fetchPendingRequests, fetchAllRequests]);
+  }, [isOfficer, fetchPendingRequests, fetchAllRequests, fetchCommissionersList]);
 
   useEffect(() => {
     if (isOfficer) {
@@ -404,29 +464,57 @@ export function CommissionPanel({
                           type="button"
                           onClick={() => handleDecryptDoc(req.requestId, req.docChunkCount)}
                           disabled={decryptingReqId !== null}
-                          className="btn-secondary w-full py-2.5 text-xs font-bold flex items-center justify-center gap-2 border border-violet-500/10 bg-[#070414]/30 hover:border-violet-500/30"
+                          className="btn-secondary w-full py-2.5 text-xs font-bold flex items-center justify-center gap-2 border border-yellow-500/10 bg-[#070414]/30 hover:border-yellow-500/30"
                         >
                           {decryptingReqId === req.requestId ? (
                             <>
-                              <RefreshCw className="h-3.5 w-3.5 animate-spin text-violet-400" />
+                              <RefreshCw className="h-3.5 w-3.5 animate-spin text-yellow-400" />
                               Decrypting via KMS...
                             </>
                           ) : (
                             <>
-                              <Lock className="h-3.5 w-3.5 text-violet-400" />
+                              <Lock className="h-3.5 w-3.5 text-yellow-400" />
                               Decrypt & View Document
                             </>
                           )}
                         </button>
                       )}
                     </div>
+
+                    {/* Delegate FHE Decryption Access Section */}
+                    <div className="flex flex-col gap-1.5 pt-2.5 border-t border-slate-900/60 mt-1">
+                      <span className="text-[9px] uppercase font-bold text-slate-500 tracking-wider">Delegate FHE Decryption Access</span>
+                      <div className="flex gap-2">
+                        <select
+                          value={selectedTargetComm[req.requestId] || ''}
+                          onChange={(e) => setSelectedTargetComm(prev => ({ ...prev, [req.requestId]: e.target.value }))}
+                          className="bg-slate-950 px-2.5 py-2 rounded-xl border border-slate-900 text-xs text-slate-350 font-sans focus:outline-none flex-1"
+                        >
+                          <option value="">Select Commissioner...</option>
+                          {commissioners.map((commAddress, idx) => (
+                            <option key={commAddress + idx} value={commAddress}>
+                              {commAddress.substring(0, 6)}...{commAddress.substring(commAddress.length - 4)}
+                            </option>
+                          ))}
+                        </select>
+                        <button
+                          type="button"
+                          disabled={delegatingReqId === req.requestId || !selectedTargetComm[req.requestId]}
+                          onClick={() => handleDelegateAccess(req.requestId)}
+                          className="px-3.5 py-2 rounded-xl bg-yellow-500/10 border border-yellow-500/20 text-[#FFD208] text-xs font-bold hover:bg-yellow-500/20 disabled:opacity-50 disabled:hover:bg-yellow-500/10 transition duration-150 shrink-0"
+                        >
+                          {delegatingReqId === req.requestId ? 'Sharing...' : 'Share Key'}
+                        </button>
+                      </div>
+                    </div>
+
                   </div>
                 </div>
 
                 <div className="flex gap-2.5 pt-3 border-t border-slate-900/60">
                   <button
                     onClick={() => handleRejectClick(req)}
-                    className="flex-1 py-2 rounded-xl border border-rose-500/20 bg-rose-500/5 hover:bg-rose-500/10 hover:border-rose-500/30 text-rose-450 font-bold text-xs transition duration-155"
+                    className="flex-1 py-2 rounded-xl border border-rose-500/20 bg-rose-500/5 hover:bg-rose-500/10 hover:border-rose-500/30 text-rose-455 font-bold text-xs transition duration-155"
                   >
                     Reject
                   </button>
@@ -523,6 +611,90 @@ export function CommissionPanel({
                 )}
               </div>
             )}
+          </div>
+        </div>
+      </div>
+
+      {/* SECTION 0.5: Commission Officers & Appointment */}
+      <div className="glass-panel p-6 space-y-5 border-yellow-500/10">
+        <div className="flex items-center justify-between border-b border-slate-900 pb-3">
+          <h3 className="text-md font-bold text-slate-100 flex items-center gap-2">
+            <Users className="h-4.5 w-4.5 text-[#FFD208]" />
+            Commission Officers & Appointment
+          </h3>
+        </div>
+
+        <div className="grid gap-6 md:grid-cols-2">
+          {/* Appointment Form */}
+          <form onSubmit={handleAppointCommissioner} className="space-y-4">
+            <div>
+              <h4 className="text-sm font-bold text-slate-200">Appoint New Commissioner</h4>
+              <p className="text-xs text-slate-400 mt-1 leading-relaxed">
+                Enter the wallet address of the officer you want to appoint. Appointed commissioners will gain access to the Commission Panel and the ability to review and verify voters.
+              </p>
+            </div>
+            
+            <div className="space-y-3">
+              <div>
+                <label className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Wallet Address</label>
+                <input
+                  type="text"
+                  placeholder="0x..."
+                  value={newCommissionerAddr}
+                  onChange={(e) => setNewCommissionerAddr(e.target.value)}
+                  className="input-field mt-1"
+                />
+              </div>
+              
+              <button
+                type="submit"
+                disabled={appointing || !newCommissionerAddr}
+                className="btn-primary w-full py-3 text-sm flex items-center justify-center gap-2"
+              >
+                {appointing ? (
+                  <>
+                    <RefreshCw className="h-4 w-4 animate-spin" />
+                    Appointing...
+                  </>
+                ) : (
+                  <>
+                    <UserPlus className="h-4 w-4" />
+                    Appoint Commissioner
+                  </>
+                )}
+              </button>
+            </div>
+          </form>
+
+          {/* Active Commissioners List */}
+          <div className="space-y-4">
+            <div>
+              <h4 className="text-sm font-bold text-slate-200">Active Commissioners</h4>
+              <p className="text-xs text-slate-400 mt-1 leading-relaxed">
+                Below is the list of wallets currently authorized to perform Election Commission operations.
+              </p>
+            </div>
+
+            <div className="space-y-2 max-h-[220px] overflow-y-auto pr-1">
+              {commissioners.map((commAddress, idx) => (
+                <div key={commAddress + idx} className="flex items-center justify-between gap-3 bg-slate-950 px-3 py-2.5 rounded-xl border border-slate-900 font-mono text-[11px] text-slate-350">
+                  <div className="flex items-center gap-2 truncate">
+                    <span className="h-2 w-2 rounded-full bg-emerald-400 shrink-0"></span>
+                    <span className="truncate">{commAddress}</span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      navigator.clipboard.writeText(commAddress);
+                      alert('Copied commissioner address!');
+                    }}
+                    className="text-[10px] text-[#FFD208] hover:text-yellow-300 font-bold transition shrink-0"
+                  >
+                    Copy
+                  </button>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </div>

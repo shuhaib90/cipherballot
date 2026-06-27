@@ -320,18 +320,23 @@ export function useContract(_provider: BrowserProvider | null, signer: JsonRpcSi
     }
   }, [getElectionContract]);
 
-  // Check if current user is factory owner (commission officer)
+  // Check if current user is factory owner or appointed commissioner
   const isUserCommissionOfficer = useCallback(async () => {
     if (!userAddress) return false;
     try {
-      const contract = getFactoryContractRead();
-      const owner = await contract.owner();
-      return owner.toLowerCase() === userAddress.toLowerCase();
+      const factory = getFactoryContractRead();
+      const owner = await factory.owner();
+      if (owner.toLowerCase() === userAddress.toLowerCase()) {
+        return true;
+      }
+      const registry = getIdentityRegistryContractRead();
+      const isComm = await registry.isCommissioner(userAddress);
+      return isComm;
     } catch (err) {
-      console.error('Failed to check factory owner:', err);
+      console.error('Failed to check factory owner or commissioner status:', err);
       return false;
     }
-  }, [getFactoryContractRead, userAddress]);
+  }, [getFactoryContractRead, getIdentityRegistryContractRead, userAddress]);
 
   // 5. FHE Identity Registry Operations
   const fetchCitizenStatus = useCallback(async (address: string): Promise<CitizenStatus> => {
@@ -605,6 +610,56 @@ export function useContract(_provider: BrowserProvider | null, signer: JsonRpcSi
     }
   }, [signer, userAddress, getIdentityRegistryContractRead]);
 
+  // Appoint a new commissioner
+  const appointCommissioner = useCallback(async (newCommissionerAddress: string): Promise<boolean> => {
+    setLoading(true);
+    setError('');
+    try {
+      const contract = getIdentityRegistryContract();
+      if (!contract) throw new Error('Wallet not connected');
+      const tx = await contract.appointCommissioner(newCommissionerAddress);
+      await tx.wait();
+      return true;
+    } catch (err: any) {
+      console.error('Failed to appoint commissioner:', err);
+      setError(err.reason || err.message || 'Failed to appoint commissioner.');
+      return false;
+    } finally {
+      setLoading(false);
+    }
+  }, [getIdentityRegistryContract]);
+
+  // Delegate FHE request decryption access
+  const delegateRequestAccess = useCallback(async (requestId: number, targetCommissioner: string): Promise<boolean> => {
+    setLoading(true);
+    setError('');
+    try {
+      const contract = getIdentityRegistryContract();
+      if (!contract) throw new Error('Wallet not connected');
+      const tx = await contract.delegateRequestAccess(requestId, targetCommissioner);
+      await tx.wait();
+      return true;
+    } catch (err: any) {
+      console.error('Failed to delegate request access:', err);
+      setError(err.reason || err.message || 'Failed to delegate request access.');
+      return false;
+    } finally {
+      setLoading(false);
+    }
+  }, [getIdentityRegistryContract]);
+
+  // Fetch all active commissioners
+  const fetchCommissionersList = useCallback(async (): Promise<string[]> => {
+    try {
+      const contract = getIdentityRegistryContractRead();
+      const list = await contract.getCommissioners();
+      return list;
+    } catch (err) {
+      console.error('Failed to fetch commissioners list:', err);
+      return [];
+    }
+  }, [getIdentityRegistryContractRead]);
+
   return {
     loading,
     error,
@@ -625,6 +680,9 @@ export function useContract(_provider: BrowserProvider | null, signer: JsonRpcSi
     fetchAllRequests,
     approveIdentityRequest,
     rejectIdentityRequest,
-    decryptIdentityDocument
+    decryptIdentityDocument,
+    appointCommissioner,
+    delegateRequestAccess,
+    fetchCommissionersList
   };
 }
