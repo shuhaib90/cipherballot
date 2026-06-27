@@ -41,7 +41,7 @@ export interface ElectionDetails {
 
 // Dedicated read-only provider using proxied Alchemy RPC
 // (proxied through Vite dev server to comply with COEP headers required by FHE WASM)
-const SEPOLIA_RPC_URL = 'http://localhost:5173/api/rpc';
+const SEPOLIA_RPC_URL = typeof window !== 'undefined' ? window.location.origin + '/api/rpc' : 'http://localhost:5173/api/rpc';
 const readProvider = new JsonRpcProvider(SEPOLIA_RPC_URL);
 
 export function useContract(_provider: BrowserProvider | null, signer: JsonRpcSigner | null, userAddress: string) {

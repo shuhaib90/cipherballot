@@ -4,6 +4,7 @@ import { ethers } from 'ethers';
 import type { CitizenStatus, DocumentType, IdentityFormData } from '../utils/types';
 import { DOCUMENT_TYPE_LABELS } from '../utils/types';
 import { FHE_IDENTITY_REGISTRY_ADDRESS } from '../utils/contract';
+import FHEIdentityRegistryABI from '../abis/FHEIdentityRegistry.json';
 
 interface IdentityVerificationProps {
   citizenStatus: CitizenStatus;
@@ -87,10 +88,11 @@ export function IdentityVerification({
       // Wait, is there a way to get the chunk count of the request?
       // Yes, we can query getRequest(requestId) from the contract first!
       console.log('Fetching request details to get chunk count...');
+      const rpcUrl = typeof window !== 'undefined' ? window.location.origin + '/api/rpc' : 'http://localhost:5173/api/rpc';
       const contract = new ethers.Contract(
         FHE_IDENTITY_REGISTRY_ADDRESS,
-        require('../abis/FHEIdentityRegistry.json').abi,
-        new ethers.JsonRpcProvider('http://localhost:5173/api/rpc')
+        FHEIdentityRegistryABI.abi,
+        new ethers.JsonRpcProvider(rpcUrl)
       );
       const req = await contract.getRequest(requestId);
       const docChunkCount = Number(req.docChunkCount);
