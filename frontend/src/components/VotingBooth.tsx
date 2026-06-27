@@ -62,7 +62,7 @@ export function VotingBooth({
   return (
     <div className="glass-panel p-6 relative overflow-hidden">
       {/* Glow Effect */}
-      <div className="absolute top-0 right-0 h-48 w-48 rounded-full bg-indigo-500/5 blur-3xl"></div>
+      <div className="absolute top-0 right-0 h-48 w-48 rounded-full bg-yellow-500/5 blur-3xl"></div>
 
       <div className="flex flex-col md:flex-row gap-8">
         {/* Candidates List */}
@@ -101,41 +101,50 @@ export function VotingBooth({
           )}
 
           <div className="space-y-3">
-            {candidates.map((candidate, idx) => (
-              <label
-                key={idx}
-                className={`flex items-center justify-between p-4 rounded-xl border transition-all duration-200 cursor-pointer ${
-                  isVoted || status !== 'Voting' || !isRegistered
-                    ? 'opacity-65 cursor-not-allowed border-slate-800/80 bg-slate-900/20'
-                    : selectedCandidate === idx
-                    ? 'border-indigo-500/80 bg-indigo-500/10 ring-2 ring-indigo-500/20'
-                    : 'border-slate-800 hover:border-slate-700 bg-slate-950/20'
-                }`}
-              >
-                <div className="flex items-center gap-3">
-                  <input
-                    type="radio"
-                    name="candidate-selection"
-                    checked={selectedCandidate === idx}
-                    onChange={() => setSelectedCandidate(idx)}
-                    disabled={isVoted || status !== 'Voting' || !isRegistered}
-                    className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-slate-700 bg-slate-900"
-                  />
-                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-slate-900 text-lg border border-slate-850">
-                    {candidate.symbol}
+            {candidates.map((candidate, idx) => {
+              const isImageUrl = candidate.symbol.startsWith('http://') || candidate.symbol.startsWith('https://') || candidate.symbol.startsWith('/') || candidate.symbol.startsWith('data:image/');
+              return (
+                <label
+                  key={idx}
+                  className={`flex items-center justify-between p-4 rounded-xl border transition-all duration-200 cursor-pointer ${
+                    isVoted || status !== 'Voting' || !isRegistered
+                      ? 'opacity-65 cursor-not-allowed border-slate-800/80 bg-slate-900/20'
+                      : selectedCandidate === idx
+                      ? 'border-[#FFD208]/80 bg-[#FFD208]/10 ring-2 ring-[#FFD208]/20'
+                      : 'border-slate-800 hover:border-slate-700 bg-slate-950/20'
+                  }`}
+                >
+                  <div className="flex items-center gap-3">
+                    <input
+                      type="radio"
+                      name="candidate-selection"
+                      checked={selectedCandidate === idx}
+                      onChange={() => setSelectedCandidate(idx)}
+                      disabled={isVoted || status !== 'Voting' || !isRegistered}
+                      className="h-4 w-4 text-yellow-600 focus:ring-yellow-500 border-slate-700 bg-slate-900"
+                    />
+                    {isImageUrl ? (
+                      <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-slate-900 border border-slate-850 overflow-hidden shrink-0">
+                        <img src={candidate.symbol} alt={candidate.name} className="h-full w-full object-cover" />
+                      </div>
+                    ) : (
+                      <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-slate-900 text-lg border border-slate-850 shrink-0">
+                        {candidate.symbol}
+                      </div>
+                    )}
+                    <div>
+                      <h4 className="text-sm font-bold text-slate-200">{candidate.name}</h4>
+                      <p className="text-[11px] text-slate-400 mt-0.5">{candidate.party}</p>
+                    </div>
                   </div>
-                  <div>
-                    <h4 className="text-sm font-bold text-slate-200">{candidate.name}</h4>
-                    <p className="text-[11px] text-slate-400 mt-0.5">{candidate.party}</p>
-                  </div>
-                </div>
-                {selectedCandidate === idx && (
-                  <span className="text-[10px] font-bold text-indigo-400 uppercase bg-indigo-500/10 border border-indigo-500/20 px-2 py-0.5 rounded">
-                    Selected
-                  </span>
-                )}
-              </label>
-            ))}
+                  {selectedCandidate === idx && (
+                    <span className="text-[10px] font-bold text-[#FFD208] uppercase bg-yellow-500/10 border border-yellow-500/20 px-2 py-0.5 rounded">
+                      Selected
+                    </span>
+                  )}
+                </label>
+              );
+            })}
           </div>
         </div>
 
@@ -146,7 +155,7 @@ export function VotingBooth({
             
             <div className="space-y-3">
               <div className="flex gap-2.5 items-start text-xs">
-                <Shield className="h-4 w-4 text-indigo-400 mt-0.5 shrink-0" />
+                <Shield className="h-4 w-4 text-[#FFD208] mt-0.5 shrink-0" />
                 <div>
                   <span className="font-bold text-slate-200">Zero-Knowledge Shielding</span>
                   <p className="text-slate-400 text-[10px] mt-0.5">
@@ -156,7 +165,7 @@ export function VotingBooth({
               </div>
 
               <div className="flex gap-2.5 items-start text-xs">
-                <Key className="h-4 w-4 text-indigo-400 mt-0.5 shrink-0" />
+                <Key className="h-4 w-4 text-[#FFD208] mt-0.5 shrink-0" />
                 <div>
                   <span className="font-bold text-slate-200">Public Decryption Key</span>
                   <p className="text-slate-400 text-[10px] mt-0.5">

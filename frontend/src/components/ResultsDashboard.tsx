@@ -171,7 +171,15 @@ export function ResultsDashboard({
                   )}
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center gap-3">
-                      <span className="text-xl">{candidate.symbol}</span>
+                      {(candidate.symbol.startsWith('http://') || candidate.symbol.startsWith('https://') || candidate.symbol.startsWith('/') || candidate.symbol.startsWith('data:image/')) ? (
+                        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-slate-900 border border-slate-850 overflow-hidden shrink-0">
+                          <img src={candidate.symbol} alt={candidate.name} className="h-full w-full object-cover" />
+                        </div>
+                      ) : (
+                        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-slate-900 text-lg border border-slate-850 shrink-0">
+                          {candidate.symbol}
+                        </div>
+                      )}
                       <div>
                         <h4 className="text-sm font-bold text-slate-200 flex items-center gap-2">
                           {candidate.name}
@@ -193,7 +201,7 @@ export function ResultsDashboard({
                   <div className="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
                     <div
                       className={`h-full rounded-full transition-all duration-500 ${
-                        isWinner ? 'bg-indigo-500' : 'bg-slate-600'
+                        isWinner ? 'bg-yellow-500' : 'bg-slate-600'
                       }`}
                       style={{ width: `${percentage}%` }}
                     ></div>
@@ -211,13 +219,21 @@ export function ResultsDashboard({
                 className="flex items-center justify-between p-4 rounded-xl border border-slate-800/80 bg-slate-950/10"
               >
                 <div className="flex items-center gap-3">
-                  <span className="text-xl">{candidate.symbol}</span>
+                  {(candidate.symbol.startsWith('http://') || candidate.symbol.startsWith('https://') || candidate.symbol.startsWith('/') || candidate.symbol.startsWith('data:image/')) ? (
+                    <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-slate-900 border border-slate-850 overflow-hidden shrink-0">
+                      <img src={candidate.symbol} alt={candidate.name} className="h-full w-full object-cover" />
+                    </div>
+                  ) : (
+                    <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-slate-900 text-lg border border-slate-850 shrink-0">
+                      {candidate.symbol}
+                    </div>
+                  )}
                   <div>
                     <h4 className="text-sm font-bold text-slate-200">{candidate.name}</h4>
                     <p className="text-[11px] text-slate-400">{candidate.party}</p>
                   </div>
                 </div>
-                <div className="flex items-center gap-2 text-xs text-indigo-400 font-semibold bg-indigo-500/5 border border-indigo-500/10 px-3 py-1.5 rounded-lg">
+                <div className="flex items-center gap-2 text-xs text-yellow-400 font-semibold bg-yellow-500/5 border border-yellow-500/10 px-3 py-1.5 rounded-lg">
                   <Lock className="h-3.5 w-3.5" />
                   <span>Confidential Tally</span>
                 </div>

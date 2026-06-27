@@ -188,8 +188,8 @@ export function CommissionPanel({
 
   // Candidates list state
   const [candidates, setCandidates] = useState<Array<{ name: string; party: string; symbol: string }>>([
-    { name: 'Priya Nair', party: 'Development Party', symbol: '🌱' },
-    { name: 'Rajan Menon', party: 'Progress Alliance', symbol: '⚡' }
+    { name: 'Priya Nair', party: 'Development Party', symbol: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=120&q=80' },
+    { name: 'Rajan Menon', party: 'Progress Alliance', symbol: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=120&q=80' }
   ]);
 
   // Load and sync identity requests
@@ -347,8 +347,8 @@ export function CommissionPanel({
       setElecName('');
       setElecDesc('');
       setCandidates([
-        { name: 'Priya Nair', party: 'Development Party', symbol: '🌱' },
-        { name: 'Rajan Menon', party: 'Progress Alliance', symbol: '⚡' }
+        { name: 'Priya Nair', party: 'Development Party', symbol: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=120&q=80' },
+        { name: 'Rajan Menon', party: 'Progress Alliance', symbol: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=120&q=80' }
       ]);
       alert('Election created successfully on-chain!');
     }
@@ -872,7 +872,7 @@ export function CommissionPanel({
                   type="button"
                   onClick={handleAddCandidate}
                   disabled={candidates.length >= 10}
-                  className="flex items-center gap-1 text-[10px] text-indigo-400 hover:text-indigo-300 font-bold uppercase transition"
+                  className="flex items-center gap-1 text-[10px] text-yellow-400 hover:text-yellow-300 font-bold uppercase transition"
                 >
                   <Plus className="h-3 w-3" /> Add Candidate
                 </button>
@@ -886,8 +886,8 @@ export function CommissionPanel({
                       required
                       value={cand.symbol}
                       onChange={(e) => handleCandidateChange(idx, 'symbol', e.target.value)}
-                      placeholder="Symbol"
-                      className="w-12 px-2 py-2 bg-slate-950 border border-slate-800 rounded-xl text-center text-sm focus:outline-none focus:border-indigo-500 shrink-0 text-slate-100"
+                      placeholder="Emoji / URL"
+                      className="w-24 px-2.5 py-2 bg-slate-950 border border-slate-800 rounded-xl text-center text-xs focus:outline-none focus:border-yellow-500 shrink-0 text-slate-100"
                     />
                     <input
                       type="text"
@@ -895,7 +895,7 @@ export function CommissionPanel({
                       placeholder="Candidate Name"
                       value={cand.name}
                       onChange={(e) => handleCandidateChange(idx, 'name', e.target.value)}
-                      className="flex-1 px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-xs focus:outline-none focus:border-indigo-500 text-slate-100"
+                      className="flex-1 px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-xs focus:outline-none focus:border-yellow-500 text-slate-100"
                     />
                     <input
                       type="text"
@@ -903,7 +903,7 @@ export function CommissionPanel({
                       placeholder="Party Name"
                       value={cand.party}
                       onChange={(e) => handleCandidateChange(idx, 'party', e.target.value)}
-                      className="flex-1 px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-xs focus:outline-none focus:border-indigo-500 text-slate-100"
+                      className="flex-1 px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-xs focus:outline-none focus:border-yellow-500 text-slate-100"
                     />
                     <button
                       type="button"
