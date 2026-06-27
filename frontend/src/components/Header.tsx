@@ -10,8 +10,8 @@ interface HeaderProps {
   connectWallet: () => void;
   disconnectWallet: () => void;
   reinitFhe: () => void;
-  activeTab: 'register' | 'elections' | 'voter-status' | 'commission' | 'how-it-works';
-  setActiveTab: (tab: 'register' | 'elections' | 'voter-status' | 'commission' | 'how-it-works') => void;
+  activeTab: 'landing' | 'register' | 'elections' | 'voter-status' | 'commission' | 'how-it-works';
+  setActiveTab: (tab: 'landing' | 'register' | 'elections' | 'voter-status' | 'commission' | 'how-it-works') => void;
 }
 
 export function Header({
@@ -46,7 +46,7 @@ export function Header({
     <header className="sticky top-0 z-50 w-full border-b border-yellow-500/10 bg-[#080808]/80 backdrop-blur-md">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
         {/* Logo and Tagline */}
-        <div className="flex items-center gap-2.5 shrink-0 cursor-pointer" onClick={() => setActiveTab('how-it-works')}>
+        <div className="flex items-center gap-2.5 shrink-0 cursor-pointer" onClick={() => setActiveTab('landing')}>
           <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-tr from-[#FFD208] to-[#FF9F00] shadow-md shadow-yellow-600/20">
             <Vote className="h-5 w-5 text-black" />
           </div>

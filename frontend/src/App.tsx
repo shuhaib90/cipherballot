@@ -60,7 +60,7 @@ function App() {
     fetchCommissionersList
   } = useContract(provider, signer, address);
 
-  const [activeTab, setActiveTab] = useState<'register' | 'elections' | 'voter-status' | 'commission' | 'how-it-works'>('register');
+  const [activeTab, setActiveTab] = useState<'landing' | 'register' | 'elections' | 'voter-status' | 'commission' | 'how-it-works'>('landing');
   const [elections, setElections] = useState<string[]>([]);
   const [selectedElectionAddr, setSelectedElectionAddr] = useState<string>('');
   const [selectedElection, setSelectedElection] = useState<ElectionDetails | null>(null);
@@ -156,7 +156,7 @@ function App() {
       setSelectedElection(null);
       setIsRegistered(false);
       setIsOfficer(false);
-      setActiveTab('register');
+      setActiveTab('landing');
     }
   }, [isConnected]);
 
@@ -249,7 +249,7 @@ function App() {
         setActiveTab={setActiveTab}
       />
 
-      {isConnected ? (
+      {isConnected && activeTab !== 'landing' ? (
         <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
           {activeTab === 'register' && (
             <IdentityVerification
@@ -402,16 +402,24 @@ function App() {
 
               <div className="flex flex-wrap items-center gap-4 pt-2">
                 <button
-                  onClick={connect}
+                  onClick={() => {
+                    if (isConnected) {
+                      setActiveTab('register');
+                    } else {
+                      connect();
+                      setActiveTab('register');
+                    }
+                  }}
                   className="btn-primary"
                 >
                   Get Started <ArrowRight className="h-4.5 w-4.5" />
                 </button>
                 <button
                   onClick={() => {
-                    // Temporarily set connected state to simulate showing how it works even before connect
                     setActiveTab('how-it-works');
-                    connect(); // Trigger connect too
+                    if (!isConnected) {
+                      connect();
+                    }
                   }}
                   className="btn-secondary"
                 >
