@@ -207,7 +207,7 @@ function App() {
       <div className="absolute bottom-10 right-1/4 w-[400px] h-[400px] bg-amber-600/2 rounded-full filter blur-[100px] pointer-events-none" />
 
       {/* Cryptographic WebAssembly Initializing Overlay Screen */}
-      {isConnected && isFheInitializing && (
+      {isConnected && isFheInitializing && !fhevmInstance && (
         <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-[#03000a]/90 backdrop-blur-md px-4">
           <div className="relative flex items-center justify-center mb-6">
             {/* Spinning decorative ring */}
