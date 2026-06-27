@@ -13,7 +13,8 @@ import {
   ChevronUp,
   AlertTriangle,
   Lock,
-  X
+  X,
+  Upload
 } from 'lucide-react';
 import { ethers } from 'ethers';
 import type { IdentityRequest } from '../utils/types';
@@ -287,6 +288,53 @@ export function CommissionPanel({
     const updated = [...candidates];
     updated[index][field] = value;
     setCandidates(updated);
+  };
+
+  const handleImageUpload = (index: number, file: File) => {
+    if (!file) return;
+    if (file.size > 10 * 1024 * 1024) {
+      alert('Image file is too large. Please select an image under 10MB.');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        const MAX_WIDTH = 96;
+        const MAX_HEIGHT = 96;
+        let width = img.width;
+        let height = img.height;
+
+        let sx = 0;
+        let sy = 0;
+        let sWidth = img.width;
+        let sHeight = img.height;
+
+        if (width > height) {
+          sx = (width - height) / 2;
+          sWidth = height;
+          sHeight = height;
+        } else {
+          sy = (height - width) / 2;
+          sWidth = width;
+          sHeight = width;
+        }
+
+        canvas.width = MAX_WIDTH;
+        canvas.height = MAX_HEIGHT;
+
+        const ctx = canvas.getContext('2d');
+        if (ctx) {
+          ctx.drawImage(img, sx, sy, sWidth, sHeight, 0, 0, MAX_WIDTH, MAX_HEIGHT);
+          const base64Data = canvas.toDataURL('image/jpeg', 0.7);
+          handleCandidateChange(index, 'symbol', base64Data);
+        }
+      };
+      img.src = event.target?.result as string;
+    };
+    reader.readAsDataURL(file);
   };
 
   const handleSingleRegister = async (e: React.FormEvent) => {
@@ -879,42 +927,71 @@ export function CommissionPanel({
               </div>
 
               <div className="space-y-3 max-h-56 overflow-y-auto pr-1">
-                {candidates.map((cand, idx) => (
-                  <div key={idx} className="flex gap-2 items-center">
-                    <input
-                      type="text"
-                      required
-                      value={cand.symbol}
-                      onChange={(e) => handleCandidateChange(idx, 'symbol', e.target.value)}
-                      placeholder="Emoji / URL"
-                      className="w-24 px-2.5 py-2 bg-slate-950 border border-slate-800 rounded-xl text-center text-xs focus:outline-none focus:border-yellow-500 shrink-0 text-slate-100"
-                    />
-                    <input
-                      type="text"
-                      required
-                      placeholder="Candidate Name"
-                      value={cand.name}
-                      onChange={(e) => handleCandidateChange(idx, 'name', e.target.value)}
-                      className="flex-1 px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-xs focus:outline-none focus:border-yellow-500 text-slate-100"
-                    />
-                    <input
-                      type="text"
-                      required
-                      placeholder="Party Name"
-                      value={cand.party}
-                      onChange={(e) => handleCandidateChange(idx, 'party', e.target.value)}
-                      className="flex-1 px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-xs focus:outline-none focus:border-yellow-500 text-slate-100"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => handleRemoveCandidate(idx)}
-                      disabled={candidates.length <= 2}
-                      className="p-2 bg-slate-900 border border-slate-850 rounded-xl text-rose-500 hover:bg-rose-500/10 hover:border-rose-500/20 disabled:opacity-30 disabled:cursor-not-allowed shrink-0 transition"
-                    >
-                      <Trash2 className="h-3.5 w-3.5" />
-                    </button>
-                  </div>
-                ))}
+                {candidates.map((cand, idx) => {
+                  const isImageUrl = cand.symbol.startsWith('http://') || cand.symbol.startsWith('https://') || cand.symbol.startsWith('/') || cand.symbol.startsWith('data:image/');
+                  return (
+                    <div key={idx} className="flex gap-2 items-center bg-[#070414]/30 border border-slate-900 p-2 rounded-xl">
+                      {/* Avatar preview */}
+                      <div className="h-9 w-9 rounded-lg bg-slate-900 border border-slate-850 flex items-center justify-center shrink-0 overflow-hidden text-sm text-slate-300">
+                        {isImageUrl ? (
+                          <img src={cand.symbol} alt="Preview" className="h-full w-full object-cover" />
+                        ) : (
+                          <span>{cand.symbol}</span>
+                        )}
+                      </div>
+
+                      {/* Text Input */}
+                      <input
+                        type="text"
+                        required
+                        value={cand.symbol}
+                        onChange={(e) => handleCandidateChange(idx, 'symbol', e.target.value)}
+                        placeholder="Emoji / Image URL"
+                        className="w-28 px-2.5 py-2 bg-slate-950 border border-slate-850 rounded-xl text-center text-xs focus:outline-none focus:border-yellow-500 shrink-0 text-slate-100 font-sans"
+                      />
+
+                      {/* Upload Button */}
+                      <label className="p-2 bg-slate-900 border border-slate-850 hover:bg-slate-850 rounded-xl cursor-pointer text-slate-400 hover:text-slate-255 transition shrink-0">
+                        <Upload className="h-3.5 w-3.5" />
+                        <input
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          onChange={(e) => {
+                            if (e.target.files && e.target.files[0]) {
+                              handleImageUpload(idx, e.target.files[0]);
+                            }
+                          }}
+                        />
+                      </label>
+
+                      <input
+                        type="text"
+                        required
+                        placeholder="Candidate Name"
+                        value={cand.name}
+                        onChange={(e) => handleCandidateChange(idx, 'name', e.target.value)}
+                        className="flex-1 min-w-[90px] px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-xs focus:outline-none focus:border-yellow-500 text-slate-100"
+                      />
+                      <input
+                        type="text"
+                        required
+                        placeholder="Party Name"
+                        value={cand.party}
+                        onChange={(e) => handleCandidateChange(idx, 'party', e.target.value)}
+                        className="flex-1 min-w-[90px] px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-xs focus:outline-none focus:border-yellow-500 text-slate-100"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveCandidate(idx)}
+                        disabled={candidates.length <= 2}
+                        className="p-2 bg-slate-900 border border-slate-850 rounded-xl text-rose-500 hover:bg-rose-500/10 hover:border-rose-500/20 disabled:opacity-30 disabled:cursor-not-allowed shrink-0 transition"
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </button>
+                    </div>
+                  );
+                })}
               </div>
             </div>
 

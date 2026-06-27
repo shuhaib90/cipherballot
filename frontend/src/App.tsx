@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { ethers } from 'ethers';
 import { Header } from './components/Header';
 import { VoterStatus } from './components/VoterStatus';
 import { VotingBooth } from './components/VotingBooth';
@@ -6,6 +7,7 @@ import { ResultsDashboard } from './components/ResultsDashboard';
 import { CommissionPanel } from './components/CommissionPanel';
 import { IdentityVerification } from './components/IdentityVerification';
 import { HowItWorks } from './components/HowItWorks';
+import { ElectionShareCard } from './components/ElectionShareCard';
 import { useWallet } from './hooks/useWallet';
 import { useFhevm } from './hooks/useFhevm';
 import { useContract, type ElectionDetails } from './hooks/useContract';
@@ -88,7 +90,13 @@ function App() {
     if (!isConnected) return;
     const list = await getElectionsList();
     setElections(list);
-    if (list.length > 0 && !selectedElectionAddr) {
+    
+    const params = new URLSearchParams(window.location.search);
+    const urlElec = params.get('election');
+    if (urlElec && ethers.isAddress(urlElec) && list.some(addr => addr.toLowerCase() === urlElec.toLowerCase())) {
+      setSelectedElectionAddr(urlElec);
+      setActiveTab('elections');
+    } else if (list.length > 0 && !selectedElectionAddr) {
       setSelectedElectionAddr(list[list.length - 1]); // select newest
     }
   }, [isConnected, getElectionsList, selectedElectionAddr]);
@@ -266,7 +274,7 @@ function App() {
                 <div className="w-full lg:w-80 shrink-0 space-y-4">
                   <div className="glass-panel p-5 space-y-4">
                     <span className="text-[10px] font-black text-yellow-400 uppercase tracking-widest block">Available Elections</span>
-                    <div className="flex flex-col gap-2.5 max-h-[500px] overflow-y-auto pr-1">
+                    <div className="flex flex-col gap-2.5 max-h-[400px] overflow-y-auto pr-1">
                       {elections.map((addr) => (
                         <button
                           key={addr}
@@ -288,6 +296,13 @@ function App() {
                       ))}
                     </div>
                   </div>
+
+                  {selectedElection && (
+                    <ElectionShareCard
+                      election={selectedElection}
+                      electionAddress={selectedElectionAddr}
+                    />
+                  )}
                 </div>
               )}
 
