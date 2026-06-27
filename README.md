@@ -581,19 +581,7 @@ You can do math on encrypted data without decrypting it.
 
 No decryption needed.
 
----
 
-## 🏆 Zama fhEVM dApp Builder Contest
-
-**Submission Status:** Ready for Judging
-
-* **Project Name:** CipherBallot — Confidential Election System
-* **Network:** Ethereum Sepolia Testnet
-* **Live Demo:** [https://cipherballot-six.vercel.app/](https://cipherballot-six.vercel.app/)
-* **Repository:** [https://github.com/shuhaib90/cipherballot](https://github.com/shuhaib90/cipherballot)
-* **Contest Deadline:** July 7, 2026
-
----
 
 **Made with 🔐 by the CipherBallot team**
 
