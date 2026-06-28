@@ -54,7 +54,52 @@ const REAL_PROJECT_CODE_LINES = [
   "// End of FHE Cryptographic Ballot Protocol"
 ];
 
+const CODE_TOKENS = [
+  { text: "// 1. Retrieve encrypted choice from user\n", className: "text-slate-550" },
+  { text: "euint8", className: "text-[#FFD208]" },
+  { text: " choice = FHE.fromExternal(encryptedChoice, proof);\n\n", className: "text-slate-300" },
+  { text: "// 2. Homomorphically tally votes\n", className: "text-slate-550" },
+  { text: "for", className: "text-[#c084fc]" },
+  { text: " (", className: "text-slate-300" },
+  { text: "uint8", className: "text-[#c084fc]" },
+  { text: " i = 0; i < candidateCount; i++) {\n", className: "text-slate-300" },
+  { text: "  // Is this candidate chosen? (ebool)\n", className: "text-slate-550" },
+  { text: "  ebool", className: "text-[#FFD208]" },
+  { text: " isChosen = FHE.eq(choice, FHE.asEuint8(i));\n", className: "text-slate-300" },
+  { text: "  // Select 1 if true, 0 if false\n", className: "text-slate-550" },
+  { text: "  euint32", className: "text-[#FFD208]" },
+  { text: " inc = FHE.select(isChosen, FHE.asEuint32(1), FHE.asEuint32(0));\n", className: "text-slate-300" },
+  { text: "  // Add to running tally (still encrypted)\n", className: "text-slate-550" },
+  { text: "  encryptedTallies[i] = FHE.add(encryptedTallies[i], inc);\n", className: "text-slate-300" },
+  { text: "}", className: "text-slate-300" }
+];
+
+
 function App() {
+  const [typedCharCount, setTypedCharCount] = useState<number>(0);
+
+  useEffect(() => {
+    const totalLength = CODE_TOKENS.reduce((sum, t) => sum + t.text.length, 0);
+    let currentCount = 0;
+    
+    const runTyping = () => {
+      const interval = setInterval(() => {
+        currentCount++;
+        setTypedCharCount(currentCount);
+        if (currentCount >= totalLength) {
+          clearInterval(interval);
+          setTimeout(() => {
+            currentCount = 0;
+            setTypedCharCount(0);
+            runTyping();
+          }, 4000); // 4 seconds delay before restarting typing loop
+        }
+      }, 30); // 30ms typing speed
+    };
+    
+    runTyping();
+  }, []);
+
   const {
     address,
     isConnected,
@@ -621,9 +666,7 @@ function App() {
             </div>
 
             {/* Simulated Code Block Panel */}
-            <div className="bg-[#030305] border border-slate-950 rounded-xl p-6 font-mono text-left text-xs leading-relaxed shadow-2xl overflow-x-auto relative">
-              {/* Laser Scanline */}
-              <div className="absolute left-0 right-0 h-[2px] bg-[#FFD208] shadow-[0_0_10px_#FFD208] opacity-80 animate-code-scan pointer-events-none" />
+            <div className="bg-[#030305] border border-slate-950 rounded-xl p-6 font-mono text-left text-xs leading-relaxed shadow-2xl overflow-x-auto relative h-[360px]">
               
               <div className="flex items-center gap-1.5 mb-4 border-b border-slate-955 pb-3">
                 <div className="h-2.5 w-2.5 rounded-full bg-rose-500" />
@@ -631,19 +674,21 @@ function App() {
                 <div className="h-2.5 w-2.5 rounded-full bg-emerald-500" />
                 <span className="text-[10px] text-slate-500 ml-2">Election.sol</span>
               </div>
-              <pre className="text-slate-300 space-y-1 text-[11px] relative z-10">
-                <div><span className="text-slate-500">// 1. Retrieve encrypted choice from user</span></div>
-                <div><span className="text-[#FFD208]">euint8</span> choice = FHE.fromExternal(encryptedChoice, proof);</div>
-                <br />
-                <div><span className="text-slate-500">// 2. Homomorphically tally votes</span></div>
-                <div><span className="text-[#c084fc]">for</span> (<span className="text-[#c084fc]">uint8</span> i = 0; i &lt; candidateCount; i++) &#123;</div>
-                <div>  <span className="text-slate-500">  // Is this candidate chosen? (ebool)</span></div>
-                <div>  <span className="text-[#FFD208]">ebool</span> isChosen = FHE.eq(choice, FHE.asEuint8(i));</div>
-                <div>  <span className="text-slate-500">  // Select 1 if true, 0 if false</span></div>
-                <div>  <span className="text-[#FFD208]">euint32</span> inc = FHE.select(isChosen, FHE.asEuint32(1), FHE.asEuint32(0));</div>
-                <div>  <span className="text-slate-500">  // Add to running tally (still encrypted)</span></div>
-                <div>  encryptedTallies[i] = FHE.add(encryptedTallies[i], inc);</div>
-                <div>&#125;</div>
+              <pre className="whitespace-pre-wrap font-mono text-[11px] leading-relaxed relative z-10">
+                {(() => {
+                  let remaining = typedCharCount;
+                  return CODE_TOKENS.map((token, idx) => {
+                    if (remaining <= 0) return null;
+                    const visibleText = token.text.substring(0, remaining);
+                    remaining -= token.text.length;
+                    return (
+                      <span key={idx} className={token.className}>
+                        {visibleText}
+                      </span>
+                    );
+                  });
+                })()}
+                <span className="text-[#FFD208] animate-pulse font-bold">|</span>
               </pre>
             </div>
           </div>
