@@ -498,17 +498,15 @@ function App() {
               </div>
             </div>
 
-            {/* Glowing Cryptographic Shield Graphic */}
-            <div className="relative flex h-80 w-80 items-center justify-center shrink-0 z-10">
+            {/* High-Tech Web3 Architecture Graphic */}
+            <div className="relative flex h-96 w-96 items-center justify-center shrink-0 z-10">
               <div className="absolute inset-0 rounded-full bg-yellow-500/5 blur-3xl" />
-              {/* Outer thin grid lines */}
-              <div className="absolute w-72 h-72 rounded-full border border-yellow-500/5 animate-spin [animation-duration:30s]" />
-              <div className="absolute w-60 h-60 rounded-full border border-slate-900 animate-spin [animation-direction:reverse] [animation-duration:20s]" />
-              <div className="absolute w-48 h-48 rounded-full border border-yellow-500/10" />
+              <div className="absolute w-80 h-80 rounded-full border border-yellow-500/5 animate-spin [animation-duration:45s]" />
+              <div className="absolute w-72 h-72 rounded-full border border-slate-900" />
               
-              {/* Core Shield */}
-              <div className="z-10 flex h-36 w-36 items-center justify-center rounded-2xl bg-black border border-slate-900 hover:border-yellow-500/30 shadow-2xl transition duration-300">
-                <Lock className="h-14 w-14 text-[#FFD208]" />
+              {/* Core Image Panel */}
+              <div className="z-10 w-80 h-80 rounded-2xl bg-black border border-slate-900 hover:border-yellow-500/20 shadow-2xl overflow-hidden transition duration-300">
+                <img src="/web3_network_architecture.png" alt="Web3 Network Architecture" className="w-full h-full object-cover opacity-80 hover:opacity-100 transition duration-300" />
               </div>
             </div>
           </div>
@@ -526,6 +524,46 @@ function App() {
                 <p className="text-sm font-black text-slate-200">{stat.val}</p>
               </div>
             ))}
+          </div>
+
+          {/* Fleek-inspired Technical Breakdown */}
+          <div className="grid gap-16 lg:grid-cols-2 items-center border-b border-slate-955 pb-16 relative z-10">
+            {/* Column 1: Image / Diagram */}
+            <div className="relative flex h-96 w-full items-center justify-center bg-[#030305] border border-slate-950 rounded-2xl overflow-hidden shadow-2xl">
+              <div className="absolute inset-0 bg-gradient-to-tr from-yellow-500/5 to-transparent opacity-50" />
+              <img src="/web3_network_architecture.png" alt="Decentralized Network" className="w-full h-full object-cover opacity-60" />
+              <div className="absolute bottom-4 left-4 font-mono text-[9px] text-slate-500 uppercase tracking-widest">
+                // System Layer Diagram
+              </div>
+            </div>
+
+            {/* Column 2: Content */}
+            <div className="space-y-8 text-left">
+              <div className="space-y-3">
+                <span className="text-xs font-bold text-slate-600 font-mono">01</span>
+                <h2 className="text-3xl font-black text-white uppercase tracking-wide">
+                  DECENTRALIZED CONFIDENTIAL INFRASTRUCTURE
+                </h2>
+                <p className="text-xs text-slate-400 leading-relaxed font-medium">
+                  CipherBallot is optimized to facilitate the secure and private execution of geo-aware, decentralized voting and identity services on-chain.
+                </p>
+              </div>
+
+              <div className="space-y-3 font-mono text-[11px] text-slate-300">
+                {[
+                  "HIGH PERFORMANCE & COMPOSABILITY",
+                  "LOW LATENCY ON-CHAIN STATE TRANSITIONS",
+                  "FULLY DECENTRALIZED VALIDATOR NETWORK",
+                  "MATHEMATICALLY SECURED BALLOT PRIVACY",
+                  "ZERO-TRUST IDENTITY SEALING"
+                ].map((bullet, i) => (
+                  <div key={i} className="flex items-center gap-2.5">
+                    <span className="text-[#FFD208]">⚡</span>
+                    <span>{bullet}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
 
           {/* Interactive Code / FHEVM Core Mechanic Section */}
