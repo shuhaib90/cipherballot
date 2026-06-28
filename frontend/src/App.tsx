@@ -13,7 +13,7 @@ import { useWallet } from './hooks/useWallet';
 import { useFhevm } from './hooks/useFhevm';
 import { useContract, type ElectionDetails } from './hooks/useContract';
 import { InteractiveNetworkGlobe } from './components/InteractiveNetworkGlobe';
-import { X, ShieldCheck, RefreshCw, Lock, Cpu, EyeOff, ShieldAlert, ArrowRight, Share2, Github, Linkedin, Twitter } from 'lucide-react';
+import { X, ShieldCheck, RefreshCw, Lock, Cpu, Eye, EyeOff, ShieldAlert, ArrowRight, Share2, Github, Linkedin, Twitter } from 'lucide-react';
 import type { CitizenStatus } from './utils/types';
 
 const REAL_PROJECT_CODE_LINES = [
@@ -568,6 +568,74 @@ function App() {
                 <p className="text-sm font-black text-slate-200">{stat.val}</p>
               </div>
             ))}
+          </div>
+
+          {/* Public vs Private Transparency Card */}
+          <div className="bg-[#030305] border border-slate-950 rounded-2xl overflow-hidden shadow-2xl relative z-10">
+            <div className="grid md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-slate-955">
+              {/* Left Column: Public */}
+              <div className="p-8 sm:p-12 space-y-6 text-left">
+                <div className="flex items-center gap-2 text-xs font-mono font-bold text-[#FFD208] uppercase tracking-wider">
+                  <Eye className="h-4 w-4" />
+                  Public
+                </div>
+                <h3 className="text-2xl sm:text-3xl font-black text-white">
+                  Verifiable by everyone
+                </h3>
+                <ul className="space-y-4 font-mono text-xs sm:text-sm text-slate-300">
+                  <li className="flex items-center gap-3">
+                    <span className="h-1.5 w-1.5 rounded-full bg-[#FFD208]" />
+                    <span>Election details & candidates</span>
+                  </li>
+                  <li className="flex items-center gap-3">
+                    <span className="h-1.5 w-1.5 rounded-full bg-[#FFD208]" />
+                    <span>Total voter turnout count</span>
+                  </li>
+                  <li className="flex items-center gap-3">
+                    <span className="h-1.5 w-1.5 rounded-full bg-[#FFD208]" />
+                    <span>Decrypted final vote tallies</span>
+                  </li>
+                  <li className="flex items-center gap-3">
+                    <span className="h-1.5 w-1.5 rounded-full bg-[#FFD208]" />
+                    <span>On-chain cryptographic proofs</span>
+                  </li>
+                </ul>
+              </div>
+
+              {/* Right Column: Private */}
+              <div className="p-8 sm:p-12 space-y-6 text-left relative group">
+                <div className="flex items-center gap-2 text-xs font-mono font-bold text-slate-500 uppercase tracking-wider">
+                  <EyeOff className="h-4 w-4" />
+                  Private
+                </div>
+                <h3 className="text-2xl sm:text-3xl font-black text-white">
+                  Visible only to the voter
+                </h3>
+                <ul className="space-y-4 font-mono text-xs sm:text-sm text-slate-400 transition duration-300 filter blur-[4px] group-hover:blur-none select-none">
+                  <li className="flex items-center gap-3">
+                    <span className="h-1.5 w-1.5 rounded-full bg-slate-600" />
+                    <span>Individual ballot choices (encrypted)</span>
+                  </li>
+                  <li className="flex items-center gap-3">
+                    <span className="h-1.5 w-1.5 rounded-full bg-slate-600" />
+                    <span>Voter identity (zero-knowledge sealed)</span>
+                  </li>
+                  <li className="flex items-center gap-3">
+                    <span className="h-1.5 w-1.5 rounded-full bg-slate-600" />
+                    <span>Real-time intermediate vote tallies</span>
+                  </li>
+                  <li className="flex items-center gap-3">
+                    <span className="h-1.5 w-1.5 rounded-full bg-slate-600" />
+                    <span>Voter keys & transaction history</span>
+                  </li>
+                </ul>
+                <div className="absolute inset-x-0 bottom-6 flex justify-center pointer-events-none transition duration-300 group-hover:opacity-0">
+                  <span className="bg-slate-900/80 text-slate-400 border border-slate-800 text-[10px] uppercase tracking-widest px-3 py-1 rounded-full font-mono font-bold">
+                    Hover to decrypt
+                  </span>
+                </div>
+              </div>
+            </div>
           </div>
 
           {/* Fleek-inspired Technical Breakdown */}
