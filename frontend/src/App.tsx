@@ -623,7 +623,7 @@ function App() {
             {/* Simulated Code Block Panel */}
             <div className="bg-[#030305] border border-slate-950 rounded-xl p-6 font-mono text-left text-xs leading-relaxed shadow-2xl overflow-x-auto relative">
               {/* Laser Scanline */}
-              <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-yellow-400 to-transparent blur-[1px] animate-code-scan pointer-events-none" />
+              <div className="absolute left-0 right-0 h-[2px] bg-[#FFD208] shadow-[0_0_10px_#FFD208] opacity-80 animate-code-scan pointer-events-none" />
               
               <div className="flex items-center gap-1.5 mb-4 border-b border-slate-955 pb-3">
                 <div className="h-2.5 w-2.5 rounded-full bg-rose-500" />

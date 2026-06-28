@@ -112,14 +112,14 @@
 }
 
 @keyframes code-scan {
-  0% { transform: translateY(-20%); opacity: 0; }
-  10% { opacity: 0.7; }
-  90% { opacity: 0.7; }
-  100% { transform: translateY(400%); opacity: 0; }
+  0% { top: 0%; opacity: 0; }
+  5% { opacity: 0.8; }
+  95% { opacity: 0.8; }
+  100% { top: 100%; opacity: 0; }
 }
 
 .animate-code-scan {
-  animation: code-scan 6s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  animation: code-scan 6s linear infinite;
 }
 
 
