@@ -125,55 +125,71 @@ export function ElectionShareCard({ election, electionAddress }: ElectionShareCa
 
       const loadedAssets = await Promise.all(imageLoadPromises);
 
-      // Draw Candidates
-      y += 50;
-      const count = candidates.length;
-      const startX = 270 - ((count - 1) * 75); // Center align the candidates row
-
-      for (let i = 0; i < count; i++) {
-        const x = startX + (i * 150); // space candidates horizontally
-        const asset = loadedAssets[i];
-        
-        ctx.save();
+      // Helper to draw a single candidate avatar & labels on the canvas
+      const drawCandidate = (cx: CanvasRenderingContext2D, cand: any, asset: any, px: number, py: number) => {
+        cx.save();
         // Draw Avatar Circle Background
-        ctx.fillStyle = '#1e293b';
-        ctx.strokeStyle = '#FFD208';
-        ctx.lineWidth = 3;
-        ctx.beginPath();
-        ctx.arc(x, y + 40, 36, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.stroke();
+        cx.fillStyle = '#1e293b';
+        cx.strokeStyle = '#FFD208';
+        cx.lineWidth = 3;
+        cx.beginPath();
+        cx.arc(px, py + 40, 36, 0, Math.PI * 2);
+        cx.fill();
+        cx.stroke();
 
         // Clip circular avatar if asset is preloaded image
         if (typeof asset !== 'string') {
-          ctx.beginPath();
-          ctx.arc(x, y + 40, 34, 0, Math.PI * 2);
-          ctx.clip();
-          ctx.drawImage(asset, x - 34, y + 6, 68, 68);
+          cx.beginPath();
+          cx.arc(px, py + 40, 34, 0, Math.PI * 2);
+          cx.clip();
+          cx.drawImage(asset, px - 34, py + 6, 68, 68);
         } else {
           // Draw Emoji Symbol
-          ctx.fillStyle = '#ffffff';
-          ctx.font = '32px sans-serif';
-          ctx.textAlign = 'center';
-          ctx.textBaseline = 'middle';
-          ctx.fillText(asset, x, y + 40);
+          cx.fillStyle = '#ffffff';
+          cx.font = '32px sans-serif';
+          cx.textAlign = 'center';
+          cx.textBaseline = 'middle';
+          cx.fillText(asset, px, py + 40);
         }
-        ctx.restore();
+        cx.restore();
 
         // Draw Candidate Name
-        ctx.fillStyle = '#f8fafc';
-        ctx.font = 'bold 13px sans-serif';
-        ctx.textAlign = 'center';
-        ctx.fillText(candidates[i].name, x, y + 95);
+        cx.fillStyle = '#f8fafc';
+        cx.font = 'bold 13px sans-serif';
+        cx.textAlign = 'center';
+        cx.fillText(cand.name, px, py + 95);
 
         // Draw Candidate Party
-        ctx.fillStyle = '#94a3b8';
-        ctx.font = '10px sans-serif';
-        ctx.fillText(candidates[i].party, x, y + 112);
+        cx.fillStyle = '#94a3b8';
+        cx.font = '10px sans-serif';
+        cx.textAlign = 'center';
+        cx.fillText(cand.party, px, py + 112);
+      };
+
+      // Draw Candidates
+      y += 40;
+      const count = candidates.length;
+      if (count <= 2) {
+        const startX = 270 - ((count - 1) * 80);
+        for (let i = 0; i < count; i++) {
+          const x = startX + (i * 160);
+          drawCandidate(ctx, candidates[i], loadedAssets[i], x, y);
+        }
+        y += 130;
+      } else {
+        // Draw in 2 columns grid to fit 3+ candidates beautifully
+        for (let i = 0; i < count; i++) {
+          const col = i % 2;
+          const row = Math.floor(i / 2);
+          const x = col === 0 ? 170 : 370;
+          const rowY = y + (row * 130);
+          drawCandidate(ctx, candidates[i], loadedAssets[i], x, rowY);
+        }
+        y += (Math.ceil(count / 2) * 130) + 10;
       }
 
       // 7. Draw QR / Ballot Access Code Block
-      y += 180;
+      y += 50;
       ctx.fillStyle = '#111827';
       ctx.strokeStyle = '#334155';
       ctx.lineWidth = 1;
@@ -184,6 +200,7 @@ export function ElectionShareCard({ election, electionAddress }: ElectionShareCa
 
       ctx.fillStyle = '#FFD208';
       ctx.font = 'bold 12px sans-serif';
+      ctx.textAlign = 'center';
       ctx.fillText('SCAN OR VISUALIZE TO VOTE', 270, y + 35);
 
       ctx.fillStyle = '#ffffff';
@@ -242,9 +259,9 @@ export function ElectionShareCard({ election, electionAddress }: ElectionShareCa
           </div>
 
           {/* Candidates Row */}
-          <div className="flex justify-center items-center gap-6 py-2">
+          <div className="flex flex-wrap justify-center items-center gap-x-8 gap-y-4 py-2 max-w-sm mx-auto">
             {election.candidates.map((cand, idx) => (
-              <div key={idx} className="flex flex-col items-center text-center space-y-1.5">
+              <div key={idx} className="flex flex-col items-center text-center space-y-1.5 w-[100px] shrink-0">
                 <div className="h-12 w-12 rounded-full border border-yellow-500/20 bg-slate-900 flex items-center justify-center overflow-hidden shrink-0 shadow-lg">
                   {isImageUrl(cand.symbol) ? (
                     <img src={cand.symbol} alt={cand.name} className="h-full w-full object-cover" />
@@ -253,8 +270,8 @@ export function ElectionShareCard({ election, electionAddress }: ElectionShareCa
                   )}
                 </div>
                 <div>
-                  <p className="text-[11px] font-bold text-slate-200 leading-none">{cand.name}</p>
-                  <p className="text-[9px] text-slate-400 leading-normal mt-0.5">{cand.party}</p>
+                  <p className="text-[11px] font-bold text-slate-200 leading-none truncate w-full">{cand.name}</p>
+                  <p className="text-[9px] text-slate-400 leading-normal mt-0.5 truncate w-full">{cand.party}</p>
                 </div>
               </div>
             ))}

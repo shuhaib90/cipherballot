@@ -160,7 +160,7 @@ export function ResultsDashboard({
                   key={idx}
                   className={`p-4 rounded-xl border relative overflow-hidden transition-all duration-200 ${
                     isWinner
-                      ? 'border-indigo-500/50 bg-indigo-500/5'
+                      ? 'border-yellow-500/30 bg-yellow-500/5'
                       : 'border-slate-800/60 bg-slate-950/20'
                   }`}
                 >
@@ -246,10 +246,10 @@ export function ResultsDashboard({
       {/* Decrypt Controls (only for Closed status and not yet revealed) */}
       {status === 'Closed' && !resultsRevealed && (
         <div className="border-t border-slate-800/60 pt-6">
-          <div className="rounded-xl border border-indigo-500/20 bg-indigo-500/5 p-4 flex flex-col md:flex-row items-center justify-between gap-4">
+          <div className="rounded-xl border border-yellow-500/20 bg-yellow-500/5 p-4 flex flex-col md:flex-row items-center justify-between gap-4">
             <div className="text-center md:text-left">
               <h4 className="text-sm font-bold text-slate-200 flex items-center justify-center md:justify-start gap-1.5">
-                <Award className="h-4.5 w-4.5 text-indigo-400" />
+                <Award className="h-4.5 w-4.5 text-yellow-400" />
                 Decryption Phase Activated
               </h4>
               <p className="text-[11px] text-slate-400 mt-1">
@@ -268,7 +268,7 @@ export function ResultsDashboard({
           </div>
 
           {revealStep && (
-            <div className="mt-3 p-3 rounded-lg bg-slate-950 border border-slate-800 text-[10px] font-mono text-indigo-300 leading-relaxed">
+            <div className="mt-3 p-3 rounded-lg bg-slate-950 border border-slate-800 text-[10px] font-mono text-yellow-300 leading-relaxed">
               {revealStep}
             </div>
           )}

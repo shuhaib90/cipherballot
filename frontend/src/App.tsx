@@ -12,7 +12,7 @@ import { ElectionShareCard } from './components/ElectionShareCard';
 import { useWallet } from './hooks/useWallet';
 import { useFhevm } from './hooks/useFhevm';
 import { useContract, type ElectionDetails } from './hooks/useContract';
-import { Shield, X, ShieldCheck, RefreshCw, Lock, Cpu, EyeOff, ShieldAlert, ArrowRight } from 'lucide-react';
+import { Shield, X, ShieldCheck, RefreshCw, Lock, Cpu, EyeOff, ShieldAlert, ArrowRight, Share2, Github, Linkedin, Twitter } from 'lucide-react';
 import type { CitizenStatus } from './utils/types';
 
 function App() {
@@ -68,6 +68,7 @@ function App() {
   const [isRegistered, setIsRegistered] = useState<boolean>(false);
   const [isOfficer, setIsOfficer] = useState<boolean>(false);
   const [showWalletError, setShowWalletError] = useState<boolean>(true);
+  const [showShareModal, setShowShareModal] = useState<boolean>(false);
   const [citizenStatus, setCitizenStatus] = useState<CitizenStatus>({
     isVerified: false,
     isPending: false,
@@ -297,13 +298,6 @@ function App() {
                       ))}
                     </div>
                   </div>
-
-                  {selectedElection && (
-                    <ElectionShareCard
-                      election={selectedElection}
-                      electionAddress={selectedElectionAddr}
-                    />
-                  )}
                 </div>
               )}
 
@@ -316,6 +310,22 @@ function App() {
                   </div>
                 ) : selectedElection ? (
                   <>
+                    {/* Active Election Header Card */}
+                    <div className="glass-panel p-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-yellow-500/10 bg-yellow-500/[0.01] mb-6">
+                      <div className="space-y-1">
+                        <span className="text-[9px] font-black text-yellow-400 uppercase tracking-widest block">Active Ballot Focus</span>
+                        <h2 className="text-xl font-bold text-slate-100">{selectedElection.name}</h2>
+                        <p className="text-xs text-slate-400 leading-relaxed max-w-xl">{selectedElection.description}</p>
+                      </div>
+                      <button
+                        onClick={() => setShowShareModal(true)}
+                        className="btn-primary py-2 px-5 text-xs font-semibold flex items-center justify-center gap-2 self-start sm:self-auto shrink-0"
+                      >
+                        <Share2 className="h-4 w-4 text-black" />
+                        Share Ballot
+                      </button>
+                    </div>
+
                     <VotingBooth
                       election={selectedElection}
                       isRegistered={isRegistered}
@@ -513,9 +523,83 @@ function App() {
         </main>
       )}
 
+      {/* Share Card Modal */}
+      {showShareModal && selectedElection && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+          <div className="bg-[#0b0b0f] border border-yellow-500/20 rounded-2xl p-6 max-w-md w-full relative space-y-4 shadow-2xl">
+            <button
+              onClick={() => setShowShareModal(false)}
+              className="absolute top-4 right-4 text-slate-400 hover:text-slate-250 transition p-1 hover:bg-slate-900 rounded-lg"
+              aria-label="Close modal"
+            >
+              <X className="h-5 w-5" />
+            </button>
+            <div className="space-y-1">
+              <h3 className="text-lg font-bold text-slate-100">Share Ballot Card</h3>
+              <p className="text-[11px] text-slate-400">Generate a high-definition download card or copy the direct voting URL.</p>
+            </div>
+            <div className="pt-2">
+              <ElectionShareCard
+                election={selectedElection}
+                electionAddress={selectedElectionAddr}
+              />
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Footer */}
-      <footer className="border-t border-yellow-500/5 bg-black py-6 text-center text-[10px] text-slate-500 font-semibold uppercase tracking-wider mt-auto">
-        CipherBallot © 2026. Powered by Zama FHEVM public decryption.
+      <footer className="border-t border-yellow-500/10 bg-[#060608] py-10 mt-auto">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-6">
+          <div className="flex items-center gap-2">
+            <div className="flex h-6 w-6 items-center justify-center rounded bg-gradient-to-tr from-[#FFD208] to-[#FF9F00]">
+              <span className="text-[10px] font-black text-black">CB</span>
+            </div>
+            <span className="text-xs font-bold tracking-wider text-slate-200">
+              CipherBallot
+            </span>
+          </div>
+          
+          <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-xs font-medium text-slate-400">
+            <button 
+              onClick={() => {
+                setActiveTab('docs');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }}
+              className="hover:text-[#FFD208] transition duration-150"
+            >
+              Whitepaper
+            </button>
+            <a 
+              href="https://github.com/shuhaib90/cipherballot" 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              className="hover:text-[#FFD208] transition duration-150 flex items-center gap-1"
+            >
+              <Github className="h-3.5 w-3.5" /> GitHub
+            </a>
+            <a 
+              href="https://linkedin.com/in/shuhaib90" 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              className="hover:text-[#FFD208] transition duration-150 flex items-center gap-1"
+            >
+              <Linkedin className="h-3.5 w-3.5" /> Founder's LinkedIn
+            </a>
+            <a 
+              href="https://x.com/shuhaib90" 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              className="hover:text-[#FFD208] transition duration-150 flex items-center gap-1"
+            >
+              <Twitter className="h-3.5 w-3.5" /> X
+            </a>
+          </div>
+
+          <div className="text-[10px] text-slate-500 font-semibold uppercase tracking-wider">
+            © 2026 CipherBallot. Math-enforced privacy.
+          </div>
+        </div>
       </footer>
     </div>
   );
