@@ -12,7 +12,7 @@ import { ElectionShareCard } from './components/ElectionShareCard';
 import { useWallet } from './hooks/useWallet';
 import { useFhevm } from './hooks/useFhevm';
 import { useContract, type ElectionDetails } from './hooks/useContract';
-import { Shield, X, ShieldCheck, RefreshCw, Lock, Cpu, EyeOff, ShieldAlert, ArrowRight, Share2, Github, Linkedin, Twitter } from 'lucide-react';
+import { X, ShieldCheck, RefreshCw, Lock, Cpu, EyeOff, ShieldAlert, ArrowRight, Share2, Github, Linkedin, Twitter } from 'lucide-react';
 import type { CitizenStatus } from './utils/types';
 
 function App() {
@@ -394,28 +394,26 @@ function App() {
           )}
         </main>
       ) : (
-        /* Premium Connected Landing Page Hub (JumpBot style) */
-        <main className="flex-1 flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto space-y-16">
+        /* Zama-style Premium Landing Page Hub */
+        <main className="flex-1 flex flex-col justify-center py-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto space-y-24 bg-black">
           
           {/* Hero Section */}
-          <div className="flex flex-col lg:flex-row items-center justify-between gap-12 pt-8">
+          <div className="flex flex-col lg:flex-row items-center justify-between gap-16 pt-8 border-b border-slate-950 pb-16">
             <div className="space-y-6 max-w-2xl text-left">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-yellow-500/20 bg-yellow-500/5 text-xs font-bold text-[#FFD208] shadow-md">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded border border-yellow-500/20 bg-yellow-500/5 text-xs font-mono font-bold text-[#FFD208] uppercase tracking-wider">
                 <ShieldCheck className="h-3.5 w-3.5" />
                 Fully Homomorphic Encryption (FHE)
               </div>
               
-              <h1 className="text-4xl font-extrabold tracking-tight sm:text-6xl font-sans text-slate-100 leading-[1.1]">
-                Unleashing the Power of <span className="bg-gradient-to-r from-[#FFD208] via-yellow-300 to-amber-400 bg-clip-text text-transparent">Confidential Voting</span>
+              <h1 className="text-4xl font-black tracking-tight sm:text-6xl font-sans text-white leading-none">
+                BUILD <span className="text-[#FFD208]">CONFIDENTIAL</span> ELECTIONS
               </h1>
               
               <p className="text-slate-400 text-sm sm:text-base leading-relaxed font-medium">
-                CipherBallot is a next-generation decentralized election system. Powered by Zama's FHEVM, 
-                it allows your voting ballots to remain cryptographically sealed during computation, ensuring 
-                absolute privacy while remaining fully verifiable on-chain.
+                CipherBallot is a next-generation decentralized election system powered by Zama's FHEVM. It allows voting ballots to remain cryptographically sealed during computation, ensuring absolute privacy while remaining fully verifiable on-chain.
               </p>
 
-              <div className="flex flex-wrap items-center gap-4 pt-2">
+              <div className="flex flex-wrap items-center gap-4 pt-4">
                 <button
                   onClick={() => {
                     if (isConnected) {
@@ -425,9 +423,9 @@ function App() {
                       setActiveTab('register');
                     }
                   }}
-                  className="btn-primary"
+                  className="bg-[#FFD208] text-black font-extrabold text-xs uppercase tracking-wider px-6 py-3.5 rounded hover:bg-yellow-400 transition-colors duration-200 flex items-center gap-2"
                 >
-                  Get Started <ArrowRight className="h-4.5 w-4.5" />
+                  Get Started <ArrowRight className="h-4 w-4" />
                 </button>
                 <button
                   onClick={() => {
@@ -436,71 +434,124 @@ function App() {
                       connect();
                     }
                   }}
-                  className="btn-secondary"
+                  className="bg-transparent text-slate-300 border border-slate-800 font-extrabold text-xs uppercase tracking-wider px-6 py-3.5 rounded hover:text-white hover:border-yellow-500/30 transition-all duration-200"
                 >
                   Discover How It Works
                 </button>
               </div>
             </div>
 
-            {/* Glowing Shield Graphic Overlay */}
+            {/* Glowing Cryptographic Shield Graphic */}
             <div className="relative flex h-80 w-80 items-center justify-center shrink-0">
-              {/* Outer decorative glowing ring */}
-              <div className="absolute inset-0 rounded-full bg-gradient-to-tr from-yellow-500/10 to-amber-500/10 blur-xl animate-pulse-slow" />
-              <div className="absolute w-72 h-72 rounded-full border border-yellow-500/10 animate-spin [animation-duration:15s]" />
-              <div className="absolute w-60 h-60 rounded-full border border-amber-500/5 animate-spin [animation-direction:reverse] [animation-duration:10s]" />
+              <div className="absolute inset-0 rounded-full bg-yellow-500/5 blur-3xl" />
+              {/* Outer thin grid lines */}
+              <div className="absolute w-72 h-72 rounded-full border border-yellow-500/5 animate-spin [animation-duration:30s]" />
+              <div className="absolute w-60 h-60 rounded-full border border-slate-900 animate-spin [animation-direction:reverse] [animation-duration:20s]" />
+              <div className="absolute w-48 h-48 rounded-full border border-yellow-500/10" />
               
               {/* Core Shield */}
-              <div className="z-10 flex h-40 w-40 items-center justify-center rounded-3xl bg-slate-950 border border-yellow-500/20 shadow-2xl shadow-yellow-500/10">
-                <Shield className="h-16 w-16 text-[#FFD208] animate-float" />
+              <div className="z-10 flex h-36 w-36 items-center justify-center rounded-2xl bg-black border border-slate-900 hover:border-yellow-500/30 shadow-2xl transition duration-300">
+                <Lock className="h-14 w-14 text-[#FFD208]" />
               </div>
             </div>
           </div>
 
-          {/* Core Feature Value Cards */}
-          <div className="space-y-6">
+          {/* Interactive Code / FHEVM Core Mechanic Section */}
+          <div className="grid gap-12 lg:grid-cols-2 items-center border-b border-slate-955 pb-16">
+            <div className="space-y-6 text-left">
+              <span className="text-[10px] font-bold text-[#FFD208] uppercase tracking-widest font-mono">Core FHE VM Primitive</span>
+              <h2 className="text-3xl font-black text-white leading-tight">
+                COMPUTE DIRECTLY ON ENCRYPTED DATA
+              </h2>
+              <p className="text-xs text-slate-400 leading-relaxed font-medium">
+                Traditional encryption requires you to decrypt data before doing any arithmetic operations. FHEVM allows smart contracts to perform comparisons and additions directly on the ciphertexts.
+              </p>
+              <ul className="space-y-3 font-mono text-[11px] text-slate-300">
+                <li className="flex items-center gap-2.5">
+                  <span className="h-1.5 w-1.5 rounded-full bg-[#FFD208]" />
+                  <code>FHE.eq()</code> — Encrypted comparison (returns ebool)
+                </li>
+                <li className="flex items-center gap-2.5">
+                  <span className="h-1.5 w-1.5 rounded-full bg-[#FFD208]" />
+                  <code>FHE.select()</code> — Encrypted conditional selector
+                </li>
+                <li className="flex items-center gap-2.5">
+                  <span className="h-1.5 w-1.5 rounded-full bg-[#FFD208]" />
+                  <code>FHE.add()</code> — Encrypted addition tallying
+                </li>
+              </ul>
+            </div>
+
+            {/* Simulated Code Block Panel */}
+            <div className="bg-[#030305] border border-slate-950 rounded-xl p-6 font-mono text-left text-xs leading-relaxed shadow-2xl overflow-x-auto">
+              <div className="flex items-center gap-1.5 mb-4 border-b border-slate-955 pb-3">
+                <div className="h-2.5 w-2.5 rounded-full bg-rose-500" />
+                <div className="h-2.5 w-2.5 rounded-full bg-amber-500" />
+                <div className="h-2.5 w-2.5 rounded-full bg-emerald-500" />
+                <span className="text-[10px] text-slate-500 ml-2">Election.sol</span>
+              </div>
+              <pre className="text-slate-300 space-y-1 text-[11px]">
+                <div><span className="text-slate-500">// 1. Retrieve encrypted choice from user</span></div>
+                <div><span className="text-[#FFD208]">euint8</span> choice = FHE.fromExternal(encryptedChoice, proof);</div>
+                <br />
+                <div><span className="text-slate-500">// 2. Homomorphically tally votes</span></div>
+                <div><span className="text-[#c084fc]">for</span> (<span className="text-[#c084fc]">uint8</span> i = 0; i &lt; candidateCount; i++) &#123;</div>
+                <div>  <span className="text-slate-500">  // Is this candidate chosen? (ebool)</span></div>
+                <div>  <span className="text-[#FFD208]">ebool</span> isChosen = FHE.eq(choice, FHE.asEuint8(i));</div>
+                <div>  <span className="text-slate-500">  // Select 1 if true, 0 if false</span></div>
+                <div>  <span className="text-[#FFD208]">euint32</span> inc = FHE.select(isChosen, FHE.asEuint32(1), FHE.asEuint32(0));</div>
+                <div>  <span className="text-slate-500">  // Add to running tally (still encrypted)</span></div>
+                <div>  encryptedTallies[i] = FHE.add(encryptedTallies[i], inc);</div>
+                <div>&#125;</div>
+              </pre>
+            </div>
+          </div>
+
+          {/* Cryptographic Guarantees Grid */}
+          <div className="space-y-8">
             <div className="text-center max-w-lg mx-auto space-y-2">
-              <h2 className="text-2xl font-extrabold text-slate-100">Why CipherBallot?</h2>
-              <p className="text-xs text-slate-400 font-medium">CipherBallot guarantees trust in every single ballot, preserving anonymity.</p>
+              <span className="text-[10px] font-bold text-[#FFD208] uppercase tracking-widest font-mono">Security Guarantees</span>
+              <h2 className="text-3xl font-black text-white">WHY CIPHERBALLOT?</h2>
+              <p className="text-xs text-slate-500 font-medium">CipherBallot guarantees trust in every single ballot, preserving anonymity.</p>
             </div>
 
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-              <div className="glow-card">
-                <div className="h-10 w-10 flex items-center justify-center rounded-xl bg-yellow-500/10 border border-yellow-500/20 mb-4 text-yellow-400">
+              <div className="bg-black border border-slate-950 hover:border-[#FFD208]/20 p-6 rounded transition duration-200 text-left space-y-4">
+                <div className="h-10 w-10 flex items-center justify-center rounded bg-yellow-500/5 border border-yellow-500/10 text-[#FFD208]">
                   <Lock className="h-5 w-5" />
                 </div>
-                <h3 className="text-sm font-bold text-slate-100 mb-1.5">End-to-End Encryption</h3>
-                <p className="text-[11px] text-slate-400 leading-relaxed font-medium">
-                  Your votes and identity details are encrypted client-side. No plain text data is ever leaked.
+                <h3 className="text-sm font-bold text-white uppercase tracking-wide">End-to-End Encryption</h3>
+                <p className="text-[11px] text-slate-500 leading-relaxed font-medium">
+                  Your votes and identity details are encrypted client-side. No plain text data is ever leaked to the network.
                 </p>
               </div>
 
-              <div className="glow-card">
-                <div className="h-10 w-10 flex items-center justify-center rounded-xl bg-amber-500/10 border border-amber-500/20 mb-4 text-amber-400">
+              <div className="bg-black border border-slate-955 hover:border-[#FFD208]/20 p-6 rounded transition duration-200 text-left space-y-4">
+                <div className="h-10 w-10 flex items-center justify-center rounded bg-yellow-500/5 border border-yellow-500/10 text-[#FFD208]">
                   <EyeOff className="h-5 w-5" />
                 </div>
-                <h3 className="text-sm font-bold text-slate-100 mb-1.5">Voter Privacy</h3>
-                <p className="text-[11px] text-slate-400 leading-relaxed font-medium">
+                <h3 className="text-sm font-bold text-white uppercase tracking-wide">Voter Privacy</h3>
+                <p className="text-[11px] text-slate-500 leading-relaxed font-medium">
                   Mathematical computations happen directly on the encrypted tallies. Nobody sees the intermediate votes.
                 </p>
               </div>
 
-              <div className="glow-card">
-                <div className="h-10 w-10 flex items-center justify-center rounded-xl bg-purple-500/10 border border-purple-500/20 mb-4 text-purple-400">
+              <div className="bg-black border border-slate-955 hover:border-[#FFD208]/20 p-6 rounded transition duration-200 text-left space-y-4">
+                <div className="h-10 w-10 flex items-center justify-center rounded bg-yellow-500/5 border border-yellow-500/10 text-[#FFD208]">
                   <Cpu className="h-5 w-5" />
                 </div>
-                <h3 className="text-sm font-bold text-slate-100 mb-1.5">On-Chain Verifiability</h3>
-                <p className="text-[11px] text-slate-400 leading-relaxed font-medium">
+                <h3 className="text-sm font-bold text-white uppercase tracking-wide">On-Chain Verifiability</h3>
+                <p className="text-[11px] text-slate-500 leading-relaxed font-medium">
                   Verification happens publically on-chain using threshold KMS signatures to unlock the audited results.
                 </p>
               </div>
 
-              <div className="glow-card">
-                <div className="h-10 w-10 flex items-center justify-center rounded-xl bg-emerald-500/10 border border-emerald-500/20 mb-4 text-emerald-400">
+              <div className="bg-black border border-slate-955 hover:border-[#FFD208]/20 p-6 rounded transition duration-200 text-left space-y-4">
+                <div className="h-10 w-10 flex items-center justify-center rounded bg-yellow-500/5 border border-yellow-500/10 text-[#FFD208]">
                   <ShieldAlert className="h-5 w-5" />
                 </div>
-                <h3 className="text-sm font-bold text-slate-100 mb-1.5">Sybil Protection</h3>
-                <p className="text-[11px] text-slate-400 leading-relaxed font-medium">
+                <h3 className="text-sm font-bold text-white uppercase tracking-wide">Sybil Protection</h3>
+                <p className="text-[11px] text-slate-500 leading-relaxed font-medium">
                   Government document hashes ensure single-vote compliance without storing your cleartext records.
                 </p>
               </div>
@@ -509,11 +560,11 @@ function App() {
 
           {/* Wallet Error Alert Banner */}
           {walletError && showWalletError && (
-            <div className="max-w-md mx-auto bg-rose-500/10 border border-rose-500/20 rounded-2xl p-4 text-xs text-rose-400 font-semibold flex items-center justify-between gap-3 shadow-lg">
+            <div className="max-w-md mx-auto bg-rose-500/10 border border-rose-500/20 rounded p-4 text-xs text-rose-400 font-semibold flex items-center justify-between gap-3 shadow-lg font-mono">
               <span className="leading-relaxed">{walletError}</span>
               <button
                 onClick={() => setShowWalletError(false)}
-                className="text-rose-400 hover:text-rose-200 transition p-1 hover:bg-rose-500/10 rounded-lg shrink-0"
+                className="text-rose-400 hover:text-rose-200 transition p-1 hover:bg-rose-500/10 rounded shrink-0"
                 aria-label="Dismiss error"
               >
                 <X className="h-4 w-4" />
