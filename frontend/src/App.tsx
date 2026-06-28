@@ -434,29 +434,33 @@ function App() {
       ) : (
         /* Zama-style Premium Landing Page Hub */
         <main className="flex-1 flex flex-col justify-center py-16 px-8 lg:px-16 max-w-none w-full space-y-24 bg-black relative overflow-hidden">
-          
-          {/* Live Code Backdrop */}
-          <div className="absolute inset-0 pointer-events-none select-none overflow-hidden opacity-[0.12] flex justify-between px-12 z-0">
-            <div className="w-1/3 font-mono text-[10px] text-yellow-400 space-y-1 select-none animate-scroll-up">
-              {[...REAL_PROJECT_CODE_LINES, ...REAL_PROJECT_CODE_LINES, ...REAL_PROJECT_CODE_LINES].map((line, idx) => (
-                <div key={idx} className="whitespace-nowrap">{line}</div>
-              ))}
-            </div>
-            <div className="w-1/3 font-mono text-[10px] text-yellow-400 space-y-1 select-none animate-scroll-up [animation-delay:-15s] hidden md:block">
-              {[...REAL_PROJECT_CODE_LINES, ...REAL_PROJECT_CODE_LINES, ...REAL_PROJECT_CODE_LINES].map((line, idx) => (
-                <div key={idx} className="whitespace-nowrap">{line}</div>
-              ))}
-            </div>
-            <div className="w-1/3 font-mono text-[10px] text-yellow-400 space-y-1 select-none animate-scroll-up [animation-delay:-30s] hidden lg:block">
-              {[...REAL_PROJECT_CODE_LINES, ...REAL_PROJECT_CODE_LINES, ...REAL_PROJECT_CODE_LINES].map((line, idx) => (
-                <div key={idx} className="whitespace-nowrap">{line}</div>
-              ))}
-            </div>
-          </div>
 
           {/* Hero Section */}
-          <div className="flex flex-col lg:flex-row items-center justify-between gap-16 pt-8 border-b border-slate-950 pb-16 relative z-10">
-            <div className="space-y-6 max-w-3xl text-left">
+          <div className="flex flex-col lg:flex-row items-center justify-between gap-16 pt-8 border-b border-slate-950 pb-16 relative overflow-hidden z-10 rounded-2xl p-8 sm:p-12">
+            
+            {/* Live Code Backdrop (Scoped to Hero Section) */}
+            <div className="absolute inset-0 pointer-events-none select-none overflow-hidden opacity-[0.18] flex justify-between px-12 z-0">
+              <div className="w-1/3 font-mono text-[10px] text-yellow-450 space-y-1 select-none animate-scroll-up">
+                {[...REAL_PROJECT_CODE_LINES, ...REAL_PROJECT_CODE_LINES, ...REAL_PROJECT_CODE_LINES, ...REAL_PROJECT_CODE_LINES].map((line, idx) => (
+                  <div key={idx} className="whitespace-nowrap">{line}</div>
+                ))}
+              </div>
+              <div className="w-1/3 font-mono text-[10px] text-yellow-455 space-y-1 select-none animate-scroll-up [animation-delay:-15s] hidden md:block">
+                {[...REAL_PROJECT_CODE_LINES, ...REAL_PROJECT_CODE_LINES, ...REAL_PROJECT_CODE_LINES, ...REAL_PROJECT_CODE_LINES].map((line, idx) => (
+                  <div key={idx} className="whitespace-nowrap">{line}</div>
+                ))}
+              </div>
+              <div className="w-1/3 font-mono text-[10px] text-yellow-455 space-y-1 select-none animate-scroll-up [animation-delay:-30s] hidden lg:block">
+                {[...REAL_PROJECT_CODE_LINES, ...REAL_PROJECT_CODE_LINES, ...REAL_PROJECT_CODE_LINES, ...REAL_PROJECT_CODE_LINES].map((line, idx) => (
+                  <div key={idx} className="whitespace-nowrap">{line}</div>
+                ))}
+              </div>
+            </div>
+
+            {/* Glass Blur Overlay */}
+            <div className="absolute inset-0 bg-black/65 backdrop-blur-[1.5px] z-[1] pointer-events-none" />
+
+            <div className="space-y-6 max-w-3xl text-left relative z-10">
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded border border-yellow-500/20 bg-yellow-500/5 text-xs font-mono font-bold text-[#FFD208] uppercase tracking-wider">
                 <ShieldCheck className="h-3.5 w-3.5" />
                 Fully Homomorphic Encryption (FHE)
@@ -505,7 +509,7 @@ function App() {
               <div className="absolute w-72 h-72 rounded-full border border-slate-900" />
               
               {/* Core Image Panel */}
-              <div className="z-10 w-80 h-80 rounded-2xl bg-black border border-slate-900 hover:border-yellow-500/20 shadow-2xl overflow-hidden transition duration-300">
+              <div className="z-10 w-80 h-80 rounded-2xl bg-black border border-slate-900 hover:border-yellow-500/20 shadow-2xl overflow-hidden transition duration-300 relative">
                 <img src="/web3_network_architecture.png" alt="Web3 Network Architecture" className="w-full h-full object-cover opacity-80 hover:opacity-100 transition duration-300" />
               </div>
             </div>
@@ -593,14 +597,17 @@ function App() {
             </div>
 
             {/* Simulated Code Block Panel */}
-            <div className="bg-[#030305] border border-slate-950 rounded-xl p-6 font-mono text-left text-xs leading-relaxed shadow-2xl overflow-x-auto">
+            <div className="bg-[#030305] border border-slate-950 rounded-xl p-6 font-mono text-left text-xs leading-relaxed shadow-2xl overflow-x-auto relative">
+              {/* Laser Scanline */}
+              <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-yellow-400 to-transparent blur-[1px] animate-code-scan pointer-events-none" />
+              
               <div className="flex items-center gap-1.5 mb-4 border-b border-slate-955 pb-3">
                 <div className="h-2.5 w-2.5 rounded-full bg-rose-500" />
                 <div className="h-2.5 w-2.5 rounded-full bg-amber-500" />
                 <div className="h-2.5 w-2.5 rounded-full bg-emerald-500" />
                 <span className="text-[10px] text-slate-500 ml-2">Election.sol</span>
               </div>
-              <pre className="text-slate-300 space-y-1 text-[11px]">
+              <pre className="text-slate-300 space-y-1 text-[11px] relative z-10">
                 <div><span className="text-slate-500">// 1. Retrieve encrypted choice from user</span></div>
                 <div><span className="text-[#FFD208]">euint8</span> choice = FHE.fromExternal(encryptedChoice, proof);</div>
                 <br />
