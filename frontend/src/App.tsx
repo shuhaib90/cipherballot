@@ -568,7 +568,7 @@ function App() {
               }}
               className="hover:text-[#FFD208] transition duration-150"
             >
-              Whitepaper
+              Documents
             </button>
             <a 
               href="https://github.com/shuhaib90/cipherballot" 
