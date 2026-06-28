@@ -18,6 +18,19 @@ export function Documentation() {
           </p>
         </header>
 
+        {/* Judge quick-test alert block */}
+        <div className="mb-8 p-6 bg-yellow-50 border-l-4 border-[#FFD208] rounded-r-lg text-slate-800 font-sans">
+          <h4 className="text-sm font-bold text-slate-900 flex items-center gap-1.5 mb-1.5 uppercase tracking-wide">
+            🔑 Judge & Auditor Quick-Test Wallet
+          </h4>
+          <p className="text-xs text-slate-600 leading-relaxed mb-3">
+            For rapid evaluation, you can import the following burner private key directly into MetaMask. It has been pre-registered as both a <strong>Voter</strong> and an <strong>Election Commissioner / Officer</strong>, providing instant access to vote, approve citizen requests, deploy new elections, and reveal encrypted results on Sepolia.
+          </p>
+          <div className="bg-slate-900 text-yellow-300 p-3 rounded-lg text-[11px] font-mono select-all overflow-x-auto border border-slate-800">
+            0xc17e050709c8c16336e212b3bbcf44ddb263f14517a66e4b70b86b88c27e2f6e
+          </div>
+        </div>
+
         {/* Section 1: Introduction */}
         <section className="mb-10 text-justify">
           <h2 className="text-xl font-bold font-sans text-slate-800 border-b border-slate-200 pb-2 mb-4 uppercase tracking-wide">

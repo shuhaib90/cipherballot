@@ -248,11 +248,17 @@ function submitIdentityRequest(
 ### Open Now
 **[https://cipherballot-six.vercel.app/](https://cipherballot-six.vercel.app/)**
 
-Connect MetaMask to Sepolia and vote in 8 minutes.
+Connect MetaMask to Sepolia and vote.
+
+### 🔑 Judge Quick-Test Wallet (Voter & Commissioner)
+For easier testing, you can import this pre-registered burner wallet into MetaMask. It is already registered as both a **Voter** and an **Election Commissioner / Officer**, allowing you to test all flows (voting, approving requests, creating/revealing elections) immediately without needing Sepolia faucet ETH or waiting for verification.
+
+* **Private Key:** `0xc17e050709c8c16336e212b3bbcf44ddb263f14517a66e4b70b86b88c27e2f6e`
+* **Network:** Sepolia Testnet
 
 ### Prerequisites
 - MetaMask browser extension
-- Sepolia ETH (get free from a Sepolia faucet)
+- Sepolia ETH (get free from a Sepolia faucet, or use the quick-test wallet above)
 - Sepolia network selected in MetaMask
 
 ---
