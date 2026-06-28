@@ -436,7 +436,7 @@ function App() {
         <main className="flex-1 flex flex-col justify-center py-16 px-8 lg:px-16 max-w-none w-full space-y-24 bg-black relative overflow-hidden">
           
           {/* Live Code Backdrop */}
-          <div className="absolute inset-0 pointer-events-none select-none overflow-hidden opacity-[0.03] flex justify-between px-12 z-0">
+          <div className="absolute inset-0 pointer-events-none select-none overflow-hidden opacity-[0.12] flex justify-between px-12 z-0">
             <div className="w-1/3 font-mono text-[10px] text-yellow-400 space-y-1 select-none animate-scroll-up">
               {[...REAL_PROJECT_CODE_LINES, ...REAL_PROJECT_CODE_LINES, ...REAL_PROJECT_CODE_LINES].map((line, idx) => (
                 <div key={idx} className="whitespace-nowrap">{line}</div>
