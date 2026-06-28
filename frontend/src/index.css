@@ -101,3 +101,13 @@
 .animate-float {
   animation: float 4s ease-in-out infinite;
 }
+
+@keyframes scroll-up {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(-50%); }
+}
+
+.animate-scroll-up {
+  animation: scroll-up 45s linear infinite;
+}
+

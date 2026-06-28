@@ -15,6 +15,44 @@ import { useContract, type ElectionDetails } from './hooks/useContract';
 import { X, ShieldCheck, RefreshCw, Lock, Cpu, EyeOff, ShieldAlert, ArrowRight, Share2, Github, Linkedin, Twitter } from 'lucide-react';
 import type { CitizenStatus } from './utils/types';
 
+const REAL_PROJECT_CODE_LINES = [
+  "// SPDX-License-Identifier: BSD-3-Clause-Clear",
+  "pragma solidity ^0.8.24;",
+  "",
+  "import \"fhevm/lib/TFHE.sol\";",
+  "import \"./VoterRegistry.sol\";",
+  "",
+  "contract Election {",
+  "    string public name;",
+  "    string public description;",
+  "    ",
+  "    // Encrypted tallies for candidates",
+  "    mapping(uint8 => euint32) internal encryptedTallies;",
+  "    mapping(address => bool) public hasVoted;",
+  "    ",
+  "    constructor(string memory _name, string[] memory _candidates) {",
+  "        name = _name;",
+  "        for (uint8 i = 0; i < _candidates.length; i++) {",
+  "            encryptedTallies[i] = TFHE.asEuint32(0);",
+  "        }",
+  "    }",
+  "    ",
+  "    function castVote(bytes calldata encryptedChoice, bytes calldata proof) external {",
+  "        require(!hasVoted[msg.sender], \"Already voted\");",
+  "        euint8 choice = TFHE.asEuint8(encryptedChoice);",
+  "        TFHE.req(TFHE.isSenderAllowed(choice));",
+  "        ",
+  "        for (uint8 i = 0; i < candidateCount; i++) {",
+  "            ebool isChosen = TFHE.eq(choice, TFHE.asEuint8(i));",
+  "            euint32 inc = TFHE.select(isChosen, TFHE.asEuint32(1), TFHE.asEuint32(0));",
+  "            encryptedTallies[i] = TFHE.add(encryptedTallies[i], inc);",
+  "        }",
+  "        hasVoted[msg.sender] = true;",
+  "    }",
+  "}",
+  "// End of FHE Cryptographic Ballot Protocol"
+];
+
 function App() {
   const {
     address,
@@ -252,7 +290,7 @@ function App() {
       />
 
       {isConnected && activeTab !== 'landing' ? (
-        <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <main className="flex-1 max-w-none w-full px-8 lg:px-16 py-8">
           {activeTab === 'register' && (
             <IdentityVerification
               citizenStatus={citizenStatus}
@@ -395,21 +433,40 @@ function App() {
         </main>
       ) : (
         /* Zama-style Premium Landing Page Hub */
-        <main className="flex-1 flex flex-col justify-center py-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto space-y-24 bg-black">
+        <main className="flex-1 flex flex-col justify-center py-16 px-8 lg:px-16 max-w-none w-full space-y-24 bg-black relative overflow-hidden">
           
+          {/* Live Code Backdrop */}
+          <div className="absolute inset-0 pointer-events-none select-none overflow-hidden opacity-[0.03] flex justify-between px-12 z-0">
+            <div className="w-1/3 font-mono text-[10px] text-yellow-400 space-y-1 select-none animate-scroll-up">
+              {[...REAL_PROJECT_CODE_LINES, ...REAL_PROJECT_CODE_LINES, ...REAL_PROJECT_CODE_LINES].map((line, idx) => (
+                <div key={idx} className="whitespace-nowrap">{line}</div>
+              ))}
+            </div>
+            <div className="w-1/3 font-mono text-[10px] text-yellow-400 space-y-1 select-none animate-scroll-up [animation-delay:-15s] hidden md:block">
+              {[...REAL_PROJECT_CODE_LINES, ...REAL_PROJECT_CODE_LINES, ...REAL_PROJECT_CODE_LINES].map((line, idx) => (
+                <div key={idx} className="whitespace-nowrap">{line}</div>
+              ))}
+            </div>
+            <div className="w-1/3 font-mono text-[10px] text-yellow-400 space-y-1 select-none animate-scroll-up [animation-delay:-30s] hidden lg:block">
+              {[...REAL_PROJECT_CODE_LINES, ...REAL_PROJECT_CODE_LINES, ...REAL_PROJECT_CODE_LINES].map((line, idx) => (
+                <div key={idx} className="whitespace-nowrap">{line}</div>
+              ))}
+            </div>
+          </div>
+
           {/* Hero Section */}
-          <div className="flex flex-col lg:flex-row items-center justify-between gap-16 pt-8 border-b border-slate-950 pb-16">
-            <div className="space-y-6 max-w-2xl text-left">
+          <div className="flex flex-col lg:flex-row items-center justify-between gap-16 pt-8 border-b border-slate-950 pb-16 relative z-10">
+            <div className="space-y-6 max-w-3xl text-left">
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded border border-yellow-500/20 bg-yellow-500/5 text-xs font-mono font-bold text-[#FFD208] uppercase tracking-wider">
                 <ShieldCheck className="h-3.5 w-3.5" />
                 Fully Homomorphic Encryption (FHE)
               </div>
               
-              <h1 className="text-4xl font-black tracking-tight sm:text-6xl font-sans text-white leading-none">
+              <h1 className="text-5xl font-black tracking-tight sm:text-7xl font-sans text-white leading-none">
                 BUILD <span className="text-[#FFD208]">CONFIDENTIAL</span> ELECTIONS
               </h1>
               
-              <p className="text-slate-400 text-sm sm:text-base leading-relaxed font-medium">
+              <p className="text-slate-400 text-sm sm:text-base leading-relaxed font-medium max-w-2xl">
                 CipherBallot is a next-generation decentralized election system powered by Zama's FHEVM. It allows voting ballots to remain cryptographically sealed during computation, ensuring absolute privacy while remaining fully verifiable on-chain.
               </p>
 
@@ -442,7 +499,7 @@ function App() {
             </div>
 
             {/* Glowing Cryptographic Shield Graphic */}
-            <div className="relative flex h-80 w-80 items-center justify-center shrink-0">
+            <div className="relative flex h-80 w-80 items-center justify-center shrink-0 z-10">
               <div className="absolute inset-0 rounded-full bg-yellow-500/5 blur-3xl" />
               {/* Outer thin grid lines */}
               <div className="absolute w-72 h-72 rounded-full border border-yellow-500/5 animate-spin [animation-duration:30s]" />
@@ -456,8 +513,23 @@ function App() {
             </div>
           </div>
 
+          {/* Live Network Stats Dashboard */}
+          <div className="grid gap-6 grid-cols-2 lg:grid-cols-4 relative z-10 border-b border-slate-955 pb-16">
+            {[
+              { label: "Network Status", val: "Connected (Sepolia)" },
+              { label: "FHE Engine", val: "Zama fhEVM v2.0" },
+              { label: "MPC Threshold", val: "5 / 7 Quorum" },
+              { label: "Gas Limit per Tx", val: "10,000,000" }
+            ].map((stat, i) => (
+              <div key={i} className="bg-[#030305] border border-slate-950 p-6 rounded-lg text-left space-y-1">
+                <span className="text-[9px] font-bold text-slate-500 uppercase tracking-widest font-mono">{stat.label}</span>
+                <p className="text-sm font-black text-slate-200">{stat.val}</p>
+              </div>
+            ))}
+          </div>
+
           {/* Interactive Code / FHEVM Core Mechanic Section */}
-          <div className="grid gap-12 lg:grid-cols-2 items-center border-b border-slate-955 pb-16">
+          <div className="grid gap-16 lg:grid-cols-2 items-center border-b border-slate-955 pb-16 relative z-10">
             <div className="space-y-6 text-left">
               <span className="text-[10px] font-bold text-[#FFD208] uppercase tracking-widest font-mono">Core FHE VM Primitive</span>
               <h2 className="text-3xl font-black text-white leading-tight">
@@ -507,8 +579,34 @@ function App() {
             </div>
           </div>
 
+          {/* Cryptographic Protocol Flowchart */}
+          <div className="space-y-8 border-b border-slate-955 pb-16 relative z-10 text-left">
+            <div className="text-center max-w-lg mx-auto space-y-2">
+              <span className="text-[10px] font-bold text-[#FFD208] uppercase tracking-widest font-mono">Process Pipeline</span>
+              <h2 className="text-3xl font-black text-white">THE CRYPTOGRAPHIC FLOW</h2>
+              <p className="text-xs text-slate-500 font-medium">How CipherBallot processes your identity and ballot end-to-end.</p>
+            </div>
+
+            <div className="grid gap-6 md:grid-cols-4">
+              {[
+                { title: "1. Identity Seal", desc: "Citizen details are encrypted locally using Zama Wasm SDK before submission." },
+                { title: "2. Whitelisting", desc: "Commissioner reviews and approves the FHE-allowed document on-chain." },
+                { title: "3. Shielded Vote", desc: "Ballots are cast as encrypted indexes, tallied homomorphically on-chain." },
+                { title: "4. MPC Decryption", desc: "KMS MPC nodes decrypt only the final sums, leaving ballots hidden forever." }
+              ].map((step, idx) => (
+                <div key={idx} className="bg-[#030305] border border-slate-950 p-6 rounded-lg space-y-3 relative">
+                  <div className="absolute -top-3 -left-3 h-7 w-7 rounded-full bg-[#FFD208] text-black font-black flex items-center justify-center text-xs">
+                    {idx + 1}
+                  </div>
+                  <h4 className="text-xs font-bold text-white uppercase tracking-wide pt-2">{step.title}</h4>
+                  <p className="text-[11px] text-slate-550 leading-relaxed font-medium">{step.desc}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+
           {/* Cryptographic Guarantees Grid */}
-          <div className="space-y-8">
+          <div className="space-y-8 relative z-10">
             <div className="text-center max-w-lg mx-auto space-y-2">
               <span className="text-[10px] font-bold text-[#FFD208] uppercase tracking-widest font-mono">Security Guarantees</span>
               <h2 className="text-3xl font-black text-white">WHY CIPHERBALLOT?</h2>
@@ -521,7 +619,7 @@ function App() {
                   <Lock className="h-5 w-5" />
                 </div>
                 <h3 className="text-sm font-bold text-white uppercase tracking-wide">End-to-End Encryption</h3>
-                <p className="text-[11px] text-slate-500 leading-relaxed font-medium">
+                <p className="text-[11px] text-slate-550 leading-relaxed font-medium">
                   Your votes and identity details are encrypted client-side. No plain text data is ever leaked to the network.
                 </p>
               </div>
@@ -531,7 +629,7 @@ function App() {
                   <EyeOff className="h-5 w-5" />
                 </div>
                 <h3 className="text-sm font-bold text-white uppercase tracking-wide">Voter Privacy</h3>
-                <p className="text-[11px] text-slate-500 leading-relaxed font-medium">
+                <p className="text-[11px] text-slate-550 leading-relaxed font-medium">
                   Mathematical computations happen directly on the encrypted tallies. Nobody sees the intermediate votes.
                 </p>
               </div>
@@ -541,7 +639,7 @@ function App() {
                   <Cpu className="h-5 w-5" />
                 </div>
                 <h3 className="text-sm font-bold text-white uppercase tracking-wide">On-Chain Verifiability</h3>
-                <p className="text-[11px] text-slate-500 leading-relaxed font-medium">
+                <p className="text-[11px] text-slate-550 leading-relaxed font-medium">
                   Verification happens publically on-chain using threshold KMS signatures to unlock the audited results.
                 </p>
               </div>
@@ -551,16 +649,70 @@ function App() {
                   <ShieldAlert className="h-5 w-5" />
                 </div>
                 <h3 className="text-sm font-bold text-white uppercase tracking-wide">Sybil Protection</h3>
-                <p className="text-[11px] text-slate-500 leading-relaxed font-medium">
+                <p className="text-[11px] text-slate-550 leading-relaxed font-medium">
                   Government document hashes ensure single-vote compliance without storing your cleartext records.
                 </p>
               </div>
             </div>
           </div>
 
+          {/* Simulated Audit Ledger Feed */}
+          <div className="space-y-8 border-t border-slate-955 pt-16 relative z-10">
+            <div className="text-center max-w-lg mx-auto space-y-2">
+              <span className="text-[10px] font-bold text-[#FFD208] uppercase tracking-widest font-mono">Live Audit Feed</span>
+              <h2 className="text-3xl font-black text-white">CRYPTOGRAPHIC LEDGER</h2>
+              <p className="text-xs text-slate-500 font-medium">Real-time audit trail of zero-knowledge & homomorphic transactions.</p>
+            </div>
+
+            <div className="bg-[#030305] border border-slate-950 rounded-xl overflow-hidden shadow-2xl font-mono text-xs text-left">
+              {/* Terminal Header */}
+              <div className="bg-slate-950 border-b border-slate-955 px-4 py-3 flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div className="h-3 w-3 rounded-full bg-yellow-500/30 animate-pulse" />
+                  <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">sepolia-ledger-feed.sh</span>
+                </div>
+                <span className="text-[10px] text-emerald-400 font-semibold bg-emerald-500/10 px-2 py-0.5 rounded">
+                  LIVE SYNCING
+                </span>
+              </div>
+              
+              {/* Ledger Table */}
+              <div className="divide-y divide-slate-955 max-h-[300px] overflow-y-auto pr-1">
+                {[
+                  { tx: "0x8f3c...9a2f", type: "Cast Shielded Ballot", cipher: "euint8(0x7f4c93...)", gas: "142,504", status: "Success", age: "12s ago" },
+                  { tx: "0x3da2...5b8c", type: "Register FHE Identity", cipher: "euint256(0x9d2ea...)", gas: "328,190", status: "Success", age: "1m ago" },
+                  { tx: "0x12c4...e3da", type: "Approve Voter Status", cipher: "delegateRequestAccess()", gas: "84,921", status: "Success", age: "3m ago" },
+                  { tx: "0x7b1a...f2e5", type: "Cast Shielded Ballot", cipher: "euint8(0x1a8f9c...)", gas: "142,504", status: "Success", age: "5m ago" },
+                  { tx: "0x9fe2...6b7d", type: "Request KMS Decryption", cipher: "revealResultCallback()", gas: "195,432", status: "Success", age: "8m ago" }
+                ].map((item, idx) => (
+                  <div key={idx} className="p-4 flex flex-col md:flex-row md:items-center justify-between gap-4 hover:bg-slate-950/40 transition">
+                    <div className="flex items-center gap-4">
+                      <span className="text-slate-500 font-bold">TX</span>
+                      <span className="text-yellow-400 font-bold select-all">{item.tx}</span>
+                      <span className="text-slate-300 font-semibold uppercase text-[10px] bg-slate-900 border border-slate-800 px-2 py-0.5 rounded">
+                        {item.type}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-6 text-slate-400 text-[11px] self-start md:self-auto">
+                      <div>
+                        <span className="text-slate-600">Payload: </span>
+                        <span className="text-slate-300 font-bold select-all">{item.cipher}</span>
+                      </div>
+                      <div>
+                        <span className="text-slate-600">Gas: </span>
+                        <span className="text-slate-300">{item.gas}</span>
+                      </div>
+                      <span className="text-slate-500 font-semibold">{item.age}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
           {/* Wallet Error Alert Banner */}
           {walletError && showWalletError && (
-            <div className="max-w-md mx-auto bg-rose-500/10 border border-rose-500/20 rounded p-4 text-xs text-rose-400 font-semibold flex items-center justify-between gap-3 shadow-lg font-mono">
+            <div className="max-w-md mx-auto bg-rose-500/10 border border-rose-500/20 rounded p-4 text-xs text-rose-400 font-semibold flex items-center justify-between gap-3 shadow-lg font-mono relative z-10">
               <span className="leading-relaxed">{walletError}</span>
               <button
                 onClick={() => setShowWalletError(false)}
