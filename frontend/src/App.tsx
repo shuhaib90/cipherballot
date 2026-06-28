@@ -12,6 +12,7 @@ import { ElectionShareCard } from './components/ElectionShareCard';
 import { useWallet } from './hooks/useWallet';
 import { useFhevm } from './hooks/useFhevm';
 import { useContract, type ElectionDetails } from './hooks/useContract';
+import { InteractiveNetworkGlobe } from './components/InteractiveNetworkGlobe';
 import { X, ShieldCheck, RefreshCw, Lock, Cpu, EyeOff, ShieldAlert, ArrowRight, Share2, Github, Linkedin, Twitter } from 'lucide-react';
 import type { CitizenStatus } from './utils/types';
 
@@ -436,7 +437,7 @@ function App() {
         <main className="flex-1 flex flex-col justify-center py-16 px-8 lg:px-16 max-w-none w-full space-y-24 bg-black relative overflow-hidden">
 
           {/* Hero Section */}
-          <div className="flex flex-col lg:flex-row items-center justify-between gap-16 pt-8 border-b border-slate-950 pb-16 relative overflow-hidden z-10 rounded-2xl p-8 sm:p-12">
+          <div className="grid lg:grid-cols-12 gap-16 pt-12 border-b border-slate-955 pb-16 relative overflow-hidden z-10 rounded-2xl p-8 sm:p-12 items-center">
             
             {/* Live Code Backdrop (Scoped to Hero Section) */}
             <div className="absolute inset-0 pointer-events-none select-none overflow-hidden opacity-[0.18] flex justify-between px-12 z-0">
@@ -460,7 +461,8 @@ function App() {
             {/* Glass Blur Overlay */}
             <div className="absolute inset-0 bg-black/65 backdrop-blur-[1.5px] z-[1] pointer-events-none" />
 
-            <div className="space-y-6 max-w-3xl text-left relative z-10">
+            {/* Left Column: Hero Text */}
+            <div className="lg:col-span-7 space-y-6 text-left relative z-10">
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded border border-yellow-500/20 bg-yellow-500/5 text-xs font-mono font-bold text-[#FFD208] uppercase tracking-wider">
                 <ShieldCheck className="h-3.5 w-3.5" />
                 Fully Homomorphic Encryption (FHE)
@@ -502,16 +504,9 @@ function App() {
               </div>
             </div>
 
-            {/* High-Tech Web3 Architecture Graphic */}
-            <div className="relative flex h-96 w-96 items-center justify-center shrink-0 z-10">
-              <div className="absolute inset-0 rounded-full bg-yellow-500/5 blur-3xl" />
-              <div className="absolute w-80 h-80 rounded-full border border-yellow-500/5 animate-spin [animation-duration:45s]" />
-              <div className="absolute w-72 h-72 rounded-full border border-slate-900" />
-              
-              {/* Core Image Panel */}
-              <div className="z-10 w-80 h-80 rounded-2xl bg-black border border-slate-900 hover:border-yellow-500/20 shadow-2xl overflow-hidden transition duration-300 relative">
-                <img src="/web3_network_architecture.png" alt="Web3 Network Architecture" className="w-full h-full object-cover opacity-80 hover:opacity-100 transition duration-300" />
-              </div>
+            {/* Right Column: High-Tech Web3 Interactive Globe */}
+            <div className="lg:col-span-5 flex justify-center items-center relative z-10">
+              <InteractiveNetworkGlobe />
             </div>
           </div>
 
@@ -532,12 +527,41 @@ function App() {
 
           {/* Fleek-inspired Technical Breakdown */}
           <div className="grid gap-16 lg:grid-cols-2 items-center border-b border-slate-955 pb-16 relative z-10">
-            {/* Column 1: Image / Diagram */}
-            <div className="relative flex h-96 w-full items-center justify-center bg-[#030305] border border-slate-950 rounded-2xl overflow-hidden shadow-2xl">
-              <div className="absolute inset-0 bg-gradient-to-tr from-yellow-500/5 to-transparent opacity-50" />
-              <img src="/web3_network_architecture.png" alt="Decentralized Network" className="w-full h-full object-cover opacity-60" />
-              <div className="absolute bottom-4 left-4 font-mono text-[9px] text-slate-500 uppercase tracking-widest">
-                // System Layer Diagram
+            {/* Column 1: Interactive SVG Layer Diagram */}
+            <div className="relative flex h-96 w-full items-center justify-center bg-[#030305] border border-slate-950 rounded-2xl overflow-hidden shadow-2xl p-6">
+              <div className="absolute inset-0 bg-gradient-to-tr from-yellow-500/5 to-transparent opacity-50 pointer-events-none" />
+              
+              <svg viewBox="0 0 400 300" className="w-full h-full text-slate-400 font-mono text-[10px]">
+                {/* Layer 3: Client Shield */}
+                <g>
+                  <rect x="50" y="40" width="300" height="50" rx="6" fill="rgba(255, 210, 8, 0.03)" stroke="rgba(255, 210, 8, 0.3)" strokeWidth="1.5" />
+                  <text x="200" y="70" textAnchor="middle" fill="#f8fafc" className="font-bold">LAYER 03 // CLIENT SHIELD (WASM)</text>
+                  <circle cx="75" cy="65" r="4" fill="#FFD208" className="animate-pulse" />
+                </g>
+
+                {/* Connection Line 1 */}
+                <line x1="200" y1="90" x2="200" y2="130" stroke="rgba(255, 210, 8, 0.3)" strokeWidth="1.5" strokeDasharray="4,4" />
+
+                {/* Layer 2: FHEVM Mempool */}
+                <g>
+                  <rect x="50" y="130" width="300" height="50" rx="6" fill="rgba(255, 210, 8, 0.03)" stroke="rgba(255, 210, 8, 0.3)" strokeWidth="1.5" />
+                  <text x="200" y="160" textAnchor="middle" fill="#f8fafc" className="font-bold">LAYER 02 // ON-CHAIN TFHE TALLYING</text>
+                  <circle cx="75" cy="155" r="4" fill="#FFD208" className="animate-pulse" />
+                </g>
+
+                {/* Connection Line 2 */}
+                <line x1="200" y1="180" x2="200" y2="220" stroke="rgba(255, 210, 8, 0.3)" strokeWidth="1.5" strokeDasharray="4,4" />
+
+                {/* Layer 1: KMS Threshold Decryption */}
+                <g>
+                  <rect x="50" y="220" width="300" height="50" rx="6" fill="rgba(255, 210, 8, 0.03)" stroke="rgba(255, 210, 8, 0.3)" strokeWidth="1.5" />
+                  <text x="200" y="250" textAnchor="middle" fill="#f8fafc" className="font-bold">LAYER 01 // THRESHOLD KMS DECRYPTION</text>
+                  <circle cx="75" cy="245" r="4" fill="#FFD208" className="animate-pulse" />
+                </g>
+              </svg>
+              
+              <div className="absolute bottom-4 left-4 font-mono text-[9px] text-slate-550 uppercase tracking-widest">
+                // Cryptographic Stack layers
               </div>
             </div>
 
