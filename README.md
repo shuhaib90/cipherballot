@@ -1,4 +1,4 @@
-# CipherBallot — Confidential Election System
+# CipherBallot  Confidential Election System
 
 **Every vote counted. None seen.**
 
