@@ -175,6 +175,7 @@ function App() {
   const [elections, setElections] = useState<string[]>([]);
   const [selectedElectionAddr, setSelectedElectionAddr] = useState<string>('');
   const [selectedElection, setSelectedElection] = useState<ElectionDetails | null>(null);
+  const [electionDetailsMap, setElectionDetailsMap] = useState<Record<string, ElectionDetails>>({});
   const [isRegistered, setIsRegistered] = useState<boolean>(false);
   const [isOfficer, setIsOfficer] = useState<boolean>(false);
   const [showWalletError, setShowWalletError] = useState<boolean>(true);
@@ -448,18 +449,39 @@ function App() {
   // Load elections list
   const loadElections = useCallback(async () => {
     if (!isConnected) return;
-    const list = await getElectionsList();
-    setElections(list);
-    
-    const params = new URLSearchParams(window.location.search);
-    const urlElec = params.get('election');
-    if (urlElec && ethers.isAddress(urlElec) && list.some(addr => addr.toLowerCase() === urlElec.toLowerCase())) {
-      setSelectedElectionAddr(urlElec);
-      setActiveTab('elections');
-    } else if (list.length > 0 && !selectedElectionAddr) {
-      setSelectedElectionAddr(list[list.length - 1]); // select newest
+    try {
+      const list = await getElectionsList();
+      setElections(list);
+
+      // Load details for all elections to display names and enable sorting by status
+      const detailsPromises = list.map(addr => getElectionDetails(addr).catch(() => null));
+      const detailsResults = await Promise.all(detailsPromises);
+      const newMap: Record<string, ElectionDetails> = {};
+      detailsResults.forEach((details, index) => {
+        if (details) {
+          newMap[list[index]] = details;
+        }
+      });
+      setElectionDetailsMap(newMap);
+      
+      const params = new URLSearchParams(window.location.search);
+      const urlElec = params.get('election');
+      if (urlElec && ethers.isAddress(urlElec) && list.some(addr => addr.toLowerCase() === urlElec.toLowerCase())) {
+        setSelectedElectionAddr(urlElec);
+        setActiveTab('elections');
+      } else if (list.length > 0 && !selectedElectionAddr) {
+        // Find the first active/Voting poll to focus on, otherwise fallback to the newest
+        const votingPoll = detailsResults.find(d => d && d.status === 'Voting');
+        if (votingPoll) {
+          setSelectedElectionAddr(votingPoll.address);
+        } else {
+          setSelectedElectionAddr(list[list.length - 1]);
+        }
+      }
+    } catch (e) {
+      console.error("Failed to load elections list details:", e);
     }
-  }, [isConnected, getElectionsList, selectedElectionAddr]);
+  }, [isConnected, getElectionsList, getElectionDetails, selectedElectionAddr]);
 
   const [isDetailLoading, setIsDetailLoading] = useState<boolean>(false);
 
@@ -637,25 +659,60 @@ function App() {
                   <div className="glass-panel p-5 space-y-4">
                     <span className="text-[10px] font-black text-yellow-400 uppercase tracking-widest block">Available Shielded Polls</span>
                     <div className="flex flex-col gap-2.5 max-h-[400px] overflow-y-auto pr-1">
-                      {elections.map((addr) => (
-                        <button
-                          key={addr}
-                          onClick={() => setSelectedElectionAddr(addr)}
-                          className={`text-left p-3.5 rounded-xl border text-xs transition duration-200 ${
-                            selectedElectionAddr === addr
-                              ? 'border-yellow-500 bg-yellow-500/5 text-slate-100 font-bold shadow-[0_0_15px_rgba(255,210,8,0.1)]'
-                              : 'border-yellow-950/20 hover:border-yellow-500/20 bg-[#070414]/40 text-slate-400 hover:text-slate-200'
-                          }`}
-                        >
-                          <p className="font-semibold truncate">Address: {addr.substring(0, 10)}...{addr.substring(addr.length - 8)}</p>
-                          {selectedElectionAddr === addr && (
-                            <span className="text-[10px] text-yellow-400 font-bold block mt-1.5 flex items-center gap-1">
-                              <span className="h-1.5 w-1.5 rounded-full bg-yellow-400 animate-pulse"></span>
-                              Active Selection
-                            </span>
-                          )}
-                        </button>
-                      ))}
+                      {(() => {
+                        const sorted = [...elections].sort((a, b) => {
+                          const detailsA = electionDetailsMap[a];
+                          const detailsB = electionDetailsMap[b];
+                          if (!detailsA && !detailsB) return 0;
+                          if (!detailsA) return 1;
+                          if (!detailsB) return -1;
+                          
+                          // Voting (Active) polls first
+                          const isVotingA = detailsA.status === 'Voting';
+                          const isVotingB = detailsB.status === 'Voting';
+                          if (isVotingA && !isVotingB) return -1;
+                          if (!isVotingA && isVotingB) return 1;
+                          
+                          // Otherwise, descending by startTime
+                          return detailsB.startTime - detailsA.startTime;
+                        });
+
+                        return sorted.map((addr) => {
+                          const details = electionDetailsMap[addr];
+                          const displayName = details ? details.name : `Poll ${addr.substring(0, 6)}...`;
+                          const isVoting = details?.status === 'Voting';
+                          
+                          return (
+                            <button
+                              key={addr}
+                              onClick={() => setSelectedElectionAddr(addr)}
+                              className={`text-left p-3.5 rounded-xl border text-xs transition duration-200 ${
+                                selectedElectionAddr === addr
+                                  ? 'border-yellow-500 bg-yellow-500/5 text-slate-100 font-bold shadow-[0_0_15px_rgba(255,210,8,0.1)]'
+                                  : 'border-yellow-950/20 hover:border-yellow-500/20 bg-[#070414]/40 text-slate-400 hover:text-slate-200'
+                              }`}
+                            >
+                              <p className="font-semibold truncate">{displayName}</p>
+                              <p className="text-[9px] text-slate-500 font-mono mt-0.5 truncate">{addr}</p>
+                              <div className="flex items-center justify-between mt-2">
+                                <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded ${
+                                  isVoting 
+                                    ? 'bg-yellow-500/10 text-yellow-400 border border-yellow-500/20' 
+                                    : 'bg-slate-900 text-slate-500 border border-slate-800'
+                                }`}>
+                                  {isVoting ? 'ACTIVE' : details?.status?.toUpperCase() || 'LOADING'}
+                                </span>
+                                {selectedElectionAddr === addr && (
+                                  <span className="text-[10px] text-yellow-400 font-bold flex items-center gap-1">
+                                    <span className="h-1.5 w-1.5 rounded-full bg-yellow-400 animate-pulse"></span>
+                                    Selected
+                                  </span>
+                                )}
+                              </div>
+                            </button>
+                          );
+                        });
+                      })()}
                     </div>
                   </div>
                 </div>
