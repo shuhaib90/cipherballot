@@ -77,6 +77,22 @@ const CODE_TOKENS = [
 
 function App() {
   const [typedCharCount, setTypedCharCount] = useState<number>(0);
+  const [theme, setTheme] = useState<'dark' | 'light'>(() => {
+    const saved = localStorage.getItem('theme');
+    return (saved === 'light' || saved === 'dark') ? saved : 'dark';
+  });
+
+  useEffect(() => {
+    const root = document.documentElement;
+    if (theme === 'light') {
+      root.classList.add('light');
+      root.classList.remove('dark');
+    } else {
+      root.classList.add('dark');
+      root.classList.remove('light');
+    }
+    localStorage.setItem('theme', theme);
+  }, [theme]);
 
   useEffect(() => {
     const totalLength = CODE_TOKENS.reduce((sum, t) => sum + t.text.length, 0);
@@ -333,6 +349,8 @@ function App() {
         reinitFhe={reinitFhe}
         activeTab={activeTab}
         setActiveTab={setActiveTab}
+        theme={theme}
+        toggleTheme={() => setTheme(prev => prev === 'light' ? 'dark' : 'light')}
       />
 
       {isConnected && activeTab !== 'landing' ? (

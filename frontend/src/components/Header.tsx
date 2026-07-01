@@ -1,4 +1,4 @@
-import { Vote, Wallet, Shield, Key, RefreshCw, HelpCircle, Users, ClipboardList } from 'lucide-react';
+import { Vote, Wallet, Shield, Key, RefreshCw, HelpCircle, Users, ClipboardList, Sun, Moon } from 'lucide-react';
 
 interface HeaderProps {
   address: string;
@@ -12,6 +12,8 @@ interface HeaderProps {
   reinitFhe: () => void;
   activeTab: 'landing' | 'register' | 'elections' | 'voter-status' | 'commission' | 'how-it-works' | 'docs';
   setActiveTab: (tab: 'landing' | 'register' | 'elections' | 'voter-status' | 'commission' | 'how-it-works' | 'docs') => void;
+  theme: 'dark' | 'light';
+  toggleTheme: () => void;
 }
 
 export function Header({
@@ -25,7 +27,9 @@ export function Header({
   disconnectWallet,
   reinitFhe,
   activeTab,
-  setActiveTab
+  setActiveTab,
+  theme,
+  toggleTheme
 }: HeaderProps) {
   // Helper to truncate address
   const truncateAddress = (addr: string) => {
@@ -79,6 +83,19 @@ export function Header({
 
         {/* Right Status Controls */}
         <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+          {/* Theme Toggle */}
+          <button
+            onClick={toggleTheme}
+            className="flex h-8 w-8 items-center justify-center rounded-lg border border-yellow-500/10 bg-[#141414] hover:bg-[#1f1f1f]/80 text-[#FFD208] hover:text-yellow-300 transition duration-200"
+            title={theme === 'light' ? 'Switch to Dark Mode' : 'Switch to Light Mode'}
+          >
+            {theme === 'light' ? (
+              <Moon className="h-4 w-4" />
+            ) : (
+              <Sun className="h-4 w-4" />
+            )}
+          </button>
+
           {/* FHE Status Indicator */}
           {isConnected && (
             <button

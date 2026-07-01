@@ -122,4 +122,162 @@
   animation: code-scan 6s linear infinite;
 }
 
+/* Premium Light Mode Styles */
+html.light body {
+  background-color: #f8fafc !important;
+  color: #1e293b !important;
+  background-image: 
+    radial-gradient(circle at 50% -20%, rgba(255, 210, 8, 0.05) 0%, transparent 50%),
+    radial-gradient(circle at 0% 100%, rgba(255, 210, 8, 0.02) 0%, transparent 40%),
+    radial-gradient(circle at 100% 60%, rgba(255, 210, 8, 0.01) 0%, transparent 35%) !important;
+}
+
+html.light .glass-panel {
+  background-color: rgba(255, 255, 255, 0.8) !important;
+  border-color: rgba(226, 232, 240, 0.8) !important;
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.04) !important;
+}
+
+html.light .glass-panel:hover {
+  border-color: rgba(203, 213, 225, 0.8) !important;
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.06) !important;
+}
+
+html.light .glow-card {
+  background: linear-gradient(to bottom, #ffffff, #f8fafc) !important;
+  border-color: rgba(226, 232, 240, 0.8) !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02) !important;
+}
+
+html.light .glow-card:hover {
+  border-color: rgba(203, 213, 225, 0.8) !important;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.04) !important;
+}
+
+html.light .btn-secondary {
+  background-color: #ffffff !important;
+  color: #b45309 !important;
+  border-color: rgba(245, 158, 11, 0.25) !important;
+}
+
+html.light .btn-secondary:hover {
+  background-color: #f8fafc !important;
+  border-color: rgba(245, 158, 11, 0.5) !important;
+}
+
+html.light .input-field {
+  background-color: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+html.light .input-field:focus {
+  border-color: #f59e0b !important;
+  box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.1) !important;
+}
+
+html.light header {
+  background-color: rgba(255, 255, 255, 0.8) !important;
+  border-color: rgba(226, 232, 240, 0.8) !important;
+}
+
+html.light footer {
+  background-color: #f1f5f9 !important;
+  border-top-color: #e2e8f0 !important;
+}
+
+html.light .text-slate-100 { color: #0f172a !important; }
+html.light .text-slate-200 { color: #1e293b !important; }
+html.light .text-slate-300 { color: #334155 !important; }
+html.light .text-slate-400 { color: #475569 !important; }
+html.light .text-slate-500 { color: #64748b !important; }
+html.light .text-slate-650 { color: #475569 !important; }
+html.light .text-white { color: #0f172a !important; }
+
+html.light .bg-black {
+  background-color: #f8fafc !important;
+}
+
+html.light .bg-\[\#030305\] {
+  background-color: #ffffff !important;
+}
+
+html.light .bg-\[\#0b0b0f\] {
+  background-color: #ffffff !important;
+}
+
+html.light .bg-\[\#141414\] {
+  background-color: #ffffff !important;
+}
+
+html.light .bg-\[\#141414\]\/60 {
+  background-color: rgba(255, 255, 255, 0.6) !important;
+}
+
+html.light .bg-slate-950\/40 {
+  background-color: rgba(241, 245, 249, 0.5) !important;
+}
+
+html.light .border-slate-800,
+html.light .border-slate-900,
+html.light .border-slate-950,
+html.light .border-slate-955 {
+  border-color: #cbd5e1 !important;
+}
+
+html.light .border-yellow-500\/10 {
+  border-color: rgba(245, 158, 11, 0.15) !important;
+}
+
+html.light .text-yellow-450,
+html.light .text-yellow-455,
+html.light .text-yellow-400 {
+  color: #b45309 !important;
+}
+
+html.light .bg-gradient-to-b.from-\[\#141414\].to-\[\#080808\] {
+  background-image: linear-gradient(to bottom, #ffffff, #f8fafc) !important;
+}
+
+html.light .bg-gradient-to-tr.from-yellow-500\/5.to-transparent {
+  background-image: linear-gradient(to top right, rgba(245, 158, 11, 0.05), transparent) !important;
+}
+
+html.light .bg-yellow-500\/5 {
+  background-color: rgba(245, 158, 11, 0.03) !important;
+}
+
+html.light .bg-yellow-500\/\[0\.01\] {
+  background-color: rgba(245, 158, 11, 0.01) !important;
+}
+
+html.light .bg-slate-50\/50 {
+  background-color: rgba(241, 245, 249, 0.5) !important;
+}
+
+html.light .hover\:bg-yellow-950\/10:hover {
+  background-color: rgba(245, 158, 11, 0.08) !important;
+}
+
+html.light .bg-\[\#070414\]\/30 {
+  background-color: rgba(241, 245, 249, 0.5) !important;
+}
+
+html.light .bg-\[\#0b071a\]\/30 {
+  background-color: rgba(241, 245, 249, 0.5) !important;
+}
+
+html.light .text-\[\#FFD208\] {
+  color: #b45309 !important;
+}
+
+html.light .bg-gradient-to-r.from-white.to-yellow-300 {
+  background-image: linear-gradient(to right, #0f172a, #b45309) !important;
+}
+
+html.light .bg-gradient-to-r.from-white.via-slate-100.to-yellow-300 {
+  background-image: linear-gradient(to right, #0f172a, #334155, #b45309) !important;
+}
+
+
 
