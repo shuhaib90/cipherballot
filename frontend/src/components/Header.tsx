@@ -51,9 +51,7 @@ export function Header({
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
         {/* Logo and Tagline */}
         <div className="flex items-center gap-2.5 shrink-0 cursor-pointer" onClick={() => setActiveTab('landing')}>
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-tr from-[#FFD208] to-[#FF9F00] shadow-md shadow-yellow-600/20">
-            <Vote className="h-5 w-5 text-black" />
-          </div>
+          <img src="/logo.png" alt="CipherBallot Logo" className="h-9 w-9 object-contain" />
           <div>
             <span className="font-sans text-lg font-black tracking-tight bg-gradient-to-r from-white to-yellow-300 bg-clip-text text-transparent">
               CipherBallot

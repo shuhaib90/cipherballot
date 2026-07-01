@@ -950,9 +950,7 @@ function App() {
       <footer className="border-t border-yellow-500/10 bg-[#060608] py-10 mt-auto">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="flex items-center gap-2">
-            <div className="flex h-6 w-6 items-center justify-center rounded bg-gradient-to-tr from-[#FFD208] to-[#FF9F00]">
-              <span className="text-[10px] font-black text-black">CB</span>
-            </div>
+            <img src="/logo.png" alt="CipherBallot Logo" className="h-6 w-6 object-contain" />
             <span className="text-xs font-bold tracking-wider text-slate-200">
               CipherBallot
             </span>

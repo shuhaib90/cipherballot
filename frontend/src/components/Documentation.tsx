@@ -53,9 +53,7 @@ export function Documentation() {
         <aside className="hidden lg:block w-64 shrink-0 border-r border-slate-100 p-8 bg-slate-50/50">
           <div className="space-y-8 sticky top-8">
             <div className="flex items-center gap-2 mb-6">
-              <div className="flex h-5 w-5 items-center justify-center rounded bg-gradient-to-tr from-amber-500 to-yellow-500">
-                <span className="text-[9px] font-black text-white">CB</span>
-              </div>
+              <img src="/logo.png" alt="CipherBallot Logo" className="h-5 w-5 object-contain" />
               <span className="text-xs font-black tracking-wider text-slate-800 uppercase font-sans">
                 CipherBallot Docs
               </span>
