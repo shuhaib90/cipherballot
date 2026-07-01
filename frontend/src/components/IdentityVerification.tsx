@@ -1,10 +1,29 @@
 import React, { useState, useEffect } from 'react';
-import { ShieldCheck, CheckCircle2, Clock, XCircle, Copy, Check, FileText, ChevronRight, Lock, RefreshCw } from 'lucide-react';
+import { ShieldCheck, CheckCircle2, Clock, XCircle, Copy, Check, FileText, ChevronRight, Lock, RefreshCw, Download, Camera, User } from 'lucide-react';
 import { ethers } from 'ethers';
 import type { CitizenStatus, DocumentType, IdentityFormData } from '../utils/types';
 import { DOCUMENT_TYPE_LABELS } from '../utils/types';
 import { FHE_IDENTITY_REGISTRY_ADDRESS } from '../utils/contract';
 import FHEIdentityRegistryABI from '../abis/FHEIdentityRegistry.json';
+
+const PIXEL_SHIELD = [
+  "XXXXXXXXXXXXXXXX",
+  "XXXXXXXXXXXXXXXX",
+  "XX............XX",
+  "XX...XXXXXX...XX",
+  "XX..XXXXXXXX..XX",
+  "XX..XX.XX.XX..XX",
+  "XX..XXXXXXXX..XX",
+  "XX...XXXXXX...XX",
+  "XX....XXXX....XX",
+  "XX.....XX.....XX",
+  "XX............XX",
+  "XXX..........XXX",
+  ".XXX........XXX.",
+  "..XXX......XXX..",
+  "...XXXX..XXXX...",
+  ".....XXXXXX....."
+];
 
 interface IdentityVerificationProps {
   citizenStatus: CitizenStatus;
@@ -75,7 +94,209 @@ export function IdentityVerification({
   // FHE Decryption of own submitted document
   const [decryptedDoc, setDecryptedDoc] = useState<{ docType: string; content: string } | null>(null);
   const [isDecryptingDoc, setIsDecryptingDoc] = useState<boolean>(false);
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const [downloadingPass, setDownloadingPass] = useState<boolean>(false);
 
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setAvatarUrl(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleDownloadPass = async () => {
+    setDownloadingPass(true);
+    try {
+      const canvas = document.createElement('canvas');
+      canvas.width = 640;
+      canvas.height = 400;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) throw new Error('Could not get canvas context');
+
+      // 1. Draw Space backdrop
+      ctx.fillStyle = '#050508';
+      ctx.fillRect(0, 0, 640, 400);
+
+      // Draw background particles / depth grid
+      ctx.fillStyle = 'rgba(255, 210, 8, 0.05)';
+      ctx.fillRect(10, 10, 620, 380);
+
+      // 2. Draw card base (titanium slate)
+      const cardGrad = ctx.createLinearGradient(20, 20, 620, 380);
+      cardGrad.addColorStop(0, '#0a0b10');
+      cardGrad.addColorStop(0.5, '#131520');
+      cardGrad.addColorStop(1, '#08090d');
+      ctx.fillStyle = cardGrad;
+      
+      const drawRoundedRect = (c: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number) => {
+        c.beginPath();
+        c.moveTo(x + r, y);
+        c.lineTo(x + w - r, y);
+        c.quadraticCurveTo(x + w, y, x + w, y + r);
+        c.lineTo(x + w, y + h - r);
+        c.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+        c.lineTo(x + r, y + h);
+        c.quadraticCurveTo(x, y + h, x, y + h - r);
+        c.lineTo(x, y + r);
+        c.quadraticCurveTo(x, y, x + r, y);
+        c.closePath();
+      };
+
+      drawRoundedRect(ctx, 20, 20, 600, 360, 24);
+      ctx.fill();
+      ctx.strokeStyle = '#FFD208';
+      ctx.lineWidth = 2.5;
+      ctx.stroke();
+
+      // 3. Draw Avatar photo container (left side)
+      ctx.fillStyle = '#050508';
+      drawRoundedRect(ctx, 50, 45, 180, 210, 14);
+      ctx.fill();
+      ctx.strokeStyle = '#222533';
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+
+      // Draw avatar image or fallback placeholder
+      if (avatarUrl) {
+        const img = new Image();
+        img.src = avatarUrl;
+        await new Promise((resolve) => {
+          img.onload = resolve;
+          img.onerror = resolve;
+        });
+        
+        ctx.save();
+        ctx.beginPath();
+        // Clip to avatar container size
+        drawRoundedRect(ctx, 52, 47, 176, 206, 12);
+        ctx.clip();
+        ctx.drawImage(img, 52, 47, 176, 206);
+        ctx.restore();
+      } else {
+        // Draw FHE 8-bit shield placeholder
+        ctx.fillStyle = '#FFD208';
+        const startX = 50 + (180 - (16 * 6)) / 2;
+        const startY = 45 + (210 - (16 * 6)) / 2;
+        PIXEL_SHIELD.forEach((row, rIdx) => {
+          row.split('').forEach((char, cIdx) => {
+            if (char === 'X') {
+              ctx.fillRect(startX + cIdx * 6, startY + rIdx * 6, 6, 6);
+            }
+          });
+        });
+      }
+
+      // Vertical barcode text on the left container edge
+      ctx.save();
+      ctx.translate(42, 150);
+      ctx.rotate(-Math.PI / 2);
+      ctx.fillStyle = '#FFD208';
+      ctx.font = 'bold 9px monospace';
+      ctx.textAlign = 'center';
+      ctx.fillText(`CB-PASS-${citizenStatus.requestId || '02'}-FHE-SEALED`, 0, 0);
+      ctx.restore();
+
+      // 4. Draw Right Side: Title & Bracket Metadata
+      ctx.fillStyle = '#ffffff';
+      ctx.font = '900 24px monospace';
+      ctx.textAlign = 'left';
+      ctx.letterSpacing = '2px';
+      ctx.fillText('IDENTIFICATION CARD', 255, 75);
+
+      // Dash line
+      ctx.strokeStyle = 'rgba(255, 210, 8, 0.2)';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(255, 90);
+      ctx.lineTo(590, 90);
+      ctx.stroke();
+
+      // Helper for bracket metadata
+      const drawBracketMeta = (lbl: string, val: string, rx: number, ry: number) => {
+        ctx.fillStyle = '#64748b';
+        ctx.font = 'bold 9px sans-serif';
+        ctx.fillText(`[${lbl}]`, rx, ry);
+        ctx.fillStyle = '#ffffff';
+        ctx.font = 'bold 11px monospace';
+        ctx.fillText(val, rx, ry + 16);
+      };
+
+      drawBracketMeta('name', 'CIPHERBALLOT CITIZEN', 255, 115);
+      drawBracketMeta('wallet', address.substring(0, 16) + '...', 255, 165);
+      drawBracketMeta('authority', 'NETWORK GUARDIANS', 255, 215);
+
+      drawBracketMeta('status', 'FHE VERIFIED', 450, 115);
+      drawBracketMeta('pass id', `#${String(citizenStatus.requestId || 2).padStart(4, '0')}`, 450, 165);
+      drawBracketMeta('encryption', 'ZAMA FHEVM', 450, 215);
+
+      // Dashed separator
+      ctx.strokeStyle = 'rgba(255, 210, 8, 0.2)';
+      ctx.lineWidth = 1;
+      ctx.setLineDash([4, 4]);
+      ctx.beginPath();
+      ctx.moveTo(255, 260);
+      ctx.lineTo(590, 260);
+      ctx.stroke();
+      ctx.setLineDash([]); // Reset line dash
+
+      // 5. Draw Signature & Barcode at the bottom
+      ctx.fillStyle = '#8e9bb0';
+      ctx.font = 'italic 10px sans-serif';
+      ctx.fillText('Signature:', 255, 290);
+
+      // Guardian signature brush style text
+      ctx.fillStyle = '#FFD208';
+      ctx.font = 'italic bold 20px monospace';
+      ctx.fillText('~ Network Guardians ~', 255, 318);
+
+      // Draw Barcode lines on the left side of bottom
+      ctx.fillStyle = '#FFD208';
+      let barcodeX = 50;
+      const barcodeY = 275;
+      const barcodeHeight = 35;
+      const pattern = [2, 4, 1, 3, 2, 1, 4, 2, 3, 1, 2, 4, 1, 3, 2, 1, 4, 2, 1, 3, 2, 4];
+      pattern.forEach((width) => {
+        ctx.fillRect(barcodeX, barcodeY, width, barcodeHeight);
+        barcodeX += width + 2;
+      });
+
+      // Bottom barcode text
+      ctx.fillStyle = '#8e9bb0';
+      ctx.font = 'bold 8px monospace';
+      ctx.fillText(`BLOCKCHAIN ID: ${citizenStatus.requestId || '0002'}`, 50, 325);
+
+      // Issue block / Expiry
+      ctx.fillStyle = '#8e9bb0';
+      ctx.font = 'bold 8px sans-serif';
+      ctx.fillText('[issue date]', 480, 290);
+      ctx.fillStyle = '#ffffff';
+      ctx.font = 'bold 10px monospace';
+      ctx.fillText('08/2026', 480, 305);
+
+      ctx.fillStyle = '#8e9bb0';
+      ctx.font = 'bold 8px sans-serif';
+      ctx.fillText('[expires]', 540, 290);
+      ctx.fillStyle = '#ffffff';
+      ctx.font = 'bold 10px monospace';
+      ctx.fillText('08/2126', 540, 305);
+
+      // 6. Trigger Download
+      const dataUrl = canvas.toDataURL('image/png');
+      const link = document.createElement('a');
+      link.download = `cb-fhe-pass-${citizenStatus.requestId || '0002'}.png`;
+      link.href = dataUrl;
+      link.click();
+    } catch (e) {
+      console.error(e);
+      alert('Could not download FHE Pass.');
+    } finally {
+      setDownloadingPass(false);
+    }
+  };
   const handleDecryptSelfDoc = async (requestId: number) => {
     if (!fhevmInstance) {
       alert('FHEVM SDK is not fully loaded yet. Please wait.');
@@ -243,58 +464,235 @@ export function IdentityVerification({
   // 1. STATE 1: Already Registered
   if (citizenStatus.isRegistered || citizenStatus.isVerified) {
     return (
-      <div className="max-w-xl mx-auto py-12 px-4 sm:px-6">
-        <div className="glass-panel p-8 text-center space-y-6 border-emerald-500/20 bg-emerald-950/5">
-          <div className="flex justify-center">
-            <div className="h-16 w-16 rounded-full bg-emerald-500/10 flex items-center justify-center border border-emerald-500/30">
-              <CheckCircle2 className="h-10 w-10 text-emerald-400" />
-            </div>
+      <div className="max-w-4xl mx-auto py-8 px-4 sm:px-6 space-y-8">
+        
+        {/* Success Header */}
+        <div className="text-center space-y-3">
+          <div className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+            <CheckCircle2 className="h-6 w-6" />
           </div>
-          <div className="space-y-2">
-            <h2 className="text-2xl font-extrabold tracking-tight text-slate-100">
-              Your FHE Pass is Whitelisted
-            </h2>
-            <p className="text-sm text-slate-400">
-              Your identity has been fully verified by the Network Guardians on-chain.
-            </p>
-          </div>
-
-          <div className="bg-emerald-950/20 border border-emerald-800/40 rounded-2xl p-6 text-left space-y-4">
-            <div className="flex items-center gap-3 text-emerald-400 text-sm font-semibold">
-              <span className="h-1.5 w-1.5 rounded-full bg-emerald-400"></span>
-              Identity Verified successfully
-            </div>
-            <div className="flex items-center gap-3 text-emerald-400 text-sm font-semibold">
-              <span className="h-1.5 w-1.5 rounded-full bg-emerald-400"></span>
-              Wallet registered in Shielded Passport Registry
-            </div>
-            <div className="flex items-center gap-3 text-emerald-400 text-sm font-semibold">
-              <span className="h-1.5 w-1.5 rounded-full bg-emerald-400"></span>
-              Eligible to vote in all active shielded polls
-            </div>
-
-            <div className="pt-4 border-t border-emerald-800/30 space-y-2.5">
-              <div className="flex items-center justify-between text-xs">
-                <span className="text-slate-450 font-medium">Your Wallet:</span>
-                <span className="font-mono text-slate-300 font-semibold">{address}</span>
-              </div>
-              <div className="flex items-center justify-between text-xs">
-                <span className="text-slate-450 font-medium">Registered Status:</span>
-                <span className="px-2 py-0.5 text-[10px] bg-emerald-500/20 text-emerald-400 rounded-md font-bold uppercase">
-                  Active
-                </span>
-              </div>
-            </div>
-          </div>
-
-          <button
-            onClick={() => setActiveTab('elections')}
-            className="w-full btn-primary py-3.5 flex items-center justify-center gap-2 text-sm"
-          >
-            Go Vote
-            <ChevronRight className="h-4 w-4" />
-          </button>
+          <h2 className="text-3xl font-extrabold tracking-tight text-slate-100">
+            Your FHE Pass is Whitelisted
+          </h2>
+          <p className="text-sm text-slate-400 max-w-lg mx-auto">
+            Congratulations! Your cryptographic voter passport is verified and whitelisted. You can customize, preview, and download your physical/digital FHE Pass below.
+          </p>
         </div>
+
+        {/* Customization and Preview Panel */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+          
+          {/* Left Column: Avatar Customization */}
+          <div className="lg:col-span-4 space-y-5">
+            <div className="glass-panel p-6 space-y-4">
+              <h3 className="text-xs font-bold text-yellow-400 uppercase tracking-widest block border-b border-slate-900 pb-2">
+                Customize Avatar
+              </h3>
+              
+              <p className="text-[11px] text-slate-400 leading-relaxed">
+                Upload a custom photo or avatar to render directly onto your cryptographic FHE identity card.
+              </p>
+
+              {/* Photo Upload Box */}
+              <div className="space-y-4 pt-2">
+                <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-slate-800 hover:border-yellow-500/30 rounded-xl cursor-pointer bg-[#070414]/30 hover:bg-[#070414]/60 transition duration-200">
+                  <div className="flex flex-col items-center justify-center pt-5 pb-6 space-y-2 text-center px-4">
+                    <Camera className="h-6 w-6 text-slate-400" />
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-slate-350">
+                      {avatarUrl ? 'Change Avatar' : 'Upload Avatar'}
+                    </span>
+                  </div>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageUpload}
+                    className="hidden"
+                  />
+                </label>
+
+                {avatarUrl && (
+                  <button
+                    onClick={() => setAvatarUrl(null)}
+                    className="w-full py-2 bg-rose-500/10 border border-rose-500/20 rounded-xl text-[10px] font-bold uppercase text-rose-400 hover:bg-rose-500/15 transition"
+                  >
+                    Remove Photo
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {/* Go Vote Button */}
+            <button
+              onClick={() => setActiveTab('elections')}
+              className="w-full btn-primary py-3.5 flex items-center justify-center gap-2 text-sm"
+            >
+              Enter Shielded Polls
+              <ChevronRight className="h-4 w-4" />
+            </button>
+          </div>
+
+          {/* Right Column: Physical Ticket Preview & Download */}
+          <div className="lg:col-span-8 space-y-5 text-center flex flex-col items-center">
+            
+            {/* Ticket Preview Card Container */}
+            <div className="w-full max-w-[480px] bg-gradient-to-br from-slate-200 via-slate-50 to-slate-300 border border-slate-400 rounded-3xl p-6 text-slate-900 font-sans shadow-2xl relative select-none">
+              
+              {/* Star decoration effect behind ticket notches */}
+              <div className="absolute inset-0 opacity-10 pointer-events-none bg-[radial-gradient(#000000_1.5px,transparent_1.5px)] [background-size:20px_20px] rounded-3xl"></div>
+
+              {/* Notch Cutouts (Colored to blend with container backdrop) */}
+              <div className="absolute top-[130px] -left-3.5 w-7 h-7 rounded-full bg-[#030305] dark:bg-[#030305] light:bg-slate-50 border-r border-slate-400"></div>
+              <div className="absolute top-[130px] -right-3.5 w-7 h-7 rounded-full bg-[#030305] dark:bg-[#030305] light:bg-slate-50 border-l border-slate-400"></div>
+
+              {/* Notch Cutouts Bottom */}
+              <div className="absolute bottom-[108px] -left-3.5 w-7 h-7 rounded-full bg-[#030305] dark:bg-[#030305] light:bg-slate-50 border-r border-slate-400"></div>
+              <div className="absolute bottom-[108px] -right-3.5 w-7 h-7 rounded-full bg-[#030305] dark:bg-[#030305] light:bg-slate-50 border-l border-slate-400"></div>
+
+              {/* Inner Layout */}
+              <div className="flex flex-col space-y-5 relative">
+                
+                {/* Header Section */}
+                <div className="w-full border-b border-slate-350 pb-3 text-center">
+                  <h4 className="font-mono text-slate-900 text-xl font-black tracking-[4px] uppercase flex items-center justify-center gap-1">
+                    CipherBallot <span className="text-[10px] font-bold align-super">®</span>
+                  </h4>
+                  <p className="text-[8px] font-black text-slate-500 uppercase tracking-widest mt-0.5">
+                    FHE SHIELDED VOTING PROTOCOL
+                  </p>
+                </div>
+
+                {/* Body section: Avatar (Left) + Details (Right) */}
+                <div className="flex flex-col sm:flex-row gap-5 items-center sm:items-start text-left">
+                  
+                  {/* Left Column: Vertical Image Container */}
+                  <div className="flex items-center gap-2.5">
+                    {/* Vertical barcode text */}
+                    <div className="font-mono text-[7.5px] text-slate-500 font-bold uppercase tracking-wider select-none [writing-mode:vertical-lr] rotate-180 h-[140px] text-center">
+                      CB-PASS-{citizenStatus.requestId || '02'}-FHE-SEALED
+                    </div>
+                    
+                    {/* Avatar Display */}
+                    <div className="h-[140px] w-[120px] bg-[#090d16] border border-slate-800 rounded-xl flex items-center justify-center shrink-0 shadow-inner overflow-hidden relative">
+                      {avatarUrl ? (
+                        <img src={avatarUrl} alt="Avatar" className="h-full w-full object-cover" />
+                      ) : (
+                        <div className="flex flex-col items-center gap-1.5 text-center text-slate-500 p-2">
+                          <User className="h-7 w-7 text-slate-450" />
+                          <span className="text-[7.5px] font-bold uppercase tracking-wider leading-none">Photo<br/>Placeholder</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Right Column: Metadata */}
+                  <div className="flex-1 grid grid-cols-2 gap-x-4 gap-y-3.5 text-xs font-mono">
+                    <div className="col-span-2 space-y-0.5">
+                      <span className="text-[8px] font-bold text-slate-500 block uppercase">[name]</span>
+                      <span className="text-[11px] font-bold text-slate-900 block truncate">CIPHERBALLOT CITIZEN</span>
+                    </div>
+
+                    <div className="space-y-0.5">
+                      <span className="text-[8px] font-bold text-slate-500 block uppercase">[status]</span>
+                      <span className="text-[9.5px] font-black text-emerald-600 block flex items-center gap-1">
+                        <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                        FHE VERIFIED
+                      </span>
+                    </div>
+
+                    <div className="space-y-0.5">
+                      <span className="text-[8px] font-bold text-slate-500 block uppercase">[pass id]</span>
+                      <span className="text-[10px] font-bold text-slate-900 block">
+                        #{String(citizenStatus.requestId || 2).padStart(4, '0')}
+                      </span>
+                    </div>
+
+                    <div className="col-span-2 space-y-0.5">
+                      <span className="text-[8px] font-bold text-slate-500 block uppercase">[wallet address]</span>
+                      <span className="text-[9.5px] font-bold text-slate-900 block truncate select-all">
+                        {address.substring(0, 16)}...{address.substring(address.length - 12)}
+                      </span>
+                    </div>
+
+                    <div className="space-y-0.5">
+                      <span className="text-[8px] font-bold text-slate-500 block uppercase">[authority]</span>
+                      <span className="text-[9.5px] font-bold text-slate-700 block truncate">GUARDIANS</span>
+                    </div>
+
+                    <div className="space-y-0.5">
+                      <span className="text-[8px] font-bold text-slate-500 block uppercase">[encryption]</span>
+                      <span className="text-[9.5px] font-bold text-slate-700 block truncate">ZAMA FHEVM</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Dashed Separator */}
+                <div className="border-t border-dashed border-slate-350 pt-1"></div>
+
+                {/* Bottom Row: Barcode & Digital Signature */}
+                <div className="flex justify-between items-end text-left pt-1">
+                  
+                  {/* Barcode and Block height details */}
+                  <div className="space-y-2">
+                    {/* SVG Barcode */}
+                    <svg className="w-[120px] h-[28px] text-slate-900 fill-current">
+                      {[1, 2, 4, 1, 3, 2, 1, 4, 2, 3, 1, 2, 4, 1, 3, 2, 1, 4, 2, 1, 3, 2].map((w, idx) => {
+                        const xOffset = [1, 2, 4, 1, 3, 2, 1, 4, 2, 3, 1, 2, 4, 1, 3, 2, 1, 4, 2, 1, 3, 2]
+                          .slice(0, idx)
+                          .reduce((sum, val) => sum + val + 2, 0);
+                        return (
+                          <rect key={idx} x={xOffset} y={0} width={w} height={28} />
+                        );
+                      })}
+                    </svg>
+                    <span className="text-[7.5px] font-bold text-slate-500 font-mono block tracking-wider uppercase">
+                      BLOCKCHAIN ID: {citizenStatus.requestId || '0002'}
+                    </span>
+                  </div>
+
+                  {/* Digital Signature */}
+                  <div className="space-y-1 text-right">
+                    <span className="text-[8px] font-bold text-slate-500 block uppercase">[signature]</span>
+                    <span className="font-mono text-xs italic font-bold text-slate-900 tracking-tight block">
+                      ~ Network Guardians ~
+                    </span>
+                    <div className="flex gap-3 text-[8.5px] font-mono text-slate-500">
+                      <div>
+                        <span>[issued] </span>
+                        <span className="text-slate-700 font-bold">08/2026</span>
+                      </div>
+                      <div>
+                        <span>[expires] </span>
+                        <span className="text-slate-700 font-bold">08/2126</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+
+            {/* Download Button */}
+            <button
+              onClick={handleDownloadPass}
+              disabled={downloadingPass}
+              className="btn-primary py-3 px-8 text-xs font-bold flex items-center justify-center gap-2 mt-4 max-w-[200px]"
+            >
+              {downloadingPass ? (
+                <>
+                  <RefreshCw className="h-4 w-4 animate-spin" />
+                  Generating PNG...
+                </>
+              ) : (
+                <>
+                  <Download className="h-4 w-4" />
+                  Download FHE Pass
+                </>
+              )}
+            </button>
+          </div>
+
+        </div>
+
       </div>
     );
   }
