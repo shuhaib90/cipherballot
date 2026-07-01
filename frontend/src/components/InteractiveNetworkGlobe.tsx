@@ -61,13 +61,13 @@ export function InteractiveNetworkGlobe() {
         {/* Definitions for gradients and glows */}
         <defs>
           <radialGradient id="nodeGlow" cx="50%" cy="50%" r="50%">
-            <stop offset="0%" stopColor="#FFD208" stopOpacity="1" />
-            <stop offset="100%" stopColor="#FFD208" stopOpacity="0" />
+            <stop offset="0%" stopColor="var(--globe-node-glow)" stopOpacity="1" />
+            <stop offset="100%" stopColor="var(--globe-node-glow)" stopOpacity="0" />
           </radialGradient>
           <linearGradient id="edgeGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#FFD208" stopOpacity="0.1" />
-            <stop offset="50%" stopColor="#FFD208" stopOpacity="0.8" />
-            <stop offset="100%" stopColor="#FFD208" stopOpacity="0.1" />
+            <stop offset="0%" stopColor="var(--globe-node-glow)" stopOpacity="0.1" />
+            <stop offset="50%" stopColor="var(--globe-node-glow)" stopOpacity="0.8" />
+            <stop offset="100%" stopColor="var(--globe-node-glow)" stopOpacity="0.1" />
           </linearGradient>
         </defs>
 
@@ -77,21 +77,21 @@ export function InteractiveNetworkGlobe() {
           cy="200"
           r="160"
           fill="none"
-          stroke="rgba(255, 210, 8, 0.15)"
+          stroke="var(--globe-stroke-1)"
           strokeWidth="1"
         />
 
         {/* 2. Rotating Wireframe Grid Group */}
         <g className="globe-rotate" style={{ transformOrigin: '200px 200px' }}>
           {/* Longitude lines */}
-          <ellipse cx="200" cy="200" rx="45" ry="160" fill="none" stroke="rgba(255, 210, 8, 0.08)" strokeWidth="1" />
-          <ellipse cx="200" cy="200" rx="90" ry="160" fill="none" stroke="rgba(255, 210, 8, 0.08)" strokeWidth="1" />
-          <ellipse cx="200" cy="200" rx="135" ry="160" fill="none" stroke="rgba(255, 210, 8, 0.08)" strokeWidth="1" />
+          <ellipse cx="200" cy="200" rx="45" ry="160" fill="none" stroke="var(--globe-stroke-2)" strokeWidth="1" />
+          <ellipse cx="200" cy="200" rx="90" ry="160" fill="none" stroke="var(--globe-stroke-2)" strokeWidth="1" />
+          <ellipse cx="200" cy="200" rx="135" ry="160" fill="none" stroke="var(--globe-stroke-2)" strokeWidth="1" />
 
           {/* Latitude lines */}
-          <ellipse cx="200" cy="200" rx="160" ry="40" fill="none" stroke="rgba(255, 210, 8, 0.08)" strokeWidth="1" />
-          <ellipse cx="200" cy="200" rx="160" ry="80" fill="none" stroke="rgba(255, 210, 8, 0.08)" strokeWidth="1" />
-          <ellipse cx="200" cy="200" rx="160" ry="120" fill="none" stroke="rgba(255, 210, 8, 0.08)" strokeWidth="1" />
+          <ellipse cx="200" cy="200" rx="160" ry="40" fill="none" stroke="var(--globe-stroke-2)" strokeWidth="1" />
+          <ellipse cx="200" cy="200" rx="160" ry="80" fill="none" stroke="var(--globe-stroke-2)" strokeWidth="1" />
+          <ellipse cx="200" cy="200" rx="160" ry="120" fill="none" stroke="var(--globe-stroke-2)" strokeWidth="1" />
         </g>
 
         {/* 3. Outer Orbiting Ring (Fleek Saturn-style) */}
@@ -101,7 +101,7 @@ export function InteractiveNetworkGlobe() {
           rx="190"
           ry="55"
           fill="none"
-          stroke="rgba(255, 210, 8, 0.25)"
+          stroke="var(--globe-stroke-3)"
           strokeWidth="1.2"
           strokeDasharray="6,4"
           transform="rotate(-15 200 200)"
@@ -110,33 +110,33 @@ export function InteractiveNetworkGlobe() {
         {/* 4. Connection Lines (Edges of the neural network) */}
         <g>
           {/* Top to Center */}
-          <path d="M 200 60 L 200 200" fill="none" stroke="rgba(255, 210, 8, 0.2)" strokeWidth="1.5" />
+          <path d="M 200 60 L 200 200" fill="none" stroke="var(--globe-stroke-4)" strokeWidth="1.5" />
           <path d="M 200 60 L 200 200" fill="none" stroke="url(#edgeGrad)" strokeWidth="1.5" strokeDasharray="30, 170" className="data-connection" />
 
           {/* Left to Center */}
-          <path d="M 110 150 L 200 200" fill="none" stroke="rgba(255, 210, 8, 0.2)" strokeWidth="1.5" />
+          <path d="M 110 150 L 200 200" fill="none" stroke="var(--globe-stroke-4)" strokeWidth="1.5" />
           <path d="M 110 150 L 200 200" fill="none" stroke="url(#edgeGrad)" strokeWidth="1.5" strokeDasharray="30, 170" className="data-connection" />
 
           {/* Right to Center */}
-          <path d="M 290 150 L 200 200" fill="none" stroke="rgba(255, 210, 8, 0.2)" strokeWidth="1.5" />
+          <path d="M 290 150 L 200 200" fill="none" stroke="var(--globe-stroke-4)" strokeWidth="1.5" />
           <path d="M 290 150 L 200 200" fill="none" stroke="url(#edgeGrad)" strokeWidth="1.5" strokeDasharray="30, 170" className="data-connection" />
 
           {/* Center to Bottom Left */}
-          <path d="M 200 200 L 140 280" fill="none" stroke="rgba(255, 210, 8, 0.2)" strokeWidth="1.5" />
+          <path d="M 200 200 L 140 280" fill="none" stroke="var(--globe-stroke-4)" strokeWidth="1.5" />
           <path d="M 200 200 L 140 280" fill="none" stroke="url(#edgeGrad)" strokeWidth="1.5" strokeDasharray="30, 170" className="data-connection" />
 
           {/* Center to Bottom Right */}
-          <path d="M 200 200 L 260 280" fill="none" stroke="rgba(255, 210, 8, 0.2)" strokeWidth="1.5" />
+          <path d="M 200 200 L 260 280" fill="none" stroke="var(--globe-stroke-4)" strokeWidth="1.5" />
           <path d="M 200 200 L 260 280" fill="none" stroke="url(#edgeGrad)" strokeWidth="1.5" strokeDasharray="30, 170" className="data-connection" />
 
           {/* Left to Bottom Left */}
-          <path d="M 110 150 L 140 280" fill="none" stroke="rgba(255, 210, 8, 0.15)" strokeWidth="1" />
+          <path d="M 110 150 L 140 280" fill="none" stroke="var(--globe-stroke-1)" strokeWidth="1" />
           
           {/* Right to Bottom Right */}
-          <path d="M 290 150 L 260 280" fill="none" stroke="rgba(255, 210, 8, 0.15)" strokeWidth="1" />
+          <path d="M 290 150 L 260 280" fill="none" stroke="var(--globe-stroke-1)" strokeWidth="1" />
 
           {/* Top to Mid Top Right to Right */}
-          <path d="M 200 60 L 230 110 L 290 150" fill="none" stroke="rgba(255, 210, 8, 0.15)" strokeWidth="1" />
+          <path d="M 200 60 L 230 110 L 290 150" fill="none" stroke="var(--globe-stroke-1)" strokeWidth="1" />
         </g>
 
         {/* 5. Glowing Nodes */}
@@ -157,7 +157,7 @@ export function InteractiveNetworkGlobe() {
               cy={node.cy}
               r="6"
               fill="none"
-              stroke="#FFD208"
+              stroke="var(--globe-node-glow)"
               strokeWidth="1"
               opacity="0.6"
             />
@@ -166,7 +166,7 @@ export function InteractiveNetworkGlobe() {
               cx={node.cx}
               cy={node.cy}
               r="3"
-              fill="#FFD208"
+              fill="var(--globe-node-glow)"
             />
           </g>
         ))}
