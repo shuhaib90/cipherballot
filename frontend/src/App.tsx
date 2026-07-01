@@ -1233,19 +1233,23 @@ function App() {
       {/* Share Card Modal */}
       {showShareModal && selectedElection && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-          <div className="bg-[#0b0b0f] border border-yellow-500/20 rounded-2xl p-6 max-w-md w-full relative space-y-4 shadow-2xl">
-            <button
-              onClick={() => setShowShareModal(false)}
-              className="absolute top-4 right-4 text-slate-400 hover:text-slate-250 transition p-1 hover:bg-slate-900 rounded-lg"
-              aria-label="Close modal"
-            >
-              <X className="h-5 w-5" />
-            </button>
-            <div className="space-y-1">
-              <h3 className="text-lg font-bold text-slate-100">Share Ballot Card</h3>
-              <p className="text-[11px] text-slate-400">Generate a high-definition download card or copy the direct voting URL.</p>
+          <div className="bg-[#0b0b0f] border border-yellow-500/20 rounded-2xl max-w-lg w-full max-h-[92vh] flex flex-col overflow-hidden shadow-2xl">
+            {/* Sticky Modal Header */}
+            <div className="p-5 border-b border-slate-900/60 flex justify-between items-start relative shrink-0">
+              <div className="space-y-0.5 pr-8">
+                <h3 className="text-base font-bold text-slate-100">Share Ballot Card</h3>
+                <p className="text-[10px] text-slate-400">Generate a high-definition download card or copy the direct voting URL.</p>
+              </div>
+              <button
+                onClick={() => setShowShareModal(false)}
+                className="absolute top-4 right-4 text-slate-400 hover:text-slate-250 transition p-1.5 hover:bg-slate-900 rounded-lg"
+                aria-label="Close modal"
+              >
+                <X className="h-4.5 w-4.5" />
+              </button>
             </div>
-            <div className="pt-2">
+            {/* Scrollable Modal Body */}
+            <div className="p-5 overflow-y-auto flex-1 min-h-0 scrollbar-thin">
               <ElectionShareCard
                 election={selectedElection}
                 electionAddress={selectedElectionAddr}
