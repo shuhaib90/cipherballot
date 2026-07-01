@@ -635,7 +635,7 @@ function App() {
               {elections.length > 0 && (
                 <div className="w-full lg:w-80 shrink-0 space-y-4">
                   <div className="glass-panel p-5 space-y-4">
-                    <span className="text-[10px] font-black text-yellow-400 uppercase tracking-widest block">Available Elections</span>
+                    <span className="text-[10px] font-black text-yellow-400 uppercase tracking-widest block">Available Shielded Polls</span>
                     <div className="flex flex-col gap-2.5 max-h-[400px] overflow-y-auto pr-1">
                       {elections.map((addr) => (
                         <button
@@ -666,7 +666,7 @@ function App() {
                 {isDetailLoading ? (
                   <div className="glass-panel p-16 text-center flex flex-col items-center justify-center gap-4 bg-slate-900/10">
                     <RefreshCw className="h-8 w-8 text-[#FFD208] animate-spin" />
-                    <span className="text-sm text-slate-400 font-semibold tracking-wide">Loading election details...</span>
+                    <span className="text-sm text-slate-400 font-semibold tracking-wide">Loading poll details...</span>
                   </div>
                 ) : selectedElection ? (
                   <>
@@ -704,7 +704,7 @@ function App() {
                   </>
                 ) : (
                   <div className="glass-panel p-12 text-center text-slate-400 font-medium">
-                    No elections deployed yet. Go to the Commission Panel to deploy one.
+                    No shielded polls deployed yet. Go to the Guardian Hub to deploy one.
                   </div>
                 )}
               </div>
@@ -790,11 +790,11 @@ function App() {
               </div>
               
               <h1 className="text-5xl font-black tracking-tight sm:text-7xl font-sans text-white leading-none">
-                BUILD <span className="text-[#FFD208]">CONFIDENTIAL</span> ELECTIONS
+                LAUNCH <span className="text-[#FFD208]">SHIELDED</span> POLLS
               </h1>
               
               <p className="text-slate-400 text-sm sm:text-base leading-relaxed font-medium max-w-2xl">
-                CipherBallot is a next-generation decentralized election system powered by Zama's FHEVM. It allows voting ballots to remain cryptographically sealed during computation, ensuring absolute privacy while remaining fully verifiable on-chain.
+                CipherBallot is a next-generation decentralized voting system powered by Zama's FHEVM. It allows ballots to remain cryptographically sealed during computation, ensuring absolute privacy while remaining fully verifiable on-chain.
               </p>
 
               <div className="flex flex-wrap items-center gap-4 pt-4">
@@ -853,7 +853,7 @@ function App() {
               <div className="p-8 sm:p-12 space-y-6 text-left opacity-75">
                 <div className="flex items-center gap-2 text-xs font-mono font-bold text-slate-500 uppercase tracking-wider">
                   <Eye className="h-4 w-4" />
-                  Public Voting (Traditional)
+                  Public Polls (Traditional)
                 </div>
                 <h3 className="text-2xl sm:text-3xl font-black text-white">
                   Transparent by default
@@ -869,7 +869,7 @@ function App() {
                   </li>
                   <li className="flex items-center gap-3">
                     <span className="h-1.5 w-1.5 rounded-full bg-rose-500" />
-                    <span>Intermediate results leak during the election</span>
+                    <span>Intermediate results leak during the voting process</span>
                   </li>
                   <li className="flex items-center gap-3">
                     <span className="h-1.5 w-1.5 rounded-full bg-rose-500" />
@@ -882,7 +882,7 @@ function App() {
               <div className="p-8 sm:p-12 space-y-6 text-left relative group">
                 <div className="flex items-center gap-2 text-xs font-mono font-bold text-[#FFD208] uppercase tracking-wider">
                   <Lock className="h-4 w-4" />
-                  Our Voting System (CipherBallot)
+                  CipherBallot (FHE Shielded)
                 </div>
                 <h3 className="text-2xl sm:text-3xl font-black text-white">
                   Encrypted & Verifiable

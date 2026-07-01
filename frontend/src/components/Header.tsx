@@ -37,12 +37,12 @@ export function Header({
   };
 
   const navItems = [
-    { id: 'register' as const, label: 'Register & Verify', icon: <Shield className="h-4 w-4" /> },
-    { id: 'elections' as const, label: 'Active Elections', icon: <Vote className="h-4 w-4" /> },
-    { id: 'voter-status' as const, label: 'Voter Status', icon: <Users className="h-4 w-4" /> },
-    { id: 'how-it-works' as const, label: 'How It Works', icon: <HelpCircle className="h-4 w-4" /> },
+    { id: 'register' as const, label: 'Claim FHE Pass', icon: <Shield className="h-4 w-4" /> },
+    { id: 'elections' as const, label: 'Shielded Polls', icon: <Vote className="h-4 w-4" /> },
+    { id: 'voter-status' as const, label: 'Credential Status', icon: <Users className="h-4 w-4" /> },
+    { id: 'how-it-works' as const, label: 'Mechanics', icon: <HelpCircle className="h-4 w-4" /> },
     ...(isOfficer
-      ? [{ id: 'commission' as const, label: 'Commission Panel', icon: <ClipboardList className="h-4 w-4" /> }]
+      ? [{ id: 'commission' as const, label: 'Guardian Hub', icon: <ClipboardList className="h-4 w-4" /> }]
       : [])
   ];
 

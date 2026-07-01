@@ -24,7 +24,7 @@ export function VotingBooth({
   if (!election) {
     return (
       <div className="glass-panel p-8 text-center text-slate-400">
-        Select an active election to enter the Voting Booth.
+        Select an active shielded poll to cast your vote.
       </div>
     );
   }
@@ -34,18 +34,18 @@ export function VotingBooth({
   const handleVoteSubmit = async () => {
     if (selectedCandidate === null) return;
     setTxSuccess(false);
-    setStatusMessage('1. Encrypting vote choice client-side...');
+    setStatusMessage('1. Encrypting ballot choice client-side...');
     
     // Slight delay to show encryption step to user (very nice UX)
     await new Promise(resolve => setTimeout(resolve, 800));
     
-    setStatusMessage('2. Signing and broadcasting FHE-encrypted vote...');
+    setStatusMessage('2. Signing and broadcasting FHE-shielded ballot...');
     const success = await onCastVote(selectedCandidate);
     
     if (success) {
       setTxSuccess(true);
       setSelectedCandidate(null);
-      setStatusMessage('Vote Cast Successfully! Your choice remains completely confidential.');
+      setStatusMessage('Shielded Ballot Submitted! Your choice remains completely confidential.');
     } else {
       setStatusMessage('Voting failed. See error console.');
     }
@@ -69,7 +69,7 @@ export function VotingBooth({
         <div className="flex-1 space-y-4">
           <div>
             <h3 className="text-xl font-bold font-sans text-slate-100 flex items-center gap-2">
-              Confidential Voting Booth
+              Shielded Ballot Box
             </h3>
             <p className="text-xs text-slate-400 mt-1">
               Select one candidate. Your choice is fully encrypted with FHE before leaving your browser.
@@ -78,13 +78,13 @@ export function VotingBooth({
 
           {status !== 'Voting' && (
             <div className="p-3.5 rounded-xl border border-amber-500/20 bg-amber-500/10 text-xs text-amber-400 font-medium">
-              Voting is not active for this election. Status: {status}
+              Voting is not active for this poll. Status: {status}
             </div>
           )}
 
           {!isRegistered && (
             <div className="p-3.5 rounded-xl border border-rose-500/20 bg-rose-500/10 text-xs text-rose-400 font-medium">
-              You are not registered in the Voter Registry. Register your wallet to enable voting.
+              You do not have a valid FHE Pass. Register your wallet to enable voting.
             </div>
           )}
 
@@ -94,7 +94,7 @@ export function VotingBooth({
               <div>
                 <h4 className="text-sm font-bold text-slate-200">Ballot Cast Successfully</h4>
                 <p className="text-xs text-slate-400 mt-1">
-                  You have already voted in this election. Your double-vote protection has been activated.
+                  You have already submitted a ballot for this poll. Your double-vote protection has been activated.
                 </p>
               </div>
             </div>
@@ -193,7 +193,7 @@ export function VotingBooth({
               className="btn-primary w-full py-3"
             >
               <Vote className="h-4.5 w-4.5" />
-              Cast FHE-Encrypted Vote
+              Cast Shielded Ballot
             </button>
 
             {!isFheReady && isRegistered && status === 'Voting' && (

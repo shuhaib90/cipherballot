@@ -62,7 +62,7 @@ export function ResultsDashboard({
   if (!election) {
     return (
       <div className="glass-panel p-8 text-center text-slate-400">
-        Select an election to view dashboard.
+        Select a shielded poll to view results.
       </div>
     );
   }
@@ -104,7 +104,7 @@ export function ResultsDashboard({
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-800/60 pb-6">
         <div>
           <span className="text-[10px] font-bold text-indigo-400 uppercase tracking-widest bg-indigo-500/10 border border-indigo-500/20 px-2 py-0.5 rounded">
-            Election Dashboard
+            Poll Insights
           </span>
           <h2 className="text-xl font-extrabold text-slate-100 font-sans mt-2">{name}</h2>
           <p className="text-xs text-slate-400 mt-1">{description}</p>
@@ -145,7 +145,7 @@ export function ResultsDashboard({
 
       {/* Results View */}
       <div className="space-y-4">
-        <h3 className="text-md font-bold text-slate-200">Election Tally</h3>
+        <h3 className="text-md font-bold text-slate-200">Ballot Tally</h3>
 
         {resultsRevealed ? (
           // Revealed Results (Graphs/Charts)

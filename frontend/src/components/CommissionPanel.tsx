@@ -227,7 +227,7 @@ export function CommissionPanel({
         </div>
         <h3 className="text-xl font-bold font-sans text-slate-100">Restricted Access</h3>
         <p className="text-sm text-slate-400 leading-relaxed">
-          This panel is reserved exclusively for the Election Commission. Connect the officer wallet `0x36e1C1EbC3e36d9b55E4b872A74B6F059008789e` to register voters and manage elections.
+          This hub is reserved exclusively for the Network Guardians. Connect the guardian wallet `0x36e1C1EbC3e36d9b55E4b872A74B6F059008789e` to whitelist voters and manage shielded polls.
         </p>
       </div>
     );
@@ -409,11 +409,11 @@ export function CommissionPanel({
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-extrabold text-slate-100 font-sans">Election Commission Panel</h2>
-          <p className="text-xs text-slate-400 mt-1">Configure voter registers, verify secure identity proofs, and deploy new cryptographic elections.</p>
+          <h2 className="text-2xl font-extrabold text-slate-100 font-sans">Network Guardian Panel</h2>
+          <p className="text-xs text-slate-400 mt-1">Configure voter passports, verify secure identity proofs, and deploy new cryptographic shielded polls.</p>
         </div>
         <div className="flex items-center gap-1.5 rounded-lg border border-emerald-500/20 bg-emerald-500/10 px-2.5 py-1.5 text-xs font-semibold text-emerald-400">
-          <ShieldCheck className="h-3.5 w-3.5" /> Commission Authorized
+          <ShieldCheck className="h-3.5 w-3.5" /> Guardian Authorized
         </div>
       </div>
 
@@ -441,7 +441,7 @@ export function CommissionPanel({
           </div>
         ) : pendingRequests.length === 0 ? (
           <div className="text-center py-6 text-slate-500 text-xs font-medium border border-dashed border-slate-800 rounded-xl">
-            No pending voter registration requests.
+            No pending voter pass requests.
           </div>
         ) : (
           <div className="grid gap-4 sm:grid-cols-1 md:grid-cols-2">
@@ -851,34 +851,34 @@ export function CommissionPanel({
         <div className="glass-panel p-6 space-y-5">
           <h3 className="text-md font-bold text-slate-100 flex items-center gap-2">
             <PlusCircle className="h-4.5 w-4.5 text-indigo-400" />
-            Deploy New Election
+            Deploy Shielded Poll
           </h3>
 
           <form onSubmit={handleCreateElectionSubmit} className="space-y-4">
             <div>
               <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">
-                Election Name
+                Poll Name
               </label>
               <input
                 type="text"
                 required
                 value={elecName}
                 onChange={(e) => setElecName(e.target.value)}
-                placeholder="e.g. General Election 2026"
+                placeholder="e.g. Protocol Governance Proposal #04"
                 className="input-field text-xs"
               />
             </div>
 
             <div>
               <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">
-                Election Description
+                Poll Description
               </label>
               <input
                 type="text"
                 required
                 value={elecDesc}
                 onChange={(e) => setElecDesc(e.target.value)}
-                placeholder="Confidential general election description"
+                placeholder="Confidential protocol parameters upgrade voting details"
                 className="input-field text-xs"
               />
             </div>
@@ -1001,7 +1001,7 @@ export function CommissionPanel({
               className="btn-primary w-full py-3 mt-4 text-xs font-bold"
             >
               {loading ? <RefreshCw className="h-4.5 w-4.5 animate-spin" /> : <Calendar className="h-4.5 w-4.5" />}
-              Deploy Cryptographic Election on EVM
+              Deploy Cryptographic Poll on EVM
             </button>
           </form>
         </div>

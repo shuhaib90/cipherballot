@@ -252,10 +252,10 @@ export function IdentityVerification({
           </div>
           <div className="space-y-2">
             <h2 className="text-2xl font-extrabold tracking-tight text-slate-100">
-              You are a Registered Voter
+              Your FHE Pass is Whitelisted
             </h2>
             <p className="text-sm text-slate-400">
-              Your identity has been fully verified by the Election Commission on-chain.
+              Your identity has been fully verified by the Network Guardians on-chain.
             </p>
           </div>
 
@@ -266,11 +266,11 @@ export function IdentityVerification({
             </div>
             <div className="flex items-center gap-3 text-emerald-400 text-sm font-semibold">
               <span className="h-1.5 w-1.5 rounded-full bg-emerald-400"></span>
-              Wallet registered in VoterRegistry
+              Wallet registered in Shielded Passport Registry
             </div>
             <div className="flex items-center gap-3 text-emerald-400 text-sm font-semibold">
               <span className="h-1.5 w-1.5 rounded-full bg-emerald-400"></span>
-              Eligible to vote in all active elections
+              Eligible to vote in all active shielded polls
             </div>
 
             <div className="pt-4 border-t border-emerald-800/30 space-y-2.5">
@@ -345,7 +345,7 @@ export function IdentityVerification({
           </div>
 
           <p className="text-xs text-slate-450 leading-relaxed">
-            The Election Commission will decrypt and verify your documents. Once approved, your wallet address will be registered as an eligible voter. Check back soon.
+            The Network Guardians will decrypt and verify your documents. Once approved, your wallet address will be whitelisted as an eligible voter. Check back soon.
           </p>
 
           <button
@@ -374,10 +374,10 @@ export function IdentityVerification({
           </div>
           <div className="space-y-2">
             <h2 className="text-2xl font-extrabold tracking-tight text-slate-100">
-              Identity Request Under Review
+              FHE Pass Request Under Review
             </h2>
             <p className="text-sm text-slate-400">
-              Your registration request has been submitted and is currently being processed.
+              Your FHE Pass request has been submitted and is currently being processed.
             </p>
           </div>
 
@@ -458,13 +458,13 @@ export function IdentityVerification({
             <div className="space-y-1">
               <h4 className="text-xs font-bold text-slate-200">Documents Sealed with FHE</h4>
               <p className="text-[11px] text-slate-400 leading-relaxed">
-                Your uploaded documents are fully encrypted. No one can read them on-chain without selective decryption rights, which are only granted to the Election Commission for review.
+                Your uploaded documents are fully encrypted. No one can read them on-chain without selective decryption rights, which are only granted to the Network Guardians for review.
               </p>
             </div>
           </div>
 
           <p className="text-[11px] text-slate-500 font-medium">
-            Typical review time is 1-3 business days. You will be auto-registered as a voter once approved.
+            Typical review time is 1-3 minutes. You will be auto-whitelisted as an eligible voter once approved.
           </p>
 
           <button
@@ -485,16 +485,16 @@ export function IdentityVerification({
       {/* Reject Alert Header if Rejected */}
       {citizenStatus.status === 'Rejected' && (
         <div className="mb-8 bg-rose-500/10 border border-rose-500/25 rounded-2xl p-6 flex gap-4">
-          <XCircle className="h-10 w-10 text-rose-400 shrink-0 mt-0.5" />
+          <XCircle className="h-10 w-10 text-rose-450 shrink-0 mt-0.5" />
           <div className="space-y-2">
             <h3 className="text-lg font-bold text-slate-100">
-              Identity Request #{citizenStatus.requestId} Rejected
+              Voter Pass Request #{citizenStatus.requestId} Rejected
             </h3>
             <p className="text-sm text-rose-300 leading-relaxed font-semibold">
               Rejection Reason: <span className="text-slate-100 font-bold bg-rose-500/15 px-2.5 py-1 rounded border border-rose-500/20">"{citizenStatus.rejectionReason}"</span>
             </p>
-            <p className="text-xs text-slate-400 leading-relaxed">
-              You can correct the errors described by the Commission and resubmit your details below. Please ensure all text fields are clearly readable.
+            <p className="text-xs text-slate-450 leading-relaxed">
+              You can correct the errors described by the Guardians and resubmit your details below. Please ensure all text fields are clearly readable.
             </p>
           </div>
         </div>
@@ -555,10 +555,10 @@ export function IdentityVerification({
               </div>
               <div className="space-y-1">
                 <h3 className="text-sm font-extrabold tracking-wider text-indigo-400 uppercase">
-                  Voter Registration Request
+                  Claim Shielded Voter Pass
                 </h3>
                 <p className="text-[11px] text-slate-400 leading-relaxed font-medium">
-                  Election Commission of CipherBallot. Fill in your government document details. All fields are encrypted client-side using FHE before submission.
+                  Network Guardians of CipherBallot. Fill in your identification details. All fields are encrypted client-side using FHE before submission.
                 </p>
               </div>
             </div>
@@ -720,11 +720,11 @@ export function IdentityVerification({
               </div>
               <div className="flex gap-3">
                 <span className="h-5 w-5 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 font-bold flex items-center justify-center shrink-0">4</span>
-                <p>Election Commission performs off-chain decryption via FHE SDK to verify details.</p>
+                <p>Network Guardians perform secure decryption via FHE SDK to verify details.</p>
               </div>
               <div className="flex gap-3">
                 <span className="h-5 w-5 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 font-bold flex items-center justify-center shrink-0">5</span>
-                <p>Commission approves request, automatically registering your wallet to vote.</p>
+                <p>Guardians approve request, automatically whitelisting your wallet to vote.</p>
               </div>
             </div>
           </div>
@@ -765,7 +765,7 @@ export function IdentityVerification({
             <h3 className="text-sm font-bold text-slate-100 uppercase tracking-wider">Your Rights</h3>
             <div className="space-y-3.5 text-xs text-slate-400 leading-relaxed font-medium">
               <p>✓ You can decrypt your own submission at any time using your wallet.</p>
-              <p>✓ The Commission can verify your documents but cannot copy or store plaintext data off-chain.</p>
+              <p>✓ The Network Guardians can verify your documents but cannot copy or store plaintext data off-chain.</p>
               <p>✓ Your documents remain sealed forever after verification — even from system administrators.</p>
             </div>
           </div>

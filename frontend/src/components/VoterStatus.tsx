@@ -45,10 +45,10 @@ export function VoterStatus({ address, isRegistered, onCheckStatus }: VoterStatu
       <div className="glass-panel p-6 flex flex-col justify-between">
         <div>
           <h3 className="text-lg font-bold font-sans text-slate-100 flex items-center gap-2 mb-2">
-            Voter Eligibility Status
+            Voter Pass Eligibility Status
           </h3>
           <p className="text-xs text-slate-400 mb-6">
-            The Voter Registry ensures that only citizens registered by the Election Commission can cast a vote.
+            The Voter Registry ensures that only wallets verified by the Network Guardians can cast a vote.
           </p>
 
           <div className="flex items-center gap-4 p-4 rounded-xl border bg-slate-950/40 border-slate-800">
@@ -74,7 +74,7 @@ export function VoterStatus({ address, isRegistered, onCheckStatus }: VoterStatu
                   <span className="text-xs font-semibold uppercase tracking-wider text-rose-400">Not Registered</span>
                   <h4 className="text-sm font-bold text-slate-200 mt-0.5">Ineligible to Vote</h4>
                   <p className="text-[10px] text-slate-400 mt-1">
-                    Contact the Election Commission to register this wallet.
+                    Submit an FHE Pass request to whitelist this wallet.
                   </p>
                 </div>
               </>
@@ -93,16 +93,16 @@ export function VoterStatus({ address, isRegistered, onCheckStatus }: VoterStatu
       {/* Voter Hash Generator Panel */}
       <div className="glass-panel p-6">
         <h3 className="text-lg font-bold font-sans text-slate-100 flex items-center gap-2 mb-2">
-          Local Voter ID Hash Calculator
+          Zero-Knowledge Passport Hash Calculator
         </h3>
         <p className="text-xs text-slate-400 mb-4">
-          Generate your zero-knowledge Voter ID Hash locally. Submit this hash to the Commission to request registration.
+          Generate your zero-knowledge Voter ID Hash locally. Submit this hash to the Guardians to request credentials.
         </p>
 
         <form onSubmit={handleCalculateHash} className="space-y-4">
           <div>
             <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">
-              Secret Salt (Shared with Commission)
+              Secret Salt (Shared with Guardians)
             </label>
             <input
               type="text"
@@ -126,7 +126,7 @@ export function VoterStatus({ address, isRegistered, onCheckStatus }: VoterStatu
         {calculatedHash && (
           <div className="mt-4 p-3 rounded-lg bg-slate-950 border border-slate-800 flex items-center justify-between gap-2">
             <div className="overflow-hidden">
-              <span className="text-[9px] font-bold text-slate-500 uppercase tracking-wide">Voter ID Hash</span>
+              <span className="text-[9px] font-bold text-slate-500 uppercase tracking-wide">ZK Voter ID Hash</span>
               <p className="font-mono text-xs text-indigo-300 truncate">{calculatedHash}</p>
             </div>
             <button
