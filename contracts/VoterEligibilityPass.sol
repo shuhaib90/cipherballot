@@ -51,6 +51,9 @@ contract VoterEligibilityPass is
     
     mapping(address => bool) public isAuthorizedMinter;
     
+    // Authorized signers — any commissioner can sign approvals
+    mapping(address => bool) public isAuthorizedSigner;
+    
     // ═══════════════════════════════════════════════════════
     // EVENTS
     // ═══════════════════════════════════════════════════════
@@ -113,6 +116,11 @@ contract VoterEligibilityPass is
     function setAuthorizedMinter(address minter, bool authorized) external onlyOwner {
         require(minter != address(0), "Invalid minter address");
         isAuthorizedMinter[minter] = authorized;
+    }
+
+    function setAuthorizedSigner(address signer_, bool authorized) external onlyOwner {
+        require(signer_ != address(0), "Invalid signer address");
+        isAuthorizedSigner[signer_] = authorized;
     }
     
     // ═══════════════════════════════════════════════════════
@@ -309,7 +317,8 @@ contract VoterEligibilityPass is
         );
         
         address recoveredSigner = _recoverSigner(ethSignedMessageHash, signature);
-        if (recoveredSigner == commissionAddress) {
+        // Accept signature from commissionAddress OR any authorized signer
+        if (recoveredSigner == commissionAddress || isAuthorizedSigner[recoveredSigner]) {
             return true;
         }
 
@@ -321,7 +330,7 @@ contract VoterEligibilityPass is
             abi.encodePacked("\x19Ethereum Signed Message:\n32", globalHash)
         );
         recoveredSigner = _recoverSigner(ethSignedGlobalHash, signature);
-        return (recoveredSigner == commissionAddress);
+        return (recoveredSigner == commissionAddress || isAuthorizedSigner[recoveredSigner]);
     }
 
     function _recoverSigner(

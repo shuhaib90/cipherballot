@@ -148,7 +148,7 @@ export function IdentityVerification({
     setIsNftMinting(true);
     setNftError('');
     try {
-      // 1. Fetch approval signature (first try from on-chain citizenStatus, fallback to localStorage)
+      // 1. Fetch approval signature (on-chain from citizenStatus → localStorage fallback)
       let signature = citizenStatus.signature;
       if (!signature) {
         const sigKey = `cb_sig_${address.toLowerCase()}_${activeElectionId}`;
@@ -159,15 +159,17 @@ export function IdentityVerification({
         signature = localStorage.getItem(globalSigKey) || undefined;
       }
       
+      // Early exit if no signature at all — don't waste gas
       if (!signature) {
-        console.warn("Signature not found in citizenStatus or localStorage. Ensuring we show warning or fallback...");
+        setNftError('No Commission approval signature found. The Election Commission must approve your identity request first before you can mint.');
+        setIsNftMinting(false);
+        return;
       }
 
-      // 2. Encrypt Identity Data (citizen name / address) using Zama Wasm SDK
-      const numericIdentity = BigInt(address.substring(0, 10)); // Use wallet address prefix as numerical identity
+      // 2. Encrypt Identity Data using Zama FHEVM
+      const numericIdentity = BigInt(address.substring(0, 10));
       const docTypeVal = Number(selectedDoc === 'national_id' ? 1 : selectedDoc === 'passport' ? 2 : selectedDoc === 'voter_card' ? 3 : 4);
 
-      // Encrypt variables using Zama FHEVM
       const identityInput = fhevmInstance.createEncryptedInput(VOTER_PASS_ADDRESS, address);
       identityInput.add256(numericIdentity);
       const encIdentity = await identityInput.encrypt();
@@ -181,18 +183,22 @@ export function IdentityVerification({
       const encDocTypeHandle = ethers.hexlify(encDocType.handles[0]);
       const encDocTypeProof = ethers.hexlify(encDocType.inputProof);
 
-      // Commitment Hash: Fetch from contract using requestId or fallback
+      // 3. Fetch commitment hash from contract (reuse shared readProvider)
       let commitmentHash = submittedCommitment;
       if (!commitmentHash && citizenStatus.requestId) {
         try {
-          const rpcUrl = typeof window !== 'undefined' ? window.location.origin + '/api/rpc' : 'http://localhost:5173/api/rpc';
-          const contract = new ethers.Contract(
-            FHE_IDENTITY_REGISTRY_ADDRESS,
-            FHEIdentityRegistryABI.abi,
-            new ethers.JsonRpcProvider(rpcUrl)
-          );
-          const req = await contract.getRequest(citizenStatus.requestId);
-          commitmentHash = req.commitmentHash;
+          // Import readProvider from useContract to avoid creating new provider instances
+          const { readProvider: sharedProvider, fallbackProvider: fbProvider } = await import('../hooks/useContract');
+          let contract = new ethers.Contract(FHE_IDENTITY_REGISTRY_ADDRESS, FHEIdentityRegistryABI.abi, sharedProvider);
+          try {
+            const req = await contract.requests(citizenStatus.requestId);
+            commitmentHash = req.commitmentHash;
+          } catch {
+            // Try fallback provider
+            contract = new ethers.Contract(FHE_IDENTITY_REGISTRY_ADDRESS, FHEIdentityRegistryABI.abi, fbProvider);
+            const req = await contract.requests(citizenStatus.requestId);
+            commitmentHash = req.commitmentHash;
+          }
         } catch (e) {
           console.error("Failed to fetch commitment hash from contract:", e);
         }
@@ -200,9 +206,6 @@ export function IdentityVerification({
       if (!commitmentHash) {
         commitmentHash = ethers.id("cb_commitment");
       }
-      
-      // If signature is still missing, we will alert the user
-      const finalSignature = signature || "0x" + "00".repeat(65); // standard mock signature if missing
       
       const success = await mintVoterPass(
         address,
@@ -212,18 +215,27 @@ export function IdentityVerification({
         encDocTypeHandle,
         encDocTypeProof,
         commitmentHash,
-        finalSignature
+        signature
       );
       
       if (success) {
-        // Trigger status refresh
         onRefresh();
       } else {
-        setNftError('Mint transaction failed. Ensure your wallet is whitelisted and has not already minted.');
+        setNftError('Mint transaction failed. This could be because: (1) You have already minted a pass for this election, (2) The commission signature does not match, or (3) Your wallet is not whitelisted.');
       }
     } catch (err: any) {
       console.error("Failed to mint VEPass NFT:", err);
-      setNftError(err.message || 'Error executing mint transaction');
+      // Parse user-friendly error from revert reason
+      const reason = err.reason || err.data?.message || err.message || '';
+      if (reason.includes('Already minted')) {
+        setNftError('You have already minted a VEPass for this election.');
+      } else if (reason.includes('Invalid commission signature')) {
+        setNftError('Commission signature verification failed. The commission officer who approved your request may need to re-approve.');
+      } else if (reason.includes('Can only mint for yourself')) {
+        setNftError('You can only mint a VEPass for your own wallet address.');
+      } else {
+        setNftError(reason || 'Error executing mint transaction. Please try again.');
+      }
     } finally {
       setIsNftMinting(false);
     }
@@ -247,18 +259,15 @@ export function IdentityVerification({
     }
     setIsDecryptingDoc(true);
     try {
-      // Estimate chunk count based on typical size or just hardcode max/contract getter
-      // The citizen status has the requestId, and we can retrieve the chunk count from requests
-      // Wait, is there a way to get the chunk count of the request?
-      // Yes, we can query getRequest(requestId) from the contract first!
+      // Use shared readProvider instead of creating new one each time
       console.log('Fetching request details to get chunk count...');
-      const rpcUrl = typeof window !== 'undefined' ? window.location.origin + '/api/rpc' : 'http://localhost:5173/api/rpc';
+      const { readProvider: sharedProvider } = await import('../hooks/useContract');
       const contract = new ethers.Contract(
         FHE_IDENTITY_REGISTRY_ADDRESS,
         FHEIdentityRegistryABI.abi,
-        new ethers.JsonRpcProvider(rpcUrl)
+        sharedProvider
       );
-      const req = await contract.getRequest(requestId);
+      const req = await contract.requests(requestId);
       const docChunkCount = Number(req.docChunkCount);
       console.log(`Document has ${docChunkCount} chunks`);
 

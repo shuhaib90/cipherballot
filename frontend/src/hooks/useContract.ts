@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef } from 'react';
 import { Contract, BrowserProvider, JsonRpcSigner, JsonRpcProvider, ethers } from 'ethers';
 
 // Import ABIs from the generated files
@@ -41,14 +41,52 @@ export interface ElectionDetails {
   status: 'NotStarted' | 'Voting' | 'Closed' | 'Decrypted';
 }
 
-// Dedicated read-only provider using proxied Alchemy RPC
-// (proxied through Vite dev server to comply with COEP headers required by FHE WASM)
+// Dedicated read-only provider — use proxied path (works both dev & Vercel production via vercel.json rewrites)
 const SEPOLIA_RPC_URL = typeof window !== 'undefined' ? window.location.origin + '/api/rpc' : 'http://localhost:5173/api/rpc';
-const readProvider = new JsonRpcProvider(SEPOLIA_RPC_URL);
+// Direct fallback URL in case proxy is unreachable
+const ALCHEMY_DIRECT_URL = 'https://eth-sepolia.g.alchemy.com/v2/rCMBmb19ivP-P9yRADms9';
+
+// Create a resilient read provider with fallback
+function createReadProvider(): JsonRpcProvider {
+  const provider = new JsonRpcProvider(SEPOLIA_RPC_URL, undefined, {
+    staticNetwork: true,       // Avoid repeated eth_chainId calls
+    batchMaxCount: 1,          // Disable batching to avoid CORS issues with proxy
+  });
+  return provider;
+}
+
+export const readProvider = createReadProvider();
+export const fallbackProvider = new JsonRpcProvider(ALCHEMY_DIRECT_URL, undefined, {
+  staticNetwork: true,
+});
+
+// Helper: try readProvider first, fallback to direct Alchemy
+async function resilientCall<T>(fn: (provider: JsonRpcProvider) => Promise<T>): Promise<T> {
+  try {
+    return await fn(readProvider);
+  } catch (err) {
+    console.warn('Primary RPC failed, trying fallback...', err);
+    return await fn(fallbackProvider);
+  }
+}
 
 export function useContract(_provider: BrowserProvider | null, signer: JsonRpcSigner | null, userAddress: string) {
-  const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>('');
+  // Track individual operation loading states to avoid shared blocking
+  const loadingCountRef = useRef(0);
+  const [loading, setLoading] = useState<boolean>(false);
+  
+  const startLoading = useCallback(() => {
+    loadingCountRef.current++;
+    setLoading(true);
+  }, []);
+  
+  const stopLoading = useCallback(() => {
+    loadingCountRef.current = Math.max(0, loadingCountRef.current - 1);
+    if (loadingCountRef.current === 0) {
+      setLoading(false);
+    }
+  }, []);
 
   // Read-only contract instances (use Alchemy RPC for reliable reads)
   const getRegistryContractRead = useCallback(() => {
@@ -110,7 +148,7 @@ export function useContract(_provider: BrowserProvider | null, signer: JsonRpcSi
   }, [getRegistryContractRead]);
 
   const registerVoter = useCallback(async (voterAddress: string, salt: string) => {
-    setLoading(true);
+    startLoading();
     setError('');
     try {
       const contract = getRegistryContract();
@@ -123,12 +161,12 @@ export function useContract(_provider: BrowserProvider | null, signer: JsonRpcSi
       setError(err.reason || err.message || 'Failed to register voter.');
       return false;
     } finally {
-      setLoading(false);
+      stopLoading();
     }
   }, [getRegistryContract]);
 
   const registerVotersBatch = useCallback(async (voterAddresses: string[], salt: string) => {
-    setLoading(true);
+    startLoading();
     setError('');
     try {
       const contract = getRegistryContract();
@@ -143,7 +181,7 @@ export function useContract(_provider: BrowserProvider | null, signer: JsonRpcSi
       setError(err.reason || err.message || 'Failed to batch register voters.');
       return false;
     } finally {
-      setLoading(false);
+      stopLoading();
     }
   }, [getRegistryContract]);
 
@@ -157,7 +195,7 @@ export function useContract(_provider: BrowserProvider | null, signer: JsonRpcSi
     startTime: number,
     endTime: number
   ) => {
-    setLoading(true);
+    startLoading();
     setError('');
     try {
       const contract = getFactoryContract();
@@ -177,7 +215,7 @@ export function useContract(_provider: BrowserProvider | null, signer: JsonRpcSi
       setError(err.reason || err.message || 'Failed to create election.');
       return false;
     } finally {
-      setLoading(false);
+      stopLoading();
     }
   }, [getFactoryContract]);
 
@@ -252,7 +290,7 @@ export function useContract(_provider: BrowserProvider | null, signer: JsonRpcSi
     choiceIndex: number,
     encryptChoiceFn: (contractAddress: string, voterAddress: string, choiceIndex: number) => Promise<{ handle: string, inputProof: string }>
   ) => {
-    setLoading(true);
+    startLoading();
     setError('');
     try {
       if (!userAddress) throw new Error('Wallet not connected');
@@ -269,13 +307,13 @@ export function useContract(_provider: BrowserProvider | null, signer: JsonRpcSi
       setError(err.reason || err.message || 'Failed to cast vote.');
       return false;
     } finally {
-      setLoading(false);
+      stopLoading();
     }
   }, [getElectionContract, userAddress]);
 
   // Request decryption (marks handles as publicly decryptable on-chain)
   const requestRevealResults = useCallback(async (electionAddress: string) => {
-    setLoading(true);
+    startLoading();
     setError('');
     try {
       const contract = getElectionContract(electionAddress);
@@ -287,7 +325,7 @@ export function useContract(_provider: BrowserProvider | null, signer: JsonRpcSi
       setError(err.reason || err.message || 'Failed to request reveal.');
       return false;
     } finally {
-      setLoading(false);
+      stopLoading();
     }
   }, [getElectionContract]);
 
@@ -296,7 +334,7 @@ export function useContract(_provider: BrowserProvider | null, signer: JsonRpcSi
     electionAddress: string,
     fhevmInstance: any
   ) => {
-    setLoading(true);
+    startLoading();
     setError('');
     try {
       const contract = getElectionContract(electionAddress);
@@ -327,7 +365,7 @@ export function useContract(_provider: BrowserProvider | null, signer: JsonRpcSi
       setError(err.reason || err.message || 'Failed to decrypt and finalize results.');
       return false;
     } finally {
-      setLoading(false);
+      stopLoading();
     }
   }, [getElectionContract]);
 
@@ -350,12 +388,16 @@ export function useContract(_provider: BrowserProvider | null, signer: JsonRpcSi
   }, [getFactoryContractRead, getIdentityRegistryContractRead, userAddress]);
 
   // 5. FHE Identity Registry Operations
+  // Cache last known citizen status to prevent UI flashing on transient RPC errors
+  const lastKnownStatusRef = useRef<CitizenStatus | null>(null);
+
   const fetchCitizenStatus = useCallback(async (address: string): Promise<CitizenStatus> => {
-    try {
-      const contract = getIdentityRegistryContractRead();
+    const statuses: RequestStatus[] = ['Pending', 'Approved', 'Rejected', 'Expired'];
+    
+    const doFetch = async (provider: JsonRpcProvider): Promise<CitizenStatus> => {
+      const contract = new Contract(FHE_IDENTITY_REGISTRY_ADDRESS, FHEIdentityRegistryABI.abi, provider);
       const result = await contract.getCitizenStatus(address);
       const statusIndex = Number(result.status);
-      const statuses: RequestStatus[] = ['Pending', 'Approved', 'Rejected', 'Expired'];
       
       let signature = '';
       const reqId = Number(result.requestId);
@@ -376,8 +418,19 @@ export function useContract(_provider: BrowserProvider | null, signer: JsonRpcSi
         rejectionReason: result.rejectionReason,
         signature: signature || undefined
       };
+    };
+
+    try {
+      const status = await resilientCall(doFetch);
+      lastKnownStatusRef.current = status;
+      return status;
     } catch (err) {
-      console.error('Failed to fetch citizen status:', err);
+      console.error('Failed to fetch citizen status (both providers failed):', err);
+      // Return cached status if available to prevent UI flash
+      if (lastKnownStatusRef.current) {
+        console.warn('Returning cached citizen status');
+        return lastKnownStatusRef.current;
+      }
       return {
         isVerified: false,
         isPending: false,
@@ -387,7 +440,7 @@ export function useContract(_provider: BrowserProvider | null, signer: JsonRpcSi
         rejectionReason: ''
       };
     }
-  }, [getIdentityRegistryContractRead]);
+  }, []);
 
   const submitIdentityRequest = useCallback(async (
     _formData: IdentityFormData,
@@ -397,7 +450,7 @@ export function useContract(_provider: BrowserProvider | null, signer: JsonRpcSi
     docTypeProof: any,
     commitmentHash: string
   ): Promise<boolean> => {
-    setLoading(true);
+    startLoading();
     setError('');
     try {
       const contract = getIdentityRegistryContract();
@@ -415,7 +468,7 @@ export function useContract(_provider: BrowserProvider | null, signer: JsonRpcSi
       setError(err.reason || err.message || 'Failed to submit identity request.');
       return false;
     } finally {
-      setLoading(false);
+      stopLoading();
     }
   }, [getIdentityRegistryContract]);
 
@@ -427,7 +480,7 @@ export function useContract(_provider: BrowserProvider | null, signer: JsonRpcSi
     docTypeProof: any,
     commitmentHash: string
   ): Promise<boolean> => {
-    setLoading(true);
+    startLoading();
     setError('');
     try {
       const contract = getIdentityRegistryContract();
@@ -445,7 +498,7 @@ export function useContract(_provider: BrowserProvider | null, signer: JsonRpcSi
       setError(err.reason || err.message || 'Failed to resubmit identity request.');
       return false;
     } finally {
-      setLoading(false);
+      stopLoading();
     }
   }, [getIdentityRegistryContract]);
 
@@ -490,7 +543,7 @@ export function useContract(_provider: BrowserProvider | null, signer: JsonRpcSi
   }, [getIdentityRegistryContractRead]);
 
   const approveIdentityRequest = useCallback(async (requestId: number, signature: string): Promise<boolean> => {
-    setLoading(true);
+    startLoading();
     setError('');
     try {
       const contract = getIdentityRegistryContract();
@@ -502,12 +555,12 @@ export function useContract(_provider: BrowserProvider | null, signer: JsonRpcSi
       setError(err.reason || err.message || 'Failed to approve request.');
       return false;
     } finally {
-      setLoading(false);
+      stopLoading();
     }
   }, [getIdentityRegistryContract]);
 
   const rejectIdentityRequest = useCallback(async (requestId: number, reason: string): Promise<boolean> => {
-    setLoading(true);
+    startLoading();
     setError('');
     try {
       const contract = getIdentityRegistryContract();
@@ -519,7 +572,7 @@ export function useContract(_provider: BrowserProvider | null, signer: JsonRpcSi
       setError(err.reason || err.message || 'Failed to reject request.');
       return false;
     } finally {
-      setLoading(false);
+      stopLoading();
     }
   }, [getIdentityRegistryContract]);
 
@@ -531,7 +584,7 @@ export function useContract(_provider: BrowserProvider | null, signer: JsonRpcSi
     if (!signer || !userAddress || !fhevmInstance) {
       throw new Error('Signer, address, or FHEVM instance not available.');
     }
-    setLoading(true);
+    startLoading();
     setError('');
     try {
       const contract = getIdentityRegistryContractRead();
@@ -629,13 +682,13 @@ export function useContract(_provider: BrowserProvider | null, signer: JsonRpcSi
       setError(err.reason || err.message || 'Decryption failed.');
       return null;
     } finally {
-      setLoading(false);
+      stopLoading();
     }
   }, [signer, userAddress, getIdentityRegistryContractRead]);
 
   // Appoint a new commissioner
   const appointCommissioner = useCallback(async (newCommissionerAddress: string): Promise<boolean> => {
-    setLoading(true);
+    startLoading();
     setError('');
     try {
       const contract = getIdentityRegistryContract();
@@ -648,13 +701,13 @@ export function useContract(_provider: BrowserProvider | null, signer: JsonRpcSi
       setError(err.reason || err.message || 'Failed to appoint commissioner.');
       return false;
     } finally {
-      setLoading(false);
+      stopLoading();
     }
   }, [getIdentityRegistryContract]);
 
   // Delegate FHE request decryption access
   const delegateRequestAccess = useCallback(async (requestId: number, targetCommissioner: string): Promise<boolean> => {
-    setLoading(true);
+    startLoading();
     setError('');
     try {
       const contract = getIdentityRegistryContract();
@@ -667,7 +720,7 @@ export function useContract(_provider: BrowserProvider | null, signer: JsonRpcSi
       setError(err.reason || err.message || 'Failed to delegate request access.');
       return false;
     } finally {
-      setLoading(false);
+      stopLoading();
     }
   }, [getIdentityRegistryContract]);
 
@@ -735,7 +788,7 @@ export function useContract(_provider: BrowserProvider | null, signer: JsonRpcSi
     commitmentHash: string,
     signature: string
   ) => {
-    setLoading(true);
+    startLoading();
     setError('');
     try {
       const contract = getVoterPassContract();
@@ -752,12 +805,12 @@ export function useContract(_provider: BrowserProvider | null, signer: JsonRpcSi
       );
       
       await tx.wait();
-      setLoading(false);
+      stopLoading();
       return true;
     } catch (err: any) {
       console.error('Failed to mint voter pass NFT:', err);
       setError(err.reason || err.message || 'Transaction reverted');
-      setLoading(false);
+      stopLoading();
       return false;
     }
   }, [getVoterPassContract]);

@@ -16,6 +16,10 @@
   ],
   "rewrites": [
     {
+      "source": "/api/rpc",
+      "destination": "https://eth-sepolia.g.alchemy.com/v2/rCMBmb19ivP-P9yRADms9"
+    },
+    {
       "source": "/api/relayer/:path*",
       "destination": "https://relayer.testnet.zama.org/:path*"
     }

@@ -53,7 +53,10 @@ async function main() {
   console.log("Configuring VoterEligibilityPass authorization...");
   await (await voterPass.setElectionFactory(factoryAddress)).wait();
   await (await voterPass.setAuthorizedMinter(identityRegistryAddress, true)).wait();
-  console.log("✅ VoterEligibilityPass permissions configured");
+  // Authorize both deployer and officer as valid signers for citizen-initiated minting
+  await (await voterPass.setAuthorizedSigner(deployer.address, true)).wait();
+  await (await voterPass.setAuthorizedSigner(officerAddress, true)).wait();
+  console.log("✅ VoterEligibilityPass permissions configured (incl. authorized signers)");
 
   // Grant FHEIdentityRegistry registrar role
   console.log("Granting FHEIdentityRegistry REGISTRAR role in VoterRegistry...");

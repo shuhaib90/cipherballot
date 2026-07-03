@@ -438,7 +438,7 @@ function App() {
 
   useEffect(() => {
     loadLedgerEvents();
-    const interval = setInterval(loadLedgerEvents, 15000); // poll every 15 seconds
+    const interval = setInterval(loadLedgerEvents, 60000); // poll every 60 seconds (was 15s — too aggressive)
     return () => clearInterval(interval);
   }, [loadLedgerEvents]);
 
@@ -526,18 +526,27 @@ function App() {
       return;
     }
 
-    const activeElecId = selectedElection ? Number(selectedElection.electionId) : 1;
-    const [regStatus, officerStatus, passActive, passGlobal] = await Promise.all([
-      isVoterRegistered(address),
-      isUserCommissionOfficer(),
-      hasVoterPass(address, activeElecId),
-      hasVoterPass(address, 0)
-    ]);
+    try {
+      const activeElecId = selectedElection ? Number(selectedElection.electionId) : 1;
+      const [regStatus, officerStatus, passActive, passGlobal] = await Promise.allSettled([
+        isVoterRegistered(address),
+        isUserCommissionOfficer(),
+        hasVoterPass(address, activeElecId),
+        hasVoterPass(address, 0)
+      ]);
 
-    setIsRegistered(regStatus);
-    setIsOfficer(officerStatus || address.toLowerCase() === '0x36e1C1EbC3e36d9b55E4b872A74B6F059008789e'.toLowerCase());
-    setIsVoterPassMinted(passActive || passGlobal);
-    await loadCitizenStatus();
+      const reg = regStatus.status === 'fulfilled' ? regStatus.value : false;
+      const officer = officerStatus.status === 'fulfilled' ? officerStatus.value : false;
+      const pActive = passActive.status === 'fulfilled' ? passActive.value : false;
+      const pGlobal = passGlobal.status === 'fulfilled' ? passGlobal.value : false;
+
+      setIsRegistered(reg as boolean);
+      setIsOfficer((officer as boolean) || address.toLowerCase() === '0x36e1C1EbC3e36d9b55E4b872A74B6F059008789e'.toLowerCase());
+      setIsVoterPassMinted((pActive as boolean) || (pGlobal as boolean));
+      await loadCitizenStatus();
+    } catch (err) {
+      console.error('Error loading user status:', err);
+    }
   }, [isConnected, address, isVoterRegistered, isUserCommissionOfficer, loadCitizenStatus, selectedElection, hasVoterPass]);
 
   // Clear state when disconnected
@@ -559,7 +568,7 @@ function App() {
     }
   }, [isOfficer, activeTab]);
 
-  // Poll elections, user status, and citizen status every 15 seconds when connected
+  // Poll elections, user status, and citizen status every 30 seconds when connected (was 15s — too aggressive)
   useEffect(() => {
     if (!isConnected || !address) return;
 
@@ -570,7 +579,7 @@ function App() {
     const interval = setInterval(() => {
       loadElections();
       loadUserStatus();
-    }, 15000);
+    }, 30000);
 
     return () => clearInterval(interval);
   }, [isConnected, address, loadElections, loadUserStatus]);
