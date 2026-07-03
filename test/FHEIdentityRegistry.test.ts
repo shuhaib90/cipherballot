@@ -203,7 +203,7 @@ describe("FHEIdentityRegistry", function () {
           commitmentHash
         );
 
-      await identityRegistry.connect(commission).approveIdentityRequest(0);
+      await identityRegistry.connect(commission).approveIdentityRequest(0, "0x");
 
       const {
         encryptedChunks: enc2,
@@ -329,7 +329,7 @@ describe("FHEIdentityRegistry", function () {
     });
 
     it("Should auto-register voter in VoterRegistry", async function () {
-      await expect(identityRegistry.connect(commission).approveIdentityRequest(0))
+      await expect(identityRegistry.connect(commission).approveIdentityRequest(0, "0x"))
         .to.emit(identityRegistry, "IdentityRequestApproved")
         .withArgs(0, citizen1.address, commission.address, anyUint => true)
         .to.emit(identityRegistry, "VoterAutoRegistered")
@@ -346,27 +346,27 @@ describe("FHEIdentityRegistry", function () {
 
     it("Should remove from pending list", async function () {
       expect(await identityRegistry.getPendingCount()).to.equal(1);
-      await identityRegistry.connect(commission).approveIdentityRequest(0);
+      await identityRegistry.connect(commission).approveIdentityRequest(0, "0x");
       expect(await identityRegistry.getPendingCount()).to.equal(0);
     });
 
     it("Should reject non-commission caller", async function () {
       await expect(
-        identityRegistry.connect(nonOwner).approveIdentityRequest(0)
+        identityRegistry.connect(nonOwner).approveIdentityRequest(0, "0x")
       ).to.be.revertedWith("Only Election Commission");
     });
 
     it("Should reject non-pending request", async function () {
-      await identityRegistry.connect(commission).approveIdentityRequest(0);
+      await identityRegistry.connect(commission).approveIdentityRequest(0, "0x");
       await expect(
-        identityRegistry.connect(commission).approveIdentityRequest(0)
+        identityRegistry.connect(commission).approveIdentityRequest(0, "0x")
       ).to.be.revertedWith("Not pending");
     });
 
     it("Should reject expired request", async function () {
       await time.increase(30 * 24 * 3600 + 1); // Exceed REQUEST_EXPIRY
       await expect(
-        identityRegistry.connect(commission).approveIdentityRequest(0)
+        identityRegistry.connect(commission).approveIdentityRequest(0, "0x")
       ).to.be.revertedWith("Request expired");
     });
   });

@@ -148,24 +148,19 @@ export function IdentityVerification({
     setIsNftMinting(true);
     setNftError('');
     try {
-      // 1. Fetch off-chain signature from localStorage (generated during Commission approval)
-      const sigKey = `cb_sig_${address.toLowerCase()}_${activeElectionId}`;
-      let signature = localStorage.getItem(sigKey);
-      
-      // Fallback: If not found, try to look for global signature (0) or generate mock/local signature for demo!
+      // 1. Fetch approval signature (first try from on-chain citizenStatus, fallback to localStorage)
+      let signature = citizenStatus.signature;
+      if (!signature) {
+        const sigKey = `cb_sig_${address.toLowerCase()}_${activeElectionId}`;
+        signature = localStorage.getItem(sigKey) || undefined;
+      }
       if (!signature) {
         const globalSigKey = `cb_sig_${address.toLowerCase()}_0`;
-        signature = localStorage.getItem(globalSigKey);
+        signature = localStorage.getItem(globalSigKey) || undefined;
       }
       
-      // If still not found, generate a mock signature since we are on Sepolia/Local demo mode
       if (!signature) {
-        // We fallback to checking if we can request a signature or warn the user.
-        // For a seamless demo, we will try to look for standard Local signature or generate one!
-        // To prevent reverting if local storage was cleared:
-        // We will notify the user they need the Commission to approve them (which signs it)
-        // or check if the commission signature is needed.
-        console.warn("Signature not found in localStorage. Checking if we can mock or proceed...");
+        console.warn("Signature not found in citizenStatus or localStorage. Ensuring we show warning or fallback...");
       }
 
       // 2. Encrypt Identity Data (citizen name / address) using Zama Wasm SDK

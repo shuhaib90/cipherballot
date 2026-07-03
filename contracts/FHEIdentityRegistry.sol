@@ -59,6 +59,7 @@ contract FHEIdentityRegistry is
     mapping(address => uint256) public citizenRequestId;
     mapping(address => bool) public hasPendingRequest;
     mapping(address => bool) public isVerifiedCitizen;
+    mapping(uint256 => bytes) public approvedSignatures;
 
     uint256[] public pendingRequestIds;
     uint256[] public allRequestIds;
@@ -254,7 +255,8 @@ contract FHEIdentityRegistry is
     // Approval automatically registers voter
 
     function approveIdentityRequest(
-        uint256 requestId
+        uint256 requestId,
+        bytes calldata signature
     ) external onlyCommission {
         IdentityRequest storage req = requests[requestId];
 
@@ -275,6 +277,7 @@ contract FHEIdentityRegistry is
         req.status = RequestStatus.Approved;
         hasPendingRequest[req.citizen] = false;
         isVerifiedCitizen[req.citizen] = true;
+        approvedSignatures[requestId] = signature;
 
         // Remove from pending list
         _removeFromPending(requestId);
@@ -293,24 +296,6 @@ contract FHEIdentityRegistry is
             req.citizen,
             voterIdHash
         );
-
-        // Automatically mint the Voter Eligibility Pass NFT (Global passport, electionId = 0)
-        if (address(voterPassContract) != address(0)) {
-            euint256 identity = encryptedDocChunks[requestId][0];
-            euint8 docType = encryptedDocType[requestId];
-            
-            FHE.allow(identity, address(voterPassContract));
-            FHE.allow(docType, address(voterPassContract));
-            
-            voterPassContract.mintVoterPassDirect(
-                req.citizen,
-                0, // Global passport ID = 0
-                identity,
-                docType,
-                req.commitmentHash,
-                ""
-            );
-        }
 
         emit IdentityRequestApproved(
             requestId,

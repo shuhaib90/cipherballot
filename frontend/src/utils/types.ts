@@ -36,6 +36,7 @@ export interface CitizenStatus {
   requestId: number;
   status: RequestStatus;
   rejectionReason: string;
+  signature?: string;
 }
 
 export interface IdentityFormData {

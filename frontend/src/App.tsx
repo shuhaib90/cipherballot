@@ -605,6 +605,7 @@ function App() {
 
   const wrapApproveIdentityRequest = useCallback(async (requestId: number) => {
     try {
+      if (!signer) return false;
       const contract = new ethers.Contract(
         FHE_IDENTITY_REGISTRY_ADDRESS,
         FHEIdentityRegistryABI.abi,
@@ -614,28 +615,24 @@ function App() {
       const citizenAddress = req.citizen;
       const commitmentHash = req.commitmentHash;
 
-      const success = await approveIdentityRequest(requestId);
+      // 1. Sign the approval message off-chain first (electionId = 0 for global passport approval)
+      const elecId = 0;
+      const msgHash = ethers.solidityPackedKeccak256(
+        ["address", "uint256", "bytes32"],
+        [citizenAddress, elecId, commitmentHash]
+      );
       
-      if (success && signer) {
-        try {
-          const elecId = selectedElection ? selectedElection.electionId : 1;
-          const msgHash = ethers.solidityPackedKeccak256(
-            ["address", "uint256", "bytes32"],
-            [citizenAddress, elecId, commitmentHash]
-          );
-          const signature = await signer.signMessage(ethers.getBytes(msgHash));
-          localStorage.setItem(`cb_sig_${citizenAddress.toLowerCase()}_${elecId}`, signature);
-          console.log(`Saved VEPass signature for voter ${citizenAddress} for election ${elecId}`);
-        } catch (err) {
-          console.error("Failed to sign VEPass authorization:", err);
-        }
-      }
+      console.log(`Signing VEPass approval for citizen ${citizenAddress}...`);
+      const signature = await signer.signMessage(ethers.getBytes(msgHash));
+      
+      // 2. Call approveIdentityRequest with signature on-chain
+      const success = await approveIdentityRequest(requestId, signature);
       return success;
     } catch (e) {
       console.error("Error wrapping approveIdentityRequest:", e);
       return false;
     }
-  }, [approveIdentityRequest, signer, selectedElection]);
+  }, [approveIdentityRequest, signer]);
 
   return (
     <div className="min-h-screen bg-[#03000a] flex flex-col font-sans relative">

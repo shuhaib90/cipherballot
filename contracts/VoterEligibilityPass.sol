@@ -309,6 +309,18 @@ contract VoterEligibilityPass is
         );
         
         address recoveredSigner = _recoverSigner(ethSignedMessageHash, signature);
+        if (recoveredSigner == commissionAddress) {
+            return true;
+        }
+
+        // Fallback: Check if the signature was signed for global election ID = 0
+        bytes32 globalHash = keccak256(
+            abi.encodePacked(voter, uint256(0), commitmentHash)
+        );
+        bytes32 ethSignedGlobalHash = keccak256(
+            abi.encodePacked("\x19Ethereum Signed Message:\n32", globalHash)
+        );
+        recoveredSigner = _recoverSigner(ethSignedGlobalHash, signature);
         return (recoveredSigner == commissionAddress);
     }
 

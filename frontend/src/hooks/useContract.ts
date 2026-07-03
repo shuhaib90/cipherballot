@@ -356,13 +356,25 @@ export function useContract(_provider: BrowserProvider | null, signer: JsonRpcSi
       const result = await contract.getCitizenStatus(address);
       const statusIndex = Number(result.status);
       const statuses: RequestStatus[] = ['Pending', 'Approved', 'Rejected', 'Expired'];
+      
+      let signature = '';
+      const reqId = Number(result.requestId);
+      if (statuses[statusIndex] === 'Approved') {
+        try {
+          signature = await contract.approvedSignatures(reqId);
+        } catch (e) {
+          console.error('Failed to fetch approved signature from contract:', e);
+        }
+      }
+
       return {
         isVerified: result.isVerified,
         isPending: result.isPending,
         isRegistered: result.isRegistered,
-        requestId: Number(result.requestId),
+        requestId: reqId,
         status: statuses[statusIndex] || 'Pending',
-        rejectionReason: result.rejectionReason
+        rejectionReason: result.rejectionReason,
+        signature: signature || undefined
       };
     } catch (err) {
       console.error('Failed to fetch citizen status:', err);
@@ -477,12 +489,12 @@ export function useContract(_provider: BrowserProvider | null, signer: JsonRpcSi
     }
   }, [getIdentityRegistryContractRead]);
 
-  const approveIdentityRequest = useCallback(async (requestId: number): Promise<boolean> => {
+  const approveIdentityRequest = useCallback(async (requestId: number, signature: string): Promise<boolean> => {
     setLoading(true);
     setError('');
     try {
       const contract = getIdentityRegistryContract();
-      const tx = await contract.approveIdentityRequest(requestId);
+      const tx = await contract.approveIdentityRequest(requestId, signature);
       await tx.wait();
       return true;
     } catch (err: any) {
