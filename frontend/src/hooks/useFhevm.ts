@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { initSDK, createInstance, SepoliaConfig, type FhevmInstance } from '@zama-fhe/relayer-sdk/web';
 import { ethers } from 'ethers';
 import { DOCUMENT_TYPE_MAP, type IdentityFormData } from '../utils/types';
@@ -10,9 +10,19 @@ export function useFhevm(provider: any, chainId: bigint) {
   const [isInitializing, setIsInitializing] = useState<boolean>(false);
   const [fheError, setFheError] = useState<string>('');
 
+  // Cache reference of provider to prevent redundant FHEVM client instance creation
+  const lastInitializedProviderRef = useRef<any>(null);
+
   const initFhe = useCallback(async () => {
     if (!provider || !chainId) return;
+    
+    // Only re-initialize FHEVM client if the provider reference changes
+    if (provider === lastInitializedProviderRef.current && fhevmInstance) {
+      console.log('FHEVM already initialized for this provider session.');
+      return;
+    }
 
+    lastInitializedProviderRef.current = provider;
     setIsInitializing(true);
     setFheError('');
 
@@ -38,11 +48,13 @@ export function useFhevm(provider: any, chainId: bigint) {
       console.log('FhevmInstance created successfully.');
     } catch (err: any) {
       console.error('FHEVM initialization failed:', err);
+      // Reset ref so retry is possible
+      lastInitializedProviderRef.current = null;
       setFheError(err.message || 'Failed to initialize FHEVM.');
     } finally {
       setIsInitializing(false);
     }
-  }, [provider, chainId]);
+  }, [provider, chainId, fhevmInstance]);
 
   useEffect(() => {
     if (provider && chainId) {

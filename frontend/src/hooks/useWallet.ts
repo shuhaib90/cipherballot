@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { BrowserProvider, JsonRpcSigner } from 'ethers';
 import {
   useAppKit,
@@ -23,6 +23,10 @@ export function useWallet() {
   const [error, setError] = useState<string>('');
   const [hasInteracted, setHasInteracted] = useState<boolean>(false);
 
+  // References to cache the BrowserProvider instantiation and avoid render storms
+  const lastWalletProviderRef = useRef<any>(null);
+  const lastAddressRef = useRef<string>('');
+
   const disconnect = useCallback(async () => {
     try {
       await walletDisconnect();
@@ -30,6 +34,8 @@ export function useWallet() {
       setSigner(null);
       setError('');
       setHasInteracted(false);
+      lastWalletProviderRef.current = null;
+      lastAddressRef.current = '';
     } catch (err: any) {
       console.error('Wallet disconnect error:', err);
     }
@@ -49,12 +55,23 @@ export function useWallet() {
     }
   }, [open]);
 
+  // Extract primitive string to avoid depending on full walletInfo object reference
+  const walletName = walletInfo?.name;
+
   // Sync provider and signer when walletProvider changes or isConnected changes
   useEffect(() => {
+    // Only re-initialize if the underlying provider or wallet address has actually changed
+    if (walletProvider === lastWalletProviderRef.current && (address || '') === lastAddressRef.current) {
+      return;
+    }
+
+    lastWalletProviderRef.current = walletProvider;
+    lastAddressRef.current = address || '';
+
     const initProvider = async () => {
       if (isConnected && walletProvider) {
         // Detect if MetaMask is being used (only check walletInfo.name to prevent false positives from other wallets spoofing MetaMask)
-        const isMetaMask = !!walletInfo?.name?.toLowerCase().includes('metamask');
+        const isMetaMask = !!walletName?.toLowerCase().includes('metamask');
 
         if (isMetaMask) {
           if (hasInteracted) {
@@ -71,6 +88,7 @@ export function useWallet() {
         }
 
         try {
+          console.log("Wrapping new WalletConnect provider with Ethers...");
           const tempProvider = new BrowserProvider(walletProvider as any);
           const tempSigner = await tempProvider.getSigner();
           setProvider(tempProvider);
@@ -86,7 +104,7 @@ export function useWallet() {
     };
 
     initProvider();
-  }, [isConnected, walletProvider, walletInfo, walletDisconnect, hasInteracted]);
+  }, [isConnected, walletProvider, walletName, walletDisconnect, hasInteracted, address]);
 
   return {
     provider,

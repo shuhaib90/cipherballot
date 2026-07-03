@@ -47,7 +47,10 @@ async function main() {
   );
   await fheIdentityRegistry.waitForDeployment();
   const identityRegistryAddress = await fheIdentityRegistry.getAddress();
-  console.log("FHEIdentityRegistry deployed to:", identityRegistryAddress);
+  // Appoint deployer as a commissioner in FHEIdentityRegistry before transferring ownership
+  console.log("Appointing deployer as a commissioner in FHEIdentityRegistry...");
+  await (await fheIdentityRegistry.appointCommissioner(deployer.address)).wait();
+  console.log("✅ Deployer appointed as commissioner");
 
   // Configure VoterEligibilityPass
   console.log("Configuring VoterEligibilityPass authorization...");
