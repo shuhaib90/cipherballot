@@ -3,7 +3,7 @@ import { initSDK, createInstance, SepoliaConfig, type FhevmInstance } from '@zam
 import { ethers } from 'ethers';
 import { DOCUMENT_TYPE_MAP, type IdentityFormData } from '../utils/types';
 
-let initPromise: Promise<FhevmInstance> | null = null;
+let wasmInitPromise: Promise<boolean> | null = null;
 
 export function useFhevm(provider: any, chainId: bigint) {
   const [fhevmInstance, setFhevmInstance] = useState<FhevmInstance | null>(null);
@@ -16,33 +16,29 @@ export function useFhevm(provider: any, chainId: bigint) {
     setIsInitializing(true);
     setFheError('');
 
-    if (!initPromise) {
-      initPromise = (async () => {
-        console.log('Initializing FHE WebAssembly SDK...');
-        // 1. Initialize SDK (loads WASM)
-        await initSDK();
-        console.log('FHE WebAssembly loaded.');
-
-        // 2. Create Instance using SepoliaConfig
-        const config = {
-          ...SepoliaConfig,
-          network: window.location.origin + '/api/rpc',
-          relayerUrl: window.location.origin + '/api/relayer/v2',
-        };
-
-        console.log('Creating FhevmInstance with SepoliaConfig...');
-        return await createInstance(config);
-      })();
-    }
-
     try {
-      const instance = await initPromise;
+      if (!wasmInitPromise) {
+        console.log('Initializing FHE WebAssembly SDK...');
+        wasmInitPromise = initSDK();
+      }
+      await wasmInitPromise;
+      console.log('FHE WebAssembly loaded.');
+
+      // 2. Create Instance with current wallet provider
+      const config = {
+        ...SepoliaConfig,
+        network: window.location.origin + '/api/rpc',
+        relayerUrl: window.location.origin + '/api/relayer/v2',
+        provider: provider.provider || provider,
+      };
+
+      console.log('Creating FhevmInstance with SepoliaConfig and wallet provider...');
+      const instance = await createInstance(config);
       setFhevmInstance(instance);
-      console.log('FhevmInstance created/retrieved successfully.');
+      console.log('FhevmInstance created successfully.');
     } catch (err: any) {
       console.error('FHEVM initialization failed:', err);
       setFheError(err.message || 'Failed to initialize FHEVM.');
-      initPromise = null; // Clear promise on failure to allow retry
     } finally {
       setIsInitializing(false);
     }
