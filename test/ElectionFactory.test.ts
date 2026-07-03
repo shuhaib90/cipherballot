@@ -19,8 +19,15 @@ describe("ElectionFactory", function () {
     registry = (await VoterRegistryFactory.deploy()) as VoterRegistry;
     await registry.waitForDeployment();
 
+    const VoterEligibilityPassFactory = await ethers.getContractFactory("VoterEligibilityPass");
+    const voterPass = await VoterEligibilityPassFactory.deploy(owner.address);
+    await voterPass.waitForDeployment();
+
     const ElectionFactoryFactory = await ethers.getContractFactory("ElectionFactory");
-    factory = (await ElectionFactoryFactory.deploy(await registry.getAddress())) as ElectionFactory;
+    factory = (await ElectionFactoryFactory.deploy(
+      await registry.getAddress(),
+      await voterPass.getAddress()
+    )) as ElectionFactory;
     await factory.waitForDeployment();
   });
 

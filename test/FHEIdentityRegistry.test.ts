@@ -27,13 +27,22 @@ describe("FHEIdentityRegistry", function () {
     voterRegistry = (await VoterRegistryFactory.deploy()) as VoterRegistry;
     await voterRegistry.waitForDeployment();
 
+    // 1.5. Deploy VoterEligibilityPass
+    const VoterEligibilityPassFactory = await ethers.getContractFactory("VoterEligibilityPass");
+    const voterPass = await VoterEligibilityPassFactory.deploy(commission.address);
+    await voterPass.waitForDeployment();
+
     // 2. Deploy FHEIdentityRegistry
     const FHEIdentityRegistryFactory = await ethers.getContractFactory("FHEIdentityRegistry");
     identityRegistry = (await FHEIdentityRegistryFactory.deploy(
       await voterRegistry.getAddress(),
-      commission.address
+      commission.address,
+      await voterPass.getAddress()
     )) as FHEIdentityRegistry;
     await identityRegistry.waitForDeployment();
+
+    // Authorize FHEIdentityRegistry as minter in VoterEligibilityPass
+    await voterPass.setAuthorizedMinter(await identityRegistry.getAddress(), true);
 
     // Assert coprocessor initialized (required by hardhat-plugin)
     await fhevm.assertCoprocessorInitialized(await identityRegistry.getAddress(), "FHEIdentityRegistry");

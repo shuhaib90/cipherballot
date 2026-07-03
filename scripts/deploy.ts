@@ -10,6 +10,9 @@ async function main() {
   console.log("Network:", network.name);
   console.log("====================================================");
 
+  const officerAddress = process.env.ELECTION_OFFICER_ADDRESS || "0x36e1C1EbC3e36d9b55E4b872A74B6F059008789e";
+  console.log(`Election Officer Target Wallet: ${officerAddress}`);
+
   // 1. Deploy VoterRegistry
   console.log("Deploying VoterRegistry...");
   const VoterRegistry = await ethers.getContractFactory("VoterRegistry");
@@ -18,27 +21,39 @@ async function main() {
   const registryAddress = await registry.getAddress();
   console.log("VoterRegistry deployed to:", registryAddress);
 
+  // 1.5 Deploy VoterEligibilityPass
+  console.log("Deploying VoterEligibilityPass...");
+  const VoterEligibilityPass = await ethers.getContractFactory("VoterEligibilityPass");
+  const voterPass = await VoterEligibilityPass.deploy(officerAddress);
+  await voterPass.waitForDeployment();
+  const voterPassAddress = await voterPass.getAddress();
+  console.log("VoterEligibilityPass deployed to:", voterPassAddress);
+
   // 2. Deploy ElectionFactory
   console.log("Deploying ElectionFactory...");
   const ElectionFactory = await ethers.getContractFactory("ElectionFactory");
-  const factory = await ElectionFactory.deploy(registryAddress);
+  const factory = await ElectionFactory.deploy(registryAddress, voterPassAddress);
   await factory.waitForDeployment();
   const factoryAddress = await factory.getAddress();
   console.log("ElectionFactory deployed to:", factoryAddress);
-
-  const officerAddress = process.env.ELECTION_OFFICER_ADDRESS || "0x36e1C1EbC3e36d9b55E4b872A74B6F059008789e";
-  console.log(`Election Officer Target Wallet: ${officerAddress}`);
 
   // Deploy FHEIdentityRegistry
   console.log("Deploying FHEIdentityRegistry...");
   const FHEIdentityRegistry = await ethers.getContractFactory("FHEIdentityRegistry");
   const fheIdentityRegistry = await FHEIdentityRegistry.deploy(
     registryAddress,
-    officerAddress
+    officerAddress,
+    voterPassAddress
   );
   await fheIdentityRegistry.waitForDeployment();
   const identityRegistryAddress = await fheIdentityRegistry.getAddress();
   console.log("FHEIdentityRegistry deployed to:", identityRegistryAddress);
+
+  // Configure VoterEligibilityPass
+  console.log("Configuring VoterEligibilityPass authorization...");
+  await (await voterPass.setElectionFactory(factoryAddress)).wait();
+  await (await voterPass.setAuthorizedMinter(identityRegistryAddress, true)).wait();
+  console.log("✅ VoterEligibilityPass permissions configured");
 
   // Grant FHEIdentityRegistry registrar role
   console.log("Granting FHEIdentityRegistry REGISTRAR role in VoterRegistry...");
@@ -103,12 +118,13 @@ async function main() {
     }
   }
 
-  // 4.5 Transfer ownership of VoterRegistry, ElectionFactory, and FHEIdentityRegistry to the officer
-  console.log("Transferring ownership of VoterRegistry, ElectionFactory, and FHEIdentityRegistry to officer...");
+  // 4.5 Transfer ownership of VoterRegistry, ElectionFactory, FHEIdentityRegistry, and VoterEligibilityPass to the officer
+  console.log("Transferring ownership of VoterRegistry, ElectionFactory, FHEIdentityRegistry, and VoterEligibilityPass to officer...");
   try {
     await (await registry.transferOwnership(officerAddress)).wait();
     await (await factory.transferOwnership(officerAddress)).wait();
     await (await fheIdentityRegistry.transferOwnership(officerAddress)).wait();
+    await (await voterPass.transferOwnership(officerAddress)).wait();
     console.log("Ownership transferred successfully to:", officerAddress);
   } catch (err: any) {
     console.error("Failed to transfer ownership to officer:", err.message || err);
@@ -135,17 +151,22 @@ async function main() {
   const identityRegistryArtifact = JSON.parse(
     fs.readFileSync(path.join(__dirname, "../artifacts/contracts/FHEIdentityRegistry.sol/FHEIdentityRegistry.json"), "utf8")
   );
+  const voterPassArtifact = JSON.parse(
+    fs.readFileSync(path.join(__dirname, "../artifacts/contracts/VoterEligibilityPass.sol/VoterEligibilityPass.json"), "utf8")
+  );
 
   fs.writeFileSync(path.join(abisDir, "VoterRegistry.json"), JSON.stringify(registryArtifact, null, 2));
   fs.writeFileSync(path.join(abisDir, "ElectionFactory.json"), JSON.stringify(factoryArtifact, null, 2));
   fs.writeFileSync(path.join(abisDir, "Election.json"), JSON.stringify(electionArtifact, null, 2));
   fs.writeFileSync(path.join(abisDir, "FHEIdentityRegistry.json"), JSON.stringify(identityRegistryArtifact, null, 2));
+  fs.writeFileSync(path.join(abisDir, "VoterEligibilityPass.json"), JSON.stringify(voterPassArtifact, null, 2));
 
   // Write contract.ts
   const contractTsContent = `// Deployed contract addresses and helper config
 export const VOTER_REGISTRY_ADDRESS = "${registryAddress}";
 export const ELECTION_FACTORY_ADDRESS = "${factoryAddress}";
 export const FHE_IDENTITY_REGISTRY_ADDRESS = "${identityRegistryAddress}";
+export const VOTER_PASS_ADDRESS = "${voterPassAddress}";
 export const DEMO_ELECTION_ADDRESS = "${electionAddress}";
 
 // KMS/FHEVM Addresses for Sepolia Testnet
@@ -162,6 +183,7 @@ export const VERIFYING_CONTRACT_ADDRESS_INPUT_VERIFICATION = "0x483b9dE06E4E4C7D
   const summary = {
     network: network.name,
     VoterRegistry: registryAddress,
+    VoterEligibilityPass: voterPassAddress,
     ElectionFactory: factoryAddress,
     FHEIdentityRegistry: identityRegistryAddress,
     DemoElection: electionAddress,

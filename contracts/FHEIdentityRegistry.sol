@@ -9,6 +9,7 @@ import {ZamaEthereumConfig} from
 import {Ownable} from
     "@openzeppelin/contracts/access/Ownable.sol";
 import "./VoterRegistry.sol";
+import "./VoterEligibilityPass.sol";
 
 contract FHEIdentityRegistry is
     ZamaEthereumConfig,
@@ -64,6 +65,7 @@ contract FHEIdentityRegistry is
     uint256 public requestCount;
 
     VoterRegistry public immutable voterRegistry;
+    VoterEligibilityPass public voterPassContract;
     address public commission;
     
     mapping(address => bool) public isCommissioner;
@@ -111,12 +113,22 @@ contract FHEIdentityRegistry is
     // ─── Constructor ─────────────────────────────────
     constructor(
         address _voterRegistry,
-        address _commission
+        address _commission,
+        address _voterPass
     ) Ownable(msg.sender) {
+        require(_voterRegistry != address(0), "Invalid registry");
+        require(_commission != address(0), "Invalid commission");
+        require(_voterPass != address(0), "Invalid pass");
         voterRegistry = VoterRegistry(_voterRegistry);
+        voterPassContract = VoterEligibilityPass(_voterPass);
         commission    = _commission;
         isCommissioner[_commission] = true;
         commissioners.push(_commission);
+    }
+
+    function setVoterPassContract(address _voterPass) external onlyOwner {
+        require(_voterPass != address(0), "Invalid address");
+        voterPassContract = VoterEligibilityPass(_voterPass);
     }
 
     // ─────────────────────────────────────────────────
@@ -281,6 +293,24 @@ contract FHEIdentityRegistry is
             req.citizen,
             voterIdHash
         );
+
+        // Automatically mint the Voter Eligibility Pass NFT (Global passport, electionId = 0)
+        if (address(voterPassContract) != address(0)) {
+            euint256 identity = encryptedDocChunks[requestId][0];
+            euint8 docType = encryptedDocType[requestId];
+            
+            FHE.allow(identity, address(voterPassContract));
+            FHE.allow(docType, address(voterPassContract));
+            
+            voterPassContract.mintVoterPassDirect(
+                req.citizen,
+                0, // Global passport ID = 0
+                identity,
+                docType,
+                req.commitmentHash,
+                ""
+            );
+        }
 
         emit IdentityRequestApproved(
             requestId,

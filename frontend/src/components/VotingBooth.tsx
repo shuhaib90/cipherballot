@@ -5,6 +5,7 @@ import type { ElectionDetails } from '../hooks/useContract';
 interface VotingBoothProps {
   election: ElectionDetails | null;
   isRegistered: boolean;
+  isVoterPassMinted: boolean;
   isFheReady: boolean;
   onCastVote: (choiceIndex: number) => Promise<boolean>;
   loading: boolean;
@@ -13,6 +14,7 @@ interface VotingBoothProps {
 export function VotingBooth({
   election,
   isRegistered,
+  isVoterPassMinted,
   isFheReady,
   onCastVote,
   loading
@@ -56,6 +58,7 @@ export function VotingBooth({
     isVoted ||
     status !== 'Voting' ||
     !isRegistered ||
+    !isVoterPassMinted ||
     !isFheReady ||
     selectedCandidate === null;
 
@@ -85,6 +88,12 @@ export function VotingBooth({
           {!isRegistered && (
             <div className="p-3.5 rounded-xl border border-rose-500/20 bg-rose-500/10 text-xs text-rose-400 font-medium">
               You do not have a valid FHE Pass. Register your wallet to enable voting.
+            </div>
+          )}
+
+          {isRegistered && !isVoterPassMinted && (
+            <div className="p-3.5 rounded-xl border border-yellow-500/20 bg-yellow-500/10 text-xs text-yellow-400 font-medium">
+              You are whitelisted by the Guardians but have not minted your soulbound Voter Pass NFT. Mint your pass in the "Claim FHE Pass" tab to authorize voting.
             </div>
           )}
 

@@ -8,8 +8,11 @@ import "./VoterRegistry.sol";
 contract ElectionFactory is Ownable {
 
     VoterRegistry public immutable voterRegistry;
+    address public immutable voterPassContract;
     address[] public elections;
     uint256 public electionCount;
+    
+    mapping(address => bool) public isDeployedElection;
 
     event ElectionDeployed(
         uint256 indexed electionId,
@@ -19,10 +22,13 @@ contract ElectionFactory is Ownable {
         uint256 endTime
     );
 
-    constructor(address _voterRegistry)
+    constructor(address _voterRegistry, address _voterPassContract)
         Ownable(msg.sender)
     {
+        require(_voterRegistry != address(0), "Invalid registry");
+        require(_voterPassContract != address(0), "Invalid pass contract");
         voterRegistry = VoterRegistry(_voterRegistry);
+        voterPassContract = _voterPassContract;
     }
 
     function createElection(
@@ -60,9 +66,11 @@ contract ElectionFactory is Ownable {
             startTime,
             endTime,
             address(voterRegistry),
-            msg.sender  // commission = factory owner
+            msg.sender,  // commission = factory owner
+            voterPassContract // NEW
         );
 
+        isDeployedElection[address(election)] = true;
         elections.push(address(election));
 
         emit ElectionDeployed(

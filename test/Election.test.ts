@@ -2,7 +2,7 @@ import { expect } from "chai";
 import { ethers, fhevm } from "hardhat";
 import { FhevmType } from "@fhevm/hardhat-plugin";
 import { time } from "@nomicfoundation/hardhat-network-helpers";
-import { VoterRegistry, Election } from "../types";
+import { VoterRegistry, Election, VoterEligibilityPass } from "../types";
 import { HardhatEthersSigner } from "@nomicfoundation/hardhat-ethers/signers";
 
 describe("Election", function () {
@@ -12,6 +12,8 @@ describe("Election", function () {
   let voter1: HardhatEthersSigner;
   let voter2: HardhatEthersSigner;
   let unregistered: HardhatEthersSigner;
+  let voterPass: VoterEligibilityPass;
+  let passAddr: string;
   let startTime: number;
   let endTime: number;
 
@@ -28,6 +30,12 @@ describe("Election", function () {
     registry = (await VoterRegistryFactory.deploy()) as VoterRegistry;
     await registry.waitForDeployment();
 
+    // 1.5. Deploy VoterEligibilityPass
+    const VoterEligibilityPassFactory = await ethers.getContractFactory("VoterEligibilityPass");
+    voterPass = (await VoterEligibilityPassFactory.deploy(owner.address)) as VoterEligibilityPass;
+    await voterPass.waitForDeployment();
+    passAddr = await voterPass.getAddress();
+
     // Register voters
     const salt = "VOTER_SALT";
     const hash1 = ethers.solidityPackedKeccak256(["address", "string"], [voter1.address, salt]);
@@ -35,6 +43,47 @@ describe("Election", function () {
     
     await registry.registerVoter(voter1.address, hash1);
     await registry.registerVoter(voter2.address, hash2);
+
+    // Mint passes for voters
+    const commitmentHash1 = ethers.id("voter1_commitment");
+    const msgHash1 = ethers.solidityPackedKeccak256(
+      ["address", "uint256", "bytes32"],
+      [voter1.address, 1, commitmentHash1]
+    );
+    const sig1 = await owner.signMessage(ethers.toBeArray(msgHash1));
+    const encIdentity1 = await fhevm.encryptUint(FhevmType.euint256, 12345n, passAddr, voter1.address);
+    const encDocType1 = await fhevm.encryptUint(FhevmType.euint8, 1n, passAddr, voter1.address);
+    
+    await voterPass.connect(voter1).mintVoterPass(
+      voter1.address,
+      1,
+      encIdentity1.externalEuint,
+      encIdentity1.inputProof,
+      encDocType1.externalEuint,
+      encDocType1.inputProof,
+      commitmentHash1,
+      sig1
+    );
+
+    const commitmentHash2 = ethers.id("voter2_commitment");
+    const msgHash2 = ethers.solidityPackedKeccak256(
+      ["address", "uint256", "bytes32"],
+      [voter2.address, 1, commitmentHash2]
+    );
+    const sig2 = await owner.signMessage(ethers.toBeArray(msgHash2));
+    const encIdentity2 = await fhevm.encryptUint(FhevmType.euint256, 67890n, passAddr, voter2.address);
+    const encDocType2 = await fhevm.encryptUint(FhevmType.euint8, 1n, passAddr, voter2.address);
+    
+    await voterPass.connect(voter2).mintVoterPass(
+      voter2.address,
+      1,
+      encIdentity2.externalEuint,
+      encIdentity2.inputProof,
+      encDocType2.externalEuint,
+      encDocType2.inputProof,
+      commitmentHash2,
+      sig2
+    );
 
     // 2. Setup times
     const now = await time.latest();
@@ -53,9 +102,12 @@ describe("Election", function () {
       startTime,
       endTime,
       await registry.getAddress(),
-      owner.address
+      owner.address,
+      passAddr
     )) as Election;
     await election.waitForDeployment();
+
+    // Configure ElectionFactory address as owner mock (keep address(0) to skip factory checks in tests)
 
     // Assert coprocessor initialized (required by hardhat-plugin)
     await fhevm.assertCoprocessorInitialized(await election.getAddress(), "Election");
@@ -85,7 +137,8 @@ describe("Election", function () {
           now - 100,
           now - 50,
           await registry.getAddress(),
-          owner.address
+          owner.address,
+          passAddr
         )
       ).to.be.revertedWith("End time in past");
     });
@@ -147,7 +200,7 @@ describe("Election", function () {
         election
           .connect(unregistered)
           .castVote(encryptedChoice.externalEuint, encryptedChoice.inputProof)
-      ).to.be.revertedWith("Not a registered voter");
+      ).to.be.revertedWith("Invalid or missing Voter Pass NFT");
     });
 
     it("Should reject double vote from same address", async function () {

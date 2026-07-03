@@ -6,12 +6,14 @@ import VoterRegistryABI from '../abis/VoterRegistry.json';
 import ElectionFactoryABI from '../abis/ElectionFactory.json';
 import ElectionABI from '../abis/Election.json';
 import FHEIdentityRegistryABI from '../abis/FHEIdentityRegistry.json';
+import VoterEligibilityPassABI from '../abis/VoterEligibilityPass.json';
 
 // Import contract addresses
 import {
   VOTER_REGISTRY_ADDRESS,
   ELECTION_FACTORY_ADDRESS,
-  FHE_IDENTITY_REGISTRY_ADDRESS
+  FHE_IDENTITY_REGISTRY_ADDRESS,
+  VOTER_PASS_ADDRESS
 } from '../utils/contract';
 
 import type { CitizenStatus, IdentityFormData, IdentityRequest, RequestStatus } from '../utils/types';
@@ -65,6 +67,10 @@ export function useContract(_provider: BrowserProvider | null, signer: JsonRpcSi
     return new Contract(electionAddress, ElectionABI.abi, readProvider);
   }, []);
 
+  const getVoterPassContractRead = useCallback(() => {
+    return new Contract(VOTER_PASS_ADDRESS, VoterEligibilityPassABI.abi, readProvider);
+  }, []);
+
   // Write contract instances (use wallet signer for transactions)
   const getRegistryContract = useCallback(() => {
     if (!signer) throw new Error('Wallet signer not initialized');
@@ -84,6 +90,11 @@ export function useContract(_provider: BrowserProvider | null, signer: JsonRpcSi
   const getElectionContract = useCallback((electionAddress: string) => {
     if (!signer) throw new Error('Wallet signer not initialized');
     return new Contract(electionAddress, ElectionABI.abi, signer);
+  }, [signer]);
+
+  const getVoterPassContract = useCallback(() => {
+    if (!signer) throw new Error('Wallet signer not initialized');
+    return new Contract(VOTER_PASS_ADDRESS, VoterEligibilityPassABI.abi, signer);
   }, [signer]);
 
   // 2. Voter Registry Operations
@@ -660,6 +671,85 @@ export function useContract(_provider: BrowserProvider | null, signer: JsonRpcSi
     }
   }, [getIdentityRegistryContractRead]);
 
+  // 12. Voter Eligibility Pass NFT Operations
+  const hasVoterPass = useCallback(async (voter: string, electionId: number) => {
+    try {
+      const contract = getVoterPassContractRead();
+      const hasPass = await contract.verifyVoterPass(voter, electionId);
+      return hasPass as boolean;
+    } catch (err) {
+      console.error('Failed to verify voter pass NFT:', err);
+      return false;
+    }
+  }, [getVoterPassContractRead]);
+
+  const getVoterPassTokenId = useCallback(async (voter: string, electionId: number) => {
+    try {
+      const contract = getVoterPassContractRead();
+      const tokenId = await contract.getPassByWalletAndElection(voter, electionId);
+      return Number(tokenId);
+    } catch (err) {
+      console.error('Failed to get voter pass token ID:', err);
+      return 0;
+    }
+  }, [getVoterPassContractRead]);
+
+  const getVoterPassMetadata = useCallback(async (tokenId: number) => {
+    try {
+      const contract = getVoterPassContractRead();
+      const metadata = await contract.getPassMetadata(tokenId);
+      return {
+        commitmentHash: metadata.commitmentHash,
+        electionId: Number(metadata.electionId),
+        mintedAt: Number(metadata.mintedAt),
+        originalMinter: metadata.originalMinter,
+        commissionSignature: metadata.commissionSignature,
+        isActive: metadata.isActive,
+        hasBeenUsedToVote: metadata.hasBeenUsedToVote
+      };
+    } catch (err) {
+      console.error('Failed to fetch voter pass metadata:', err);
+      return null;
+    }
+  }, [getVoterPassContractRead]);
+
+  const mintVoterPass = useCallback(async (
+    voter: string,
+    electionId: number,
+    encryptedIdentityHandle: string,
+    identityProof: string,
+    encryptedDocTypeHandle: string,
+    docTypeProof: string,
+    commitmentHash: string,
+    signature: string
+  ) => {
+    setLoading(true);
+    setError('');
+    try {
+      const contract = getVoterPassContract();
+      
+      const tx = await contract.mintVoterPass(
+        voter,
+        electionId,
+        encryptedIdentityHandle,
+        identityProof,
+        encryptedDocTypeHandle,
+        docTypeProof,
+        commitmentHash,
+        signature
+      );
+      
+      await tx.wait();
+      setLoading(false);
+      return true;
+    } catch (err: any) {
+      console.error('Failed to mint voter pass NFT:', err);
+      setError(err.reason || err.message || 'Transaction reverted');
+      setLoading(false);
+      return false;
+    }
+  }, [getVoterPassContract]);
+
   return {
     loading,
     error,
@@ -683,6 +773,10 @@ export function useContract(_provider: BrowserProvider | null, signer: JsonRpcSi
     decryptIdentityDocument,
     appointCommissioner,
     delegateRequestAccess,
-    fetchCommissionersList
+    fetchCommissionersList,
+    hasVoterPass,
+    getVoterPassTokenId,
+    getVoterPassMetadata,
+    mintVoterPass
   };
 }

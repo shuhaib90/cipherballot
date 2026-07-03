@@ -168,7 +168,11 @@ function App() {
     decryptIdentityDocument,
     appointCommissioner,
     delegateRequestAccess,
-    fetchCommissionersList
+    fetchCommissionersList,
+    hasVoterPass,
+    getVoterPassTokenId,
+    getVoterPassMetadata,
+    mintVoterPass
   } = useContract(provider, signer, address);
 
   const [activeTab, setActiveTab] = useState<'landing' | 'register' | 'elections' | 'voter-status' | 'commission' | 'how-it-works' | 'docs'>('landing');
@@ -177,6 +181,7 @@ function App() {
   const [selectedElection, setSelectedElection] = useState<ElectionDetails | null>(null);
   const [electionDetailsMap, setElectionDetailsMap] = useState<Record<string, ElectionDetails>>({});
   const [isRegistered, setIsRegistered] = useState<boolean>(false);
+  const [isVoterPassMinted, setIsVoterPassMinted] = useState<boolean>(false);
   const [isOfficer, setIsOfficer] = useState<boolean>(false);
   const [showWalletError, setShowWalletError] = useState<boolean>(true);
   const [showShareModal, setShowShareModal] = useState<boolean>(false);
@@ -517,18 +522,23 @@ function App() {
     if (!isConnected || !address) {
       setIsRegistered(false);
       setIsOfficer(false);
+      setIsVoterPassMinted(false);
       return;
     }
 
-    const [regStatus, officerStatus] = await Promise.all([
+    const activeElecId = selectedElection ? Number(selectedElection.electionId) : 1;
+    const [regStatus, officerStatus, passActive, passGlobal] = await Promise.all([
       isVoterRegistered(address),
       isUserCommissionOfficer(),
-      loadCitizenStatus()
+      hasVoterPass(address, activeElecId),
+      hasVoterPass(address, 0)
     ]);
 
     setIsRegistered(regStatus);
     setIsOfficer(officerStatus || address.toLowerCase() === '0x36e1C1EbC3e36d9b55E4b872A74B6F059008789e'.toLowerCase());
-  }, [isConnected, address, isVoterRegistered, isUserCommissionOfficer, loadCitizenStatus]);
+    setIsVoterPassMinted(passActive || passGlobal);
+    await loadCitizenStatus();
+  }, [isConnected, address, isVoterRegistered, isUserCommissionOfficer, loadCitizenStatus, selectedElection, hasVoterPass]);
 
   // Clear state when disconnected
   useEffect(() => {
@@ -593,6 +603,40 @@ function App() {
     return success;
   };
 
+  const wrapApproveIdentityRequest = useCallback(async (requestId: number) => {
+    try {
+      const contract = new ethers.Contract(
+        FHE_IDENTITY_REGISTRY_ADDRESS,
+        FHEIdentityRegistryABI.abi,
+        signer
+      );
+      const req = await contract.requests(requestId);
+      const citizenAddress = req.citizen;
+      const commitmentHash = req.commitmentHash;
+
+      const success = await approveIdentityRequest(requestId);
+      
+      if (success && signer) {
+        try {
+          const elecId = selectedElection ? selectedElection.electionId : 1;
+          const msgHash = ethers.solidityPackedKeccak256(
+            ["address", "uint256", "bytes32"],
+            [citizenAddress, elecId, commitmentHash]
+          );
+          const signature = await signer.signMessage(ethers.getBytes(msgHash));
+          localStorage.setItem(`cb_sig_${citizenAddress.toLowerCase()}_${elecId}`, signature);
+          console.log(`Saved VEPass signature for voter ${citizenAddress} for election ${elecId}`);
+        } catch (err) {
+          console.error("Failed to sign VEPass authorization:", err);
+        }
+      }
+      return success;
+    } catch (e) {
+      console.error("Error wrapping approveIdentityRequest:", e);
+      return false;
+    }
+  }, [approveIdentityRequest, signer, selectedElection]);
+
   return (
     <div className="min-h-screen bg-[#03000a] flex flex-col font-sans relative">
       {/* Background Decorative Blur Blobs */}
@@ -648,6 +692,11 @@ function App() {
               setActiveTab={setActiveTab}
               fhevmInstance={fhevmInstance}
               decryptIdentityDocument={decryptIdentityDocument}
+              hasVoterPass={hasVoterPass}
+              getVoterPassTokenId={getVoterPassTokenId}
+              getVoterPassMetadata={getVoterPassMetadata}
+              mintVoterPass={mintVoterPass}
+              selectedElection={selectedElection}
             />
           )}
 
@@ -746,6 +795,7 @@ function App() {
                     <VotingBooth
                       election={selectedElection}
                       isRegistered={isRegistered}
+                      isVoterPassMinted={isVoterPassMinted}
                       isFheReady={!!fhevmInstance}
                       onCastVote={handleVoteCast}
                       loading={contractLoading}
@@ -798,7 +848,7 @@ function App() {
               }}
               fetchPendingRequests={fetchPendingRequests}
               fetchAllRequests={fetchAllRequests}
-              approveIdentityRequest={approveIdentityRequest}
+              approveIdentityRequest={wrapApproveIdentityRequest}
               rejectIdentityRequest={rejectIdentityRequest}
               loading={contractLoading}
               error={contractError}

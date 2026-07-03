@@ -5,6 +5,18 @@ import {FHE, euint8, euint32, ebool, externalEuint8} from "@fhevm/solidity/lib/F
 import {ZamaEthereumConfig} from "@fhevm/solidity/config/ZamaConfig.sol";
 import "./VoterRegistry.sol";
 
+interface IVoterPass {
+    function verifyVoterPass(
+        address voter,
+        uint256 electionId
+    ) external view returns (bool);
+    
+    function markPassAsUsed(
+        address voter,
+        uint256 electionId
+    ) external returns (bool);
+}
+
 contract Election is ZamaEthereumConfig {
     // ─── Structs ─────────────────────────────────────
     struct Candidate {
@@ -27,6 +39,7 @@ contract Election is ZamaEthereumConfig {
 
     // ─── State ───────────────────────────────────────
     VoterRegistry public immutable voterRegistry;
+    IVoterPass public immutable voterPassContract;
     address public immutable commission;
     uint256 public immutable electionId;
 
@@ -113,7 +126,8 @@ contract Election is ZamaEthereumConfig {
         uint256 _startTime,
         uint256 _endTime,
         address _voterRegistry,
-        address _commission
+        address _commission,
+        address _voterPassContract
     ) {
         require(
             _candidateNames.length >= 2,
@@ -135,6 +149,10 @@ contract Election is ZamaEthereumConfig {
             _endTime > block.timestamp,
             "End time in past"
         );
+        require(
+            _voterPassContract != address(0),
+            "Invalid pass contract address"
+        );
 
         electionId      = _electionId;
         electionName    = _name;
@@ -142,6 +160,7 @@ contract Election is ZamaEthereumConfig {
         startTime       = _startTime;
         endTime         = _endTime;
         voterRegistry   = VoterRegistry(_voterRegistry);
+        voterPassContract = IVoterPass(_voterPassContract);
         commission      = _commission;
         candidateCount  = uint8(_candidateNames.length);
 
@@ -179,10 +198,10 @@ contract Election is ZamaEthereumConfig {
         bytes calldata inputProof
     ) external electionOpen {
 
-        // Check 1: Must be registered voter
+        // Check 1: Must own valid FHE Voter Eligibility Pass NFT
         require(
-            voterRegistry.isRegisteredVoter(msg.sender),
-            "Not a registered voter"
+            voterPassContract.verifyVoterPass(msg.sender, electionId),
+            "Invalid or missing Voter Pass NFT"
         );
 
         // Check 2: Cannot vote twice
@@ -233,6 +252,9 @@ contract Election is ZamaEthereumConfig {
             // Allow this contract to use the updated tally
             FHE.allowThis(encryptedTallies[i]);
         }
+
+        // Mark pass as used
+        voterPassContract.markPassAsUsed(msg.sender, electionId);
 
         emit VoteCast(msg.sender, electionId, block.timestamp);
     }
