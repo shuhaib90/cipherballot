@@ -1,29 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { ShieldCheck, CheckCircle2, Clock, XCircle, Copy, Check, FileText, ChevronRight, Lock, RefreshCw, Download, Camera, User } from 'lucide-react';
+import { ShieldCheck, CheckCircle2, Clock, XCircle, Copy, Check, FileText, ChevronRight, Lock, RefreshCw, Camera, User } from 'lucide-react';
 import { ethers } from 'ethers';
 import type { CitizenStatus, DocumentType, IdentityFormData } from '../utils/types';
 import { DOCUMENT_TYPE_LABELS } from '../utils/types';
-import { FHE_IDENTITY_REGISTRY_ADDRESS } from '../utils/contract';
+import { FHE_IDENTITY_REGISTRY_ADDRESS, VOTER_PASS_ADDRESS } from '../utils/contract';
 import FHEIdentityRegistryABI from '../abis/FHEIdentityRegistry.json';
 
-const PIXEL_SHIELD = [
-  "XXXXXXXXXXXXXXXX",
-  "XXXXXXXXXXXXXXXX",
-  "XX............XX",
-  "XX...XXXXXX...XX",
-  "XX..XXXXXXXX..XX",
-  "XX..XX.XX.XX..XX",
-  "XX..XXXXXXXX..XX",
-  "XX...XXXXXX...XX",
-  "XX....XXXX....XX",
-  "XX.....XX.....XX",
-  "XX............XX",
-  "XXX..........XXX",
-  ".XXX........XXX.",
-  "..XXX......XXX..",
-  "...XXXX..XXXX...",
-  ".....XXXXXX....."
-];
+
 
 interface IdentityVerificationProps {
   citizenStatus: CitizenStatus;
@@ -114,7 +97,6 @@ export function IdentityVerification({
   const [decryptedDoc, setDecryptedDoc] = useState<{ docType: string; content: string } | null>(null);
   const [isDecryptingDoc, setIsDecryptingDoc] = useState<boolean>(false);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
-  const [downloadingPass, setDownloadingPass] = useState<boolean>(false);
 
   // Voter Eligibility Pass NFT States
   const [isNftMinted, setIsNftMinted] = useState<boolean>(false);
@@ -187,14 +169,22 @@ export function IdentityVerification({
       }
 
       // 2. Encrypt Identity Data (citizen name / address) using Zama Wasm SDK
-      // 2. Encrypt Identity Data (citizen name / address) using Zama Wasm SDK
-      // Convert name characters to a big int handle for FHE 256
       const numericIdentity = BigInt(address.substring(0, 10)); // Use wallet address prefix as numerical identity
-      const docTypeVal = BigInt(selectedDoc === 'national_id' ? 1 : selectedDoc === 'passport' ? 2 : selectedDoc === 'voter_card' ? 3 : 4);
+      const docTypeVal = Number(selectedDoc === 'national_id' ? 1 : selectedDoc === 'passport' ? 2 : selectedDoc === 'voter_card' ? 3 : 4);
 
       // Encrypt variables using Zama FHEVM
-      const encIdentity = await fhevmInstance.encrypt256(numericIdentity);
-      const encDocType = await fhevmInstance.encrypt8(docTypeVal);
+      const identityInput = fhevmInstance.createEncryptedInput(VOTER_PASS_ADDRESS, address);
+      identityInput.add256(numericIdentity);
+      const encIdentity = await identityInput.encrypt();
+
+      const docTypeInput = fhevmInstance.createEncryptedInput(VOTER_PASS_ADDRESS, address);
+      docTypeInput.add8(docTypeVal);
+      const encDocType = await docTypeInput.encrypt();
+
+      const encIdentityHandle = ethers.hexlify(encIdentity.handles[0]);
+      const encIdentityProof = ethers.hexlify(encIdentity.inputProof);
+      const encDocTypeHandle = ethers.hexlify(encDocType.handles[0]);
+      const encDocTypeProof = ethers.hexlify(encDocType.inputProof);
 
       // Commitment Hash: Fetch from contract using requestId or fallback
       let commitmentHash = submittedCommitment;
@@ -222,10 +212,10 @@ export function IdentityVerification({
       const success = await mintVoterPass(
         address,
         activeElectionId,
-        encIdentity.handle,
-        encIdentity.inputProof,
-        encDocType.handle,
-        encDocType.inputProof,
+        encIdentityHandle,
+        encIdentityProof,
+        encDocTypeHandle,
+        encDocTypeProof,
         commitmentHash,
         finalSignature
       );
@@ -255,195 +245,6 @@ export function IdentityVerification({
     }
   };
 
-  const handleDownloadPass = async () => {
-    setDownloadingPass(true);
-    try {
-      const canvas = document.createElement('canvas');
-      canvas.width = 640;
-      canvas.height = 400;
-      const ctx = canvas.getContext('2d');
-      if (!ctx) throw new Error('Could not get canvas context');
-
-      // 1. Draw Space backdrop
-      ctx.fillStyle = '#050508';
-      ctx.fillRect(0, 0, 640, 400);
-
-      // Draw background particles / depth grid
-      ctx.fillStyle = 'rgba(255, 210, 8, 0.05)';
-      ctx.fillRect(10, 10, 620, 380);
-
-      // 2. Draw card base (titanium slate)
-      const cardGrad = ctx.createLinearGradient(20, 20, 620, 380);
-      cardGrad.addColorStop(0, '#0a0b10');
-      cardGrad.addColorStop(0.5, '#131520');
-      cardGrad.addColorStop(1, '#08090d');
-      ctx.fillStyle = cardGrad;
-      
-      const drawRoundedRect = (c: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number) => {
-        c.beginPath();
-        c.moveTo(x + r, y);
-        c.lineTo(x + w - r, y);
-        c.quadraticCurveTo(x + w, y, x + w, y + r);
-        c.lineTo(x + w, y + h - r);
-        c.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
-        c.lineTo(x + r, y + h);
-        c.quadraticCurveTo(x, y + h, x, y + h - r);
-        c.lineTo(x, y + r);
-        c.quadraticCurveTo(x, y, x + r, y);
-        c.closePath();
-      };
-
-      drawRoundedRect(ctx, 20, 20, 600, 360, 24);
-      ctx.fill();
-      ctx.strokeStyle = '#FFD208';
-      ctx.lineWidth = 2.5;
-      ctx.stroke();
-
-      // 3. Draw Avatar photo container (left side)
-      ctx.fillStyle = '#050508';
-      drawRoundedRect(ctx, 50, 45, 180, 210, 14);
-      ctx.fill();
-      ctx.strokeStyle = '#222533';
-      ctx.lineWidth = 1.5;
-      ctx.stroke();
-
-      // Draw avatar image or fallback placeholder
-      if (avatarUrl) {
-        const img = new Image();
-        img.src = avatarUrl;
-        await new Promise((resolve) => {
-          img.onload = resolve;
-          img.onerror = resolve;
-        });
-        
-        ctx.save();
-        ctx.beginPath();
-        // Clip to avatar container size
-        drawRoundedRect(ctx, 52, 47, 176, 206, 12);
-        ctx.clip();
-        ctx.drawImage(img, 52, 47, 176, 206);
-        ctx.restore();
-      } else {
-        // Draw FHE 8-bit shield placeholder
-        ctx.fillStyle = '#FFD208';
-        const startX = 50 + (180 - (16 * 6)) / 2;
-        const startY = 45 + (210 - (16 * 6)) / 2;
-        PIXEL_SHIELD.forEach((row, rIdx) => {
-          row.split('').forEach((char, cIdx) => {
-            if (char === 'X') {
-              ctx.fillRect(startX + cIdx * 6, startY + rIdx * 6, 6, 6);
-            }
-          });
-        });
-      }
-
-      // Vertical barcode text on the left container edge
-      ctx.save();
-      ctx.translate(42, 150);
-      ctx.rotate(-Math.PI / 2);
-      ctx.fillStyle = '#FFD208';
-      ctx.font = 'bold 9px monospace';
-      ctx.textAlign = 'center';
-      ctx.fillText(`CB-PASS-${citizenStatus.requestId || '02'}-FHE-SEALED`, 0, 0);
-      ctx.restore();
-
-      // 4. Draw Right Side: Title & Bracket Metadata
-      ctx.fillStyle = '#ffffff';
-      ctx.font = '900 24px monospace';
-      ctx.textAlign = 'left';
-      ctx.letterSpacing = '2px';
-      ctx.fillText('IDENTIFICATION CARD', 255, 75);
-
-      // Dash line
-      ctx.strokeStyle = 'rgba(255, 210, 8, 0.2)';
-      ctx.lineWidth = 1;
-      ctx.beginPath();
-      ctx.moveTo(255, 90);
-      ctx.lineTo(590, 90);
-      ctx.stroke();
-
-      // Helper for bracket metadata
-      const drawBracketMeta = (lbl: string, val: string, rx: number, ry: number) => {
-        ctx.fillStyle = '#64748b';
-        ctx.font = 'bold 9px sans-serif';
-        ctx.fillText(`[${lbl}]`, rx, ry);
-        ctx.fillStyle = '#ffffff';
-        ctx.font = 'bold 11px monospace';
-        ctx.fillText(val, rx, ry + 16);
-      };
-
-      drawBracketMeta('name', 'CIPHERBALLOT CITIZEN', 255, 115);
-      drawBracketMeta('wallet', address.substring(0, 16) + '...', 255, 165);
-      drawBracketMeta('authority', 'NETWORK GUARDIANS', 255, 215);
-
-      drawBracketMeta('status', 'FHE VERIFIED', 450, 115);
-      drawBracketMeta('pass id', `#${String(citizenStatus.requestId || 2).padStart(4, '0')}`, 450, 165);
-      drawBracketMeta('encryption', 'ZAMA FHEVM', 450, 215);
-
-      // Dashed separator
-      ctx.strokeStyle = 'rgba(255, 210, 8, 0.2)';
-      ctx.lineWidth = 1;
-      ctx.setLineDash([4, 4]);
-      ctx.beginPath();
-      ctx.moveTo(255, 260);
-      ctx.lineTo(590, 260);
-      ctx.stroke();
-      ctx.setLineDash([]); // Reset line dash
-
-      // 5. Draw Signature & Barcode at the bottom
-      ctx.fillStyle = '#8e9bb0';
-      ctx.font = 'italic 10px sans-serif';
-      ctx.fillText('Signature:', 255, 290);
-
-      // Guardian signature brush style text
-      ctx.fillStyle = '#FFD208';
-      ctx.font = 'italic bold 20px monospace';
-      ctx.fillText('~ Network Guardians ~', 255, 318);
-
-      // Draw Barcode lines on the left side of bottom
-      ctx.fillStyle = '#FFD208';
-      let barcodeX = 50;
-      const barcodeY = 275;
-      const barcodeHeight = 35;
-      const pattern = [2, 4, 1, 3, 2, 1, 4, 2, 3, 1, 2, 4, 1, 3, 2, 1, 4, 2, 1, 3, 2, 4];
-      pattern.forEach((width) => {
-        ctx.fillRect(barcodeX, barcodeY, width, barcodeHeight);
-        barcodeX += width + 2;
-      });
-
-      // Bottom barcode text
-      ctx.fillStyle = '#8e9bb0';
-      ctx.font = 'bold 8px monospace';
-      ctx.fillText(`BLOCKCHAIN ID: ${citizenStatus.requestId || '0002'}`, 50, 325);
-
-      // Issue block / Expiry
-      ctx.fillStyle = '#8e9bb0';
-      ctx.font = 'bold 8px sans-serif';
-      ctx.fillText('[issue date]', 480, 290);
-      ctx.fillStyle = '#ffffff';
-      ctx.font = 'bold 10px monospace';
-      ctx.fillText('08/2026', 480, 305);
-
-      ctx.fillStyle = '#8e9bb0';
-      ctx.font = 'bold 8px sans-serif';
-      ctx.fillText('[expires]', 540, 290);
-      ctx.fillStyle = '#ffffff';
-      ctx.font = 'bold 10px monospace';
-      ctx.fillText('08/2126', 540, 305);
-
-      // 6. Trigger Download
-      const dataUrl = canvas.toDataURL('image/png');
-      const link = document.createElement('a');
-      link.download = `cb-fhe-pass-${citizenStatus.requestId || '0002'}.png`;
-      link.href = dataUrl;
-      link.click();
-    } catch (e) {
-      console.error(e);
-      alert('Could not download FHE Pass.');
-    } finally {
-      setDownloadingPass(false);
-    }
-  };
   const handleDecryptSelfDoc = async (requestId: number) => {
     if (!fhevmInstance) {
       alert('FHEVM SDK is not fully loaded yet. Please wait.');
@@ -875,24 +676,6 @@ export function IdentityVerification({
               </div>
             )}
 
-            {/* Download Button */}
-            <button
-              onClick={handleDownloadPass}
-              disabled={downloadingPass}
-              className="btn-primary py-3 px-8 text-xs font-bold flex items-center justify-center gap-2 mt-2 max-w-[200px]"
-            >
-              {downloadingPass ? (
-                <>
-                  <RefreshCw className="h-4 w-4 animate-spin" />
-                  Generating PNG...
-                </>
-              ) : (
-                <>
-                  <Download className="h-4 w-4" />
-                  Download FHE Pass
-                </>
-              )}
-            </button>
           </div>
 
         </div>
