@@ -147,6 +147,11 @@ export function IdentityVerification({
     if (!address || !mintVoterPass || !fhevmInstance) return;
     setIsNftMinting(true);
     setNftError('');
+    
+    // Yield execution back to the browser so the loading spinner/overlay can render
+    // before the heavy synchronous WebAssembly FHE encryption blocks the thread.
+    await new Promise(r => setTimeout(r, 150));
+
     try {
       // 1. Fetch approval signature (on-chain from citizenStatus → localStorage fallback)
       let signature = citizenStatus.signature;
@@ -258,6 +263,10 @@ export function IdentityVerification({
       return;
     }
     setIsDecryptingDoc(true);
+    
+    // Yield execution back to the browser so the loading spinner/overlay can render
+    await new Promise(r => setTimeout(r, 150));
+
     try {
       // Use shared readProvider instead of creating new one each time
       console.log('Fetching request details to get chunk count...');
@@ -363,7 +372,8 @@ export function IdentityVerification({
         await new Promise(r => setTimeout(r, 300));
       }
 
-      setEncryptionStep('Securing your identity...');
+      setEncryptionStep('Securing your identity (FHE sealing)...');
+      await new Promise(r => setTimeout(r, 150));
       
       // Perform actual WASM FHE encryption
       const encryptedData = await onEncrypt(
