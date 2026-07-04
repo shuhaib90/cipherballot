@@ -1,10 +1,10 @@
 {
   "network": "sepolia",
-  "VoterRegistry": "0xd2178C19f7025C52B9F4fF35B2A6cB6d95391b89",
-  "VoterEligibilityPass": "0x1F658b510a0c0DD514e2a3876BA1Db1e3d5B4E46",
-  "ElectionFactory": "0x73Aa981cDB4147Fb47bd155F8849c7e71565bCA1",
-  "FHEIdentityRegistry": "0xE1240E7fB382ccD619699388033990Ae35A65718",
-  "DemoElection": "0xFEC66fD8d88b78e6DA04ebed04ba16e9804E12B3",
+  "VoterRegistry": "0x8a4a1Be4795b603E1482d1Bb18B2a6a2bFA641Ff",
+  "VoterEligibilityPass": "0x8e4bc98726B4b306F62Ef57EDF0cD2Ed840C4d57",
+  "ElectionFactory": "0xA6d0c5162E4CAD4AC3075Df93ad9682A1365c5BD",
+  "FHEIdentityRegistry": "0x52da4CF22812761A033D78d708D573b2c35FedeD",
+  "DemoElection": "0xb0efD4912DAD3dEd8D924b0A08Dc2739C37512DA",
   "deployer": "0x9dd428188e36D9446c0D7428c08fCD022574C034",
-  "timestamp": "2026-07-04T05:10:00.670Z"
+  "timestamp": "2026-07-04T16:18:37.910Z"
 }
