@@ -1,4 +1,4 @@
-import { Vote, Wallet, Shield, Key, RefreshCw, HelpCircle, Users, ClipboardList, Sun, Moon } from 'lucide-react';
+import { Vote, Wallet, Shield, Key, RefreshCw, HelpCircle, Users, ClipboardList } from 'lucide-react';
 
 interface HeaderProps {
   address: string;
@@ -12,8 +12,6 @@ interface HeaderProps {
   reinitFhe: () => void;
   activeTab: 'landing' | 'register' | 'elections' | 'voter-status' | 'commission' | 'how-it-works' | 'docs';
   setActiveTab: (tab: 'landing' | 'register' | 'elections' | 'voter-status' | 'commission' | 'how-it-works' | 'docs') => void;
-  theme: 'dark' | 'light';
-  toggleTheme: () => void;
 }
 
 export function Header({
@@ -27,9 +25,7 @@ export function Header({
   disconnectWallet,
   reinitFhe,
   activeTab,
-  setActiveTab,
-  theme,
-  toggleTheme
+  setActiveTab
 }: HeaderProps) {
   // Helper to truncate address
   const truncateAddress = (addr: string) => {

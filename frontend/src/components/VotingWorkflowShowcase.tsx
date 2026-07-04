@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 // @ts-ignore
 import { animate, stagger } from 'animejs';
 
-import { Link, Shield, CheckCircle, Ticket, Vote, Fingerprint, Lock, ShieldCheck, Zap, Activity } from 'lucide-react';
+import { Link, Shield, CheckCircle, Ticket, Vote, Fingerprint, Lock, ShieldCheck, Zap } from 'lucide-react';
 
 interface WorkflowStep {
   id: number;
