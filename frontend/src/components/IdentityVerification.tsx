@@ -5,7 +5,7 @@ import type { CitizenStatus, DocumentType, IdentityFormData } from '../utils/typ
 import { DOCUMENT_TYPE_LABELS } from '../utils/types';
 import { FHE_IDENTITY_REGISTRY_ADDRESS, VOTER_PASS_ADDRESS } from '../utils/contract';
 import FHEIdentityRegistryABI from '../abis/FHEIdentityRegistry.json';
-import VoterEligibilityPassABI from '../abis/VoterEligibilityPass.json';
+
 
 
 
@@ -102,7 +102,6 @@ export function IdentityVerification({
   const [isNftMinted, setIsNftMinted] = useState<boolean>(false);
   const [isNftMinting, setIsNftMinting] = useState<boolean>(false);
   const [nftTokenId, setNftTokenId] = useState<number | null>(null);
-  const [nftImage, setNftImage] = useState<string | null>(null);
   const [nftError, setNftError] = useState<string>('');
 
   const activeElectionId = selectedElection ? Number(selectedElection.electionId) : 1;
@@ -116,23 +115,6 @@ export function IdentityVerification({
         if (minted) {
           const tokenId = await getVoterPassTokenId(address, activeElectionId);
           setNftTokenId(tokenId);
-          if (tokenId > 0) {
-            
-            // Fetch tokenURI image
-            try {
-              const { readProvider: sharedProvider } = await import('../hooks/useContract');
-              const passContract = new ethers.Contract(VOTER_PASS_ADDRESS, VoterEligibilityPassABI.abi, sharedProvider);
-              const uri = await passContract.tokenURI(tokenId);
-              if (uri.startsWith('data:application/json;base64,')) {
-                const base64Json = uri.substring('data:application/json;base64,'.length);
-                const decoded = atob(base64Json);
-                const obj = JSON.parse(decoded);
-                if (obj.image) setNftImage(obj.image);
-              }
-            } catch (e) {
-              console.error("Failed to load on-chain SVG image:", e);
-            }
-          }
         } else {
           // Fallback to check global pass (electionId = 0)
           const globalMinted = await hasVoterPass(address, 0);
@@ -141,25 +123,9 @@ export function IdentityVerification({
             setNftTokenId(globalTokenId);
             if (globalTokenId > 0) {
               setIsNftMinted(true); // Treat global pass as minted
-              
-              // Fetch tokenURI image
-              try {
-                const { readProvider: sharedProvider } = await import('../hooks/useContract');
-                const passContract = new ethers.Contract(VOTER_PASS_ADDRESS, VoterEligibilityPassABI.abi, sharedProvider);
-                const uri = await passContract.tokenURI(globalTokenId);
-                if (uri.startsWith('data:application/json;base64,')) {
-                  const base64Json = uri.substring('data:application/json;base64,'.length);
-                  const decoded = atob(base64Json);
-                  const obj = JSON.parse(decoded);
-                  if (obj.image) setNftImage(obj.image);
-                }
-              } catch (e) {
-                console.error("Failed to load on-chain SVG image:", e);
-              }
             }
           } else {
             setNftTokenId(null);
-            setNftImage(null);
           }
         }
       } catch (err) {
@@ -440,47 +406,29 @@ export function IdentityVerification({
     }
   };
 
-  const getSvgPreview = () => {
-    const tokenIdStr = nftTokenId ? `#${String(nftTokenId).padStart(4, '0')}` : '#PENDING';
-    const electionIdStr = String(activeElectionId);
+  const renderNFTCard = () => {
+    // Determine the pass number to show. Fallback to 'X' if pending.
+    const passNum = nftTokenId ? String(nftTokenId) : 'X';
     
     return (
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 320" className="w-full max-w-[480px] rounded-3xl shadow-2xl border border-slate-300/20">
-        <defs>
-          <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#0f0926" />
-            <stop offset="100%" stopColor="#241147" />
-          </linearGradient>
-          <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#FFE57F" />
-            <stop offset="100%" stopColor="#FFC107" />
-          </linearGradient>
-        </defs>
-        <rect x="0" y="0" width="500" height="320" rx="20" fill="url(#bgGrad)" stroke="url(#goldGrad)" strokeWidth="2" />
-        <circle cx="450" cy="50" r="100" fill="none" stroke="rgba(224, 64, 251, 0.15)" strokeWidth="1.5" />
-        <circle cx="450" cy="50" r="70" fill="none" stroke="rgba(255, 193, 7, 0.1)" strokeWidth="1.5" />
-        <text x="35" y="55" fill="#FFE57F" fontFamily="system-ui, -apple-system, sans-serif" fontSize="20" fontWeight="800" letterSpacing="1">CIPHERBALLOT</text>
-        <text x="35" y="75" fill="rgba(255, 255, 255, 0.5)" fontFamily="system-ui, -apple-system, sans-serif" fontSize="9" fontWeight="600" letterSpacing="1.5">FHE SOULBOUND VEPass</text>
-        <rect x="35" y="110" width="45" height="35" rx="6" fill="#ffe57f" opacity="0.85" />
-        <path d="M 35 127.5 L 80 127.5 M 57.5 110 L 57.5 145" stroke="#0f0926" strokeWidth="1" />
-        <rect x="380" y="35" width="85" height="24" rx="12" fill="rgba(0, 230, 118, 0.15)" stroke="#00E676" strokeWidth="1" />
-        <text x="422.5" y="49" fill="#00E676" fontFamily="system-ui, -apple-system, sans-serif" fontSize="9" fontWeight="bold" textAnchor="middle">@ VERIFIED</text>
-        <text x="35" y="195" fill="rgba(255, 255, 255, 0.5)" fontFamily="system-ui, -apple-system, sans-serif" fontSize="8" fontWeight="700" letterSpacing="0.5">STATUS</text>
-        <text x="35" y="212" fill="#FFFFFF" fontFamily="system-ui, -apple-system, sans-serif" fontSize="12" fontWeight="800">
-          {isNftMinted ? 'ACTIVE PASS' : 'APPROVED'}
-        </text>
-        <text x="180" y="195" fill="rgba(255, 255, 255, 0.5)" fontFamily="system-ui, -apple-system, sans-serif" fontSize="8" fontWeight="700" letterSpacing="0.5">ELECTION ID</text>
-        <text x="180" y="212" fill="#FFFFFF" fontFamily="system-ui, -apple-system, sans-serif" fontSize="12" fontWeight="800">
-          {electionIdStr}
-        </text>
-        <text x="300" y="195" fill="rgba(255, 255, 255, 0.5)" fontFamily="system-ui, -apple-system, sans-serif" fontSize="8" fontWeight="700" letterSpacing="0.5">PASS ID</text>
-        <text x="300" y="212" fill="#FFE57F" fontFamily="system-ui, -apple-system, sans-serif" fontSize="12" fontWeight="800">
-          {tokenIdStr}
-        </text>
-        <line x1="35" y1="250" x2="465" y2="250" stroke="rgba(255, 255, 255, 0.1)" strokeWidth="1" />
-        <text x="35" y="280" fill="rgba(255, 255, 255, 0.4)" fontFamily="system-ui, -apple-system, sans-serif" fontSize="8" fontWeight="600">BOUND TO REGISTERED WALLET</text>
-        <text x="465" y="280" fill="#E040FB" fontFamily="system-ui, -apple-system, sans-serif" fontSize="9" fontWeight="bold" textAnchor="end" letterSpacing="1">ZAMA FHEVM</text>
-      </svg>
+      <div className="relative w-full max-w-[480px] rounded-[30px] overflow-hidden shadow-2xl shadow-[#FFFFFF]/5 border border-slate-300/15 group">
+        <img src="/nft-pass-bg.png" alt="CipherBallot VEPASS PNF" className="w-full h-auto object-cover" />
+        
+        {/* Dynamic Pass Number Overlay (Covers the existing 0 0 X with a small matching gradient patch if needed, or just text) */}
+        <div className="absolute" style={{ bottom: '9%', left: '11%', width: '28%', height: '8%', background: 'linear-gradient(to right, #dcdcdc, #e3e3e3)' }}>
+          <div className="w-full h-full flex items-center justify-center gap-3">
+            <span className="font-mono text-xs sm:text-sm font-medium text-[#111111] opacity-80 tracking-widest">
+              0
+            </span>
+            <span className="font-mono text-xs sm:text-sm font-medium text-[#111111] opacity-80 tracking-widest">
+              0
+            </span>
+            <span className="font-mono text-xs sm:text-sm font-medium text-[#111111] opacity-80 tracking-widest">
+              {passNum}
+            </span>
+          </div>
+        </div>
+      </div>
     );
   };
 
@@ -506,15 +454,7 @@ export function IdentityVerification({
 
         {/* Dynamic NFT Card Image Display */}
         <div className="w-full flex justify-center">
-          {isNftMinted && nftImage ? (
-            <img 
-              src={nftImage} 
-              alt="Voter Pass NFT" 
-              className="w-full max-w-[480px] aspect-[500/320] object-contain rounded-3xl shadow-2xl shadow-[#FFFFFF]/5 border border-slate-300/15" 
-            />
-          ) : (
-            getSvgPreview()
-          )}
+          {renderNFTCard()}
         </div>
 
         {/* Actions Console */}
