@@ -144,7 +144,7 @@ export function VotingBooth({
         {/* Status Alerts */}
         <div className="space-y-3">
           {status !== 'Voting' && (
-            <div className="flex items-center gap-3 p-4 rounded-xl border border-amber-500/20 bg-amber-500/10 text-sm text-amber-400 font-medium">
+            <div className="flex items-center gap-3 p-4 rounded-xl border border-slate-400/20 bg-slate-400/10 text-sm text-slate-200 font-medium">
               <AlertTriangle className="h-5 w-5 shrink-0" />
               Voting is not active for this poll. Status: {status}
             </div>
@@ -158,7 +158,7 @@ export function VotingBooth({
           )}
 
           {isRegistered && !isVoterPassMinted && (
-            <div className="flex items-center gap-3 p-4 rounded-xl border border-[#FFD208]/20 bg-[#FFD208]/10 text-sm text-[#FFD208] font-medium">
+            <div className="flex items-center gap-3 p-4 rounded-xl border border-[#FFFFFF]/20 bg-[#FFFFFF]/10 text-sm text-[#FFFFFF] font-medium">
               <AlertTriangle className="h-5 w-5 shrink-0" />
               Mint your soulbound Voter Pass NFT in the "Claim FHE Pass" tab to authorize voting.
             </div>
@@ -179,12 +179,12 @@ export function VotingBooth({
 
         {/* The Ballot Container */}
         <div className="bg-[#030305] border border-slate-900 rounded-2xl p-6 sm:p-8 space-y-6 relative overflow-hidden shadow-2xl">
-          <div className="absolute top-0 right-0 w-64 h-64 rounded-full bg-[#FFD208]/5 blur-[100px] pointer-events-none" />
+          <div className="absolute top-0 right-0 w-64 h-64 rounded-full bg-[#FFFFFF]/5 blur-[100px] pointer-events-none" />
           
           <div className="border-b border-slate-800/60 pb-5">
             <h3 className="text-xl sm:text-2xl font-black text-slate-100 flex items-center gap-3">
-              <div className="h-10 w-10 rounded-xl bg-[#FFD208]/10 border border-[#FFD208]/20 flex items-center justify-center shrink-0">
-                <Shield className="h-5 w-5 text-[#FFD208]" />
+              <div className="h-10 w-10 rounded-xl bg-[#FFFFFF]/10 border border-[#FFFFFF]/20 flex items-center justify-center shrink-0">
+                <Shield className="h-5 w-5 text-[#FFFFFF]" />
               </div>
               Shielded Ballot Box
             </h3>
@@ -209,13 +209,13 @@ export function VotingBooth({
                       key={idx}
                       className={`p-5 rounded-2xl border relative overflow-hidden transition-all ${
                         isWinner
-                          ? 'border-[#FFD208]/30 bg-[#FFD208]/5'
+                          ? 'border-[#FFFFFF]/30 bg-[#FFFFFF]/5'
                           : 'border-slate-800/60 bg-slate-950/20'
                       }`}
                     >
                       {isWinner && (
                         <div className="absolute top-3 right-3">
-                          <Trophy className="h-6 w-6 text-[#FFD208] animate-pulse" />
+                          <Trophy className="h-6 w-6 text-[#FFFFFF] animate-pulse" />
                         </div>
                       )}
                       <div className="flex items-center justify-between mb-3">
@@ -233,7 +233,7 @@ export function VotingBooth({
                             <h4 className="text-base font-bold text-slate-200 flex items-center gap-2">
                               {candidate.name}
                               {isWinner && (
-                                <span className="text-[10px] font-extrabold text-[#FFD208] bg-[#FFD208]/10 border border-[#FFD208]/20 px-2 py-0.5 rounded uppercase">
+                                <span className="text-[10px] font-extrabold text-[#FFFFFF] bg-[#FFFFFF]/10 border border-[#FFFFFF]/20 px-2 py-0.5 rounded uppercase">
                                   Winner
                                 </span>
                               )}
@@ -251,7 +251,7 @@ export function VotingBooth({
                           className="h-full rounded-full transition-all duration-700"
                           style={{
                             width: `${percentage}%`,
-                            backgroundColor: isWinner ? '#FFD208' : candidateColors[idx % candidateColors.length]
+                            backgroundColor: isWinner ? '#FFFFFF' : candidateColors[idx % candidateColors.length]
                           }}
                         />
                       </div>
@@ -270,7 +270,7 @@ export function VotingBooth({
                     isVoted || status !== 'Voting' || !isRegistered
                       ? 'opacity-60 cursor-not-allowed border-slate-800/60 bg-slate-900/10'
                       : selectedCandidate === idx
-                      ? 'border-[#FFD208]/60 bg-[#FFD208]/10 ring-1 ring-[#FFD208]/30 shadow-[0_0_20px_rgba(255,210,8,0.05)]'
+                      ? 'border-[#FFFFFF]/60 bg-[#FFFFFF]/10 ring-1 ring-[#FFFFFF]/30 shadow-[0_0_20px_rgba(255,210,8,0.05)]'
                       : 'border-slate-800/80 hover:border-slate-700 bg-slate-950/40 hover:bg-slate-900/40'
                   }`}
                 >
@@ -282,7 +282,7 @@ export function VotingBooth({
                         checked={selectedCandidate === idx}
                         onChange={() => setSelectedCandidate(idx)}
                         disabled={isVoted || status !== 'Voting' || !isRegistered}
-                        className="h-5 w-5 text-[#FFD208] focus:ring-[#FFD208] border-slate-700 bg-slate-900 accent-[#FFD208] cursor-pointer"
+                        className="h-5 w-5 text-[#FFFFFF] focus:ring-[#FFFFFF] border-slate-700 bg-slate-900 accent-[#FFFFFF] cursor-pointer"
                       />
                     </div>
                     {isImageUrl(candidate.symbol) ? (
@@ -299,7 +299,7 @@ export function VotingBooth({
                       <p className="text-xs text-slate-500 mt-0.5">{candidate.party}</p>
                     </div>
                   </div>
-                  <span className="text-[10px] font-bold text-[#FFD208] uppercase bg-[#FFD208]/10 border border-[#FFD208]/20 px-3 py-1.5 rounded-lg tracking-wider">
+                  <span className="text-[10px] font-bold text-[#FFFFFF] uppercase bg-[#FFFFFF]/10 border border-[#FFFFFF]/20 px-3 py-1.5 rounded-lg tracking-wider">
                     Encrypted
                   </span>
                 </label>
@@ -328,14 +328,14 @@ export function VotingBooth({
               <button
                 onClick={handleVoteSubmit}
                 disabled={isVotingDisabled}
-                className="w-full bg-[#FFD208] text-black font-extrabold text-sm uppercase tracking-wider px-8 py-4 rounded-xl hover:bg-yellow-400 transition-all duration-200 flex items-center justify-center gap-3 disabled:opacity-30 disabled:cursor-not-allowed hover:shadow-[0_0_20px_rgba(255,210,8,0.3)] disabled:hover:shadow-none"
+                className="w-full bg-[#FFFFFF] text-black font-extrabold text-sm uppercase tracking-wider px-8 py-4 rounded-xl hover:bg-slate-200 transition-all duration-200 flex items-center justify-center gap-3 disabled:opacity-30 disabled:cursor-not-allowed hover:shadow-[0_0_20px_rgba(255,210,8,0.3)] disabled:hover:shadow-none"
               >
                 {loading ? <RefreshCw className="h-5 w-5 animate-spin" /> : <Lock className="h-5 w-5" />}
                 Cast Shielded Ballot
               </button>
 
               {!isFheReady && isRegistered && status === 'Voting' && (
-                <p className="text-xs text-center font-bold text-amber-400 animate-pulse mt-2">
+                <p className="text-xs text-center font-bold text-slate-200 animate-pulse mt-2">
                   Initializing FHE WebAssembly. Please wait...
                 </p>
               )}
@@ -351,8 +351,8 @@ export function VotingBooth({
         
         {/* Timeline Status */}
         <div className="bg-[#030305] border border-slate-900 rounded-2xl p-6 relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-24 h-24 rounded-full bg-[#FFD208]/10 blur-[50px] pointer-events-none" />
-          <span className="text-[10px] font-black text-[#FFD208] uppercase tracking-widest flex items-center gap-2 mb-2 relative">
+          <div className="absolute top-0 right-0 w-24 h-24 rounded-full bg-[#FFFFFF]/10 blur-[50px] pointer-events-none" />
+          <span className="text-[10px] font-black text-[#FFFFFF] uppercase tracking-widest flex items-center gap-2 mb-2 relative">
             <Clock className="h-4 w-4" />
             Timeline Status
           </span>
@@ -370,7 +370,7 @@ export function VotingBooth({
             <div className="flex items-center justify-between">
               <span className="text-xs font-medium text-slate-500">Total Ballots Cast</span>
               <div className="flex items-center gap-2 bg-slate-900 px-3 py-1 rounded-lg border border-slate-800">
-                <Users className="h-3.5 w-3.5 text-[#FFD208]" />
+                <Users className="h-3.5 w-3.5 text-[#FFFFFF]" />
                 <span className="text-sm font-bold text-slate-200">{totalVotesCast}</span>
               </div>
             </div>
@@ -378,7 +378,7 @@ export function VotingBooth({
             <div className="flex items-center justify-between">
               <span className="text-xs font-medium text-slate-500">Tally Secrecy</span>
               <div className="flex items-center gap-2 bg-slate-900 px-3 py-1 rounded-lg border border-slate-800">
-                {resultsRevealed ? <Unlock className="h-3.5 w-3.5 text-emerald-400" /> : <Lock className="h-3.5 w-3.5 text-[#FFD208]" />}
+                {resultsRevealed ? <Unlock className="h-3.5 w-3.5 text-emerald-400" /> : <Lock className="h-3.5 w-3.5 text-[#FFFFFF]" />}
                 <span className="text-xs font-bold text-slate-200">{resultsRevealed ? 'Revealed' : 'FHE Shielded'}</span>
               </div>
             </div>
@@ -402,8 +402,8 @@ export function VotingBooth({
           
           <div className="space-y-5">
             <div className="flex gap-3 items-start">
-              <div className="h-8 w-8 rounded-xl bg-[#FFD208]/10 border border-[#FFD208]/20 flex items-center justify-center shrink-0">
-                <Shield className="h-4 w-4 text-[#FFD208]" />
+              <div className="h-8 w-8 rounded-xl bg-[#FFFFFF]/10 border border-[#FFFFFF]/20 flex items-center justify-center shrink-0">
+                <Shield className="h-4 w-4 text-[#FFFFFF]" />
               </div>
               <div>
                 <span className="text-xs font-bold text-slate-200 block">Zero-Knowledge Shielding</span>
@@ -441,10 +441,10 @@ export function VotingBooth({
 
         {/* Decrypt & Reveal Results (Only when Closed) */}
         {status === 'Closed' && !resultsRevealed && (
-          <div className="bg-[#0a0a12] border border-[#FFD208]/30 rounded-2xl p-6 space-y-4 relative overflow-hidden shadow-[0_0_30px_rgba(255,210,8,0.05)]">
-            <div className="absolute top-0 right-0 w-32 h-32 rounded-full bg-[#FFD208]/10 blur-[60px] pointer-events-none" />
+          <div className="bg-[#0a0a12] border border-[#FFFFFF]/30 rounded-2xl p-6 space-y-4 relative overflow-hidden shadow-[0_0_30px_rgba(255,210,8,0.05)]">
+            <div className="absolute top-0 right-0 w-32 h-32 rounded-full bg-[#FFFFFF]/10 blur-[60px] pointer-events-none" />
             <h4 className="text-sm font-bold text-slate-100 flex items-center gap-2 relative">
-              <Award className="h-5 w-5 text-[#FFD208]" />
+              <Award className="h-5 w-5 text-[#FFFFFF]" />
               Decrypt & Reveal Results
             </h4>
             <p className="text-[11px] text-slate-400 leading-relaxed relative">
@@ -454,14 +454,14 @@ export function VotingBooth({
             <button
               onClick={handleRevealClick}
               disabled={loading}
-              className="w-full bg-[#FFD208] text-black font-extrabold text-xs uppercase tracking-wider px-5 py-3 rounded-xl hover:bg-yellow-400 transition-all duration-200 flex items-center justify-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed relative"
+              className="w-full bg-[#FFFFFF] text-black font-extrabold text-xs uppercase tracking-wider px-5 py-3 rounded-xl hover:bg-slate-200 transition-all duration-200 flex items-center justify-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed relative"
             >
               {loading ? <RefreshCw className="h-4 w-4 animate-spin" /> : <Unlock className="h-4 w-4" />}
               Execute Decryption
             </button>
 
             {revealStep && (
-              <div className="p-3 rounded-xl bg-slate-950 border border-slate-800 text-[10px] font-mono text-yellow-300 leading-relaxed relative">
+              <div className="p-3 rounded-xl bg-slate-950 border border-slate-800 text-[10px] font-mono text-white leading-relaxed relative">
                 {revealStep}
               </div>
             )}

@@ -52,11 +52,11 @@ export function InteractiveNetworkGlobe() {
   return (
     <div ref={containerRef} className="relative w-80 h-80 sm:w-96 sm:h-96 flex items-center justify-center">
       {/* Outer ambient glow */}
-      <div className="absolute inset-0 rounded-full bg-yellow-500/[0.02] blur-3xl pointer-events-none" />
+      <div className="absolute inset-0 rounded-full bg-slate-300/[0.02] blur-3xl pointer-events-none" />
 
       <svg
         viewBox="0 0 400 400"
-        className="w-full h-full text-[#FFD208] select-none pointer-events-none"
+        className="w-full h-full text-[#FFFFFF] select-none pointer-events-none"
       >
         {/* Definitions for gradients and glows */}
         <defs>

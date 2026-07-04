@@ -262,7 +262,7 @@ export function ElectionShareCard({ election, electionAddress }: ElectionShareCa
         ctx.stroke();
 
         // Draw pixel shield in yellow
-        ctx.fillStyle = '#FFD208';
+        ctx.fillStyle = '#FFFFFF';
         const startPixelX = mascotX + (mascotSize - (16 * 5.5)) / 2;
         const startPixelY = mascotY + (mascotSize - (16 * 5.5)) / 2;
         PIXEL_SHIELD.forEach((row, rIdx) => {
@@ -538,7 +538,7 @@ export function ElectionShareCard({ election, electionAddress }: ElectionShareCa
         ctx.stroke();
 
         // Draw pixel shield in yellow
-        ctx.fillStyle = '#FFD208';
+        ctx.fillStyle = '#FFFFFF';
         const startPixelX = mascotX + (mascotW - (16 * 8)) / 2;
         const startPixelY = mascotY + (mascotH - (16 * 8)) / 2;
         PIXEL_SHIELD.forEach((row, rIdx) => {
@@ -653,7 +653,7 @@ export function ElectionShareCard({ election, electionAddress }: ElectionShareCa
             onClick={() => setRatio('x_post')}
             className={`px-4 py-1.5 rounded-xl text-[10px] font-black uppercase transition ${
               ratio === 'x_post'
-                ? 'bg-yellow-500 text-black shadow'
+                ? 'bg-slate-300 text-black shadow'
                 : 'text-slate-400 hover:text-slate-200'
             }`}
           >
@@ -663,7 +663,7 @@ export function ElectionShareCard({ election, electionAddress }: ElectionShareCa
             onClick={() => setRatio('insta_story')}
             className={`px-4 py-1.5 rounded-xl text-[10px] font-black uppercase transition ${
               ratio === 'insta_story'
-                ? 'bg-yellow-500 text-black shadow'
+                ? 'bg-slate-300 text-black shadow'
                 : 'text-slate-400 hover:text-slate-200'
             }`}
           >
@@ -701,7 +701,7 @@ export function ElectionShareCard({ election, electionAddress }: ElectionShareCa
 
                 {/* Stub Mascot Box */}
                 <div className="h-14 w-14 bg-[#090d16] border border-slate-800 rounded-lg flex items-center justify-center shrink-0 shadow-inner">
-                  <svg viewBox="0 0 16 16" className="w-9 h-9 text-[#FFD208] fill-current">
+                  <svg viewBox="0 0 16 16" className="w-9 h-9 text-[#FFFFFF] fill-current">
                     {PIXEL_SHIELD.map((row, rIdx) =>
                       row.split('').map((char, cIdx) =>
                         char === 'X' ? (
@@ -862,7 +862,7 @@ export function ElectionShareCard({ election, electionAddress }: ElectionShareCa
                 {/* Mascot & Metadata block */}
                 <div className="flex gap-2 items-center">
                   <div className="h-14 w-14 bg-[#090d16] border border-slate-800 rounded-lg flex items-center justify-center shrink-0 shadow-inner">
-                    <svg viewBox="0 0 16 16" className="w-9 h-9 text-[#FFD208] fill-current">
+                    <svg viewBox="0 0 16 16" className="w-9 h-9 text-[#FFFFFF] fill-current">
                       {PIXEL_SHIELD.map((row, rIdx) =>
                         row.split('').map((char, cIdx) =>
                           char === 'X' ? (

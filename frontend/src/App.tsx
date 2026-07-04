@@ -13,7 +13,7 @@ import { useFhevm } from './hooks/useFhevm';
 import { useContract, type ElectionDetails } from './hooks/useContract';
 
 import { VotingWorkflowShowcase } from './components/VotingWorkflowShowcase';
-import { ArrowRight, ShieldCheck, Cpu, Lock, Share2, RefreshCw, Eye, EyeOff, ShieldAlert, X, Github, Linkedin, Twitter } from 'lucide-react';
+import { ArrowRight, ShieldCheck, Cpu, Lock, Share2, RefreshCw, Eye, EyeOff, ShieldAlert, X, Github, Linkedin, Twitter, Globe, Zap, HardHat, Code, Atom, Wind, Shield } from 'lucide-react';
 import { ScrambleText } from './components/ScrambleText';
 import type { CitizenStatus } from './utils/types';
 
@@ -28,7 +28,7 @@ import {
 
 const CODE_TOKENS = [
   { text: "// 1. Retrieve encrypted choice from user\n", className: "text-slate-550" },
-  { text: "euint8", className: "text-[#FFD208]" },
+  { text: "euint8", className: "text-[#FFFFFF]" },
   { text: " choice = FHE.fromExternal(encryptedChoice, proof);\n\n", className: "text-slate-300" },
   { text: "// 2. Homomorphically tally votes\n", className: "text-slate-550" },
   { text: "for", className: "text-[#c084fc]" },
@@ -36,10 +36,10 @@ const CODE_TOKENS = [
   { text: "uint8", className: "text-[#c084fc]" },
   { text: " i = 0; i < candidateCount; i++) {\n", className: "text-slate-300" },
   { text: "  // Is this candidate chosen? (ebool)\n", className: "text-slate-550" },
-  { text: "  ebool", className: "text-[#FFD208]" },
+  { text: "  ebool", className: "text-[#FFFFFF]" },
   { text: " isChosen = FHE.eq(choice, FHE.asEuint8(i));\n", className: "text-slate-300" },
   { text: "  // Select 1 if true, 0 if false\n", className: "text-slate-550" },
-  { text: "  euint32", className: "text-[#FFD208]" },
+  { text: "  euint32", className: "text-[#FFFFFF]" },
   { text: " inc = FHE.select(isChosen, FHE.asEuint32(1), FHE.asEuint32(0));\n", className: "text-slate-300" },
   { text: "  // Add to running tally (still encrypted)\n", className: "text-slate-550" },
   { text: "  encryptedTallies[i] = FHE.add(encryptedTallies[i], inc);\n", className: "text-slate-300" },
@@ -609,19 +609,19 @@ function App() {
   return (
     <div className="min-h-screen bg-[#03000a] flex flex-col font-sans relative">
       {/* Background Decorative Blur Blobs */}
-      <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-yellow-600/3 rounded-full filter blur-[120px] pointer-events-none" />
-      <div className="absolute bottom-10 right-1/4 w-[400px] h-[400px] bg-amber-600/2 rounded-full filter blur-[100px] pointer-events-none" />
+      <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-slate-500/3 rounded-full filter blur-[120px] pointer-events-none" />
+      <div className="absolute bottom-10 right-1/4 w-[400px] h-[400px] bg-slate-500/2 rounded-full filter blur-[100px] pointer-events-none" />
 
       {/* Cryptographic WebAssembly Initializing Overlay Screen */}
       {isConnected && isFheInitializing && !fhevmInstance && (
         <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-[#03000a]/90 backdrop-blur-md px-4">
           <div className="relative flex items-center justify-center mb-6">
             {/* Spinning decorative ring */}
-            <div className="absolute w-24 h-24 rounded-full border border-yellow-500/20 border-t-yellow-500 animate-spin" />
-            <div className="absolute w-20 h-20 rounded-full border border-amber-500/10 border-b-amber-500 animate-spin [animation-direction:reverse]" />
-            <Lock className="h-8 w-8 text-yellow-400 animate-pulse" />
+            <div className="absolute w-24 h-24 rounded-full border border-slate-300/20 border-t-slate-300 animate-spin" />
+            <div className="absolute w-20 h-20 rounded-full border border-slate-400/10 border-b-slate-400 animate-spin [animation-direction:reverse]" />
+            <Lock className="h-8 w-8 text-slate-200 animate-pulse" />
           </div>
-          <h2 className="text-2xl font-black font-sans bg-gradient-to-r from-white via-slate-100 to-yellow-300 bg-clip-text text-transparent text-center">
+          <h2 className="text-2xl font-black font-sans bg-gradient-to-r from-white via-slate-100 to-white bg-clip-text text-transparent text-center">
             Initializing FHE WebAssembly
           </h2>
           <p className="text-xs text-slate-500 font-semibold uppercase tracking-wider mt-2.5 text-center max-w-sm leading-relaxed">
@@ -675,7 +675,7 @@ function App() {
               {elections.length > 0 && (
                 <div className="w-80 shrink-0 space-y-4">
                   <div className="glass-panel p-5 space-y-4">
-                    <span className="text-[10px] font-black text-yellow-400 uppercase tracking-widest block">Available Shielded Polls</span>
+                    <span className="text-[10px] font-black text-slate-200 uppercase tracking-widest block">Available Shielded Polls</span>
                     <div className="flex flex-col gap-2.5 max-h-[400px] overflow-y-auto pr-1">
                       {(() => {
                         const sorted = [...elections].sort((a, b) => {
@@ -706,8 +706,8 @@ function App() {
                               onClick={() => setSelectedElectionAddr(addr)}
                               className={`text-left p-3.5 rounded-xl border text-xs transition duration-200 ${
                                 selectedElectionAddr === addr
-                                  ? 'border-yellow-500 bg-yellow-500/5 text-slate-100 font-bold shadow-[0_0_15px_rgba(255,210,8,0.1)]'
-                                  : 'border-yellow-950/20 hover:border-yellow-500/20 bg-[#070414]/40 text-slate-400 hover:text-slate-200'
+                                  ? 'border-slate-300 bg-slate-300/5 text-slate-100 font-bold shadow-[0_0_15px_rgba(255,210,8,0.1)]'
+                                  : 'border-slate-900/20 hover:border-slate-300/20 bg-[#070414]/40 text-slate-400 hover:text-slate-200'
                               }`}
                             >
                               <p className="font-semibold truncate">{displayName}</p>
@@ -715,14 +715,14 @@ function App() {
                               <div className="flex items-center justify-between mt-2">
                                 <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded ${
                                   isVoting 
-                                    ? 'bg-yellow-500/10 text-yellow-400 border border-yellow-500/20' 
+                                    ? 'bg-slate-300/10 text-slate-200 border border-slate-300/20' 
                                     : 'bg-slate-900 text-slate-500 border border-slate-800'
                                 }`}>
                                   {isVoting ? 'ACTIVE' : details?.status?.toUpperCase() || 'LOADING'}
                                 </span>
                                 {selectedElectionAddr === addr && (
-                                  <span className="text-[10px] text-yellow-400 font-bold flex items-center gap-1">
-                                    <span className="h-1.5 w-1.5 rounded-full bg-yellow-400 animate-pulse"></span>
+                                  <span className="text-[10px] text-slate-200 font-bold flex items-center gap-1">
+                                    <span className="h-1.5 w-1.5 rounded-full bg-slate-200 animate-pulse"></span>
                                     Selected
                                   </span>
                                 )}
@@ -740,15 +740,15 @@ function App() {
               <div className="flex-1 space-y-6">
                 {isDetailLoading ? (
                   <div className="glass-panel p-16 text-center flex flex-col items-center justify-center gap-4 bg-slate-900/10">
-                    <RefreshCw className="h-8 w-8 text-[#FFD208] animate-spin" />
+                    <RefreshCw className="h-8 w-8 text-[#FFFFFF] animate-spin" />
                     <span className="text-sm text-slate-400 font-semibold tracking-wide">Loading poll details...</span>
                   </div>
                 ) : selectedElection ? (
                   <>
                     {/* Active Election Header Card */}
-                    <div className="glass-panel p-5 flex flex-row items-center justify-between gap-4 border-yellow-500/10 bg-yellow-500/[0.01] mb-6">
+                    <div className="glass-panel p-5 flex flex-row items-center justify-between gap-4 border-slate-300/10 bg-slate-300/[0.01] mb-6">
                       <div className="space-y-1">
-                        <span className="text-[9px] font-black text-yellow-400 uppercase tracking-widest block">Active Ballot Focus</span>
+                        <span className="text-[9px] font-black text-slate-200 uppercase tracking-widest block">Active Ballot Focus</span>
                         <h2 className="text-xl font-bold text-slate-100">{selectedElection.name}</h2>
                         <p className="text-xs text-slate-400 leading-relaxed max-w-xl">{selectedElection.description}</p>
                       </div>
@@ -829,27 +829,38 @@ function App() {
         <main className="flex-1 flex flex-col w-full bg-black relative overflow-hidden">
 
           {/* Hero Section */}
-          <div 
-            className="w-full min-h-[80vh] pt-16 relative overflow-hidden z-10 flex flex-col items-center justify-center text-center px-8"
-            style={{ 
-              backgroundImage: 'url(/hero-bg.jpg)', 
-              backgroundSize: 'cover', 
-              backgroundPosition: 'center',
-              backgroundRepeat: 'no-repeat'
-            }}
-          >
+          <div className="w-full min-h-[80vh] pt-16 relative overflow-hidden z-10 flex flex-col items-center justify-center text-center px-8">
+            
+            {/* Background Video */}
+            <video 
+              autoPlay 
+              loop 
+              muted 
+              playsInline 
+              className="absolute inset-0 w-full h-full object-cover object-center scale-[1.25] z-0 mix-blend-lighten"
+              style={{ filter: 'contrast(1.1) saturate(1.2)' }}
+            >
+              <source src="/hero-bg.mp4" type="video/mp4" />
+            </video>
+
+            {/* Color Gradient Overlay */}
+            <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/20 via-purple-500/10 to-emerald-500/20 z-[1] pointer-events-none mix-blend-color" />
+
             {/* Glass Blur Overlay */}
-            <div className="absolute inset-0 bg-[#03000a]/60 backdrop-blur-[2px] z-[1] pointer-events-none" />
+            <div className="absolute inset-0 bg-[#030305]/40 backdrop-blur-[2px] z-[1] pointer-events-none" />
+
+            {/* Bottom Fade to blend with next section */}
+            <div className="absolute bottom-0 left-0 w-full h-48 bg-gradient-to-t from-black via-black/80 to-transparent z-[2] pointer-events-none" />
 
             {/* Content: Hero Text */}
             <div className="space-y-8 relative z-10 max-w-4xl mx-auto flex flex-col items-center">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded border border-yellow-500/20 bg-yellow-500/5 text-xs font-mono font-bold text-[#FFD208] uppercase tracking-wider backdrop-blur-md shadow-lg">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded border border-slate-300/20 bg-slate-300/5 text-xs font-mono font-bold text-[#FFFFFF] uppercase tracking-wider backdrop-blur-md shadow-lg">
                 <ShieldCheck className="h-3.5 w-3.5" />
                 Fully Homomorphic Encryption (FHE)
               </div>
               
               <h1 className="text-5xl font-black tracking-tight sm:text-7xl md:text-8xl font-sans text-white leading-tight drop-shadow-2xl">
-                LAUNCH <ScrambleText text="SHIELDED" className="text-[#FFD208] inline-block min-w-[280px]" /> POLLS
+                LAUNCH <ScrambleText text="SHIELDED" className="text-[#FFFFFF] inline-block min-w-[280px]" /> POLLS
               </h1>
               
               <p className="text-slate-300 text-sm sm:text-lg leading-relaxed font-medium max-w-3xl drop-shadow-xl bg-black/20 p-4 rounded-xl backdrop-blur-sm border border-white/5">
@@ -866,7 +877,7 @@ function App() {
                       setActiveTab('register');
                     }
                   }}
-                  className="bg-[#FFD208] text-black font-extrabold text-sm uppercase tracking-wider px-8 py-4 rounded hover:bg-yellow-400 transition-colors duration-200 flex items-center gap-2 shadow-[0_0_20px_rgba(255,210,8,0.3)] hover:shadow-[0_0_30px_rgba(255,210,8,0.5)]"
+                  className="bg-[#FFFFFF] text-black font-extrabold text-sm uppercase tracking-wider px-8 py-4 rounded hover:bg-slate-200 transition-colors duration-200 flex items-center gap-2 shadow-[0_0_20px_rgba(255,210,8,0.3)] hover:shadow-[0_0_30px_rgba(255,210,8,0.5)]"
                 >
                   Get Started <ArrowRight className="h-4 w-4" />
                 </button>
@@ -877,7 +888,7 @@ function App() {
                       connect();
                     }
                   }}
-                  className="bg-[#03000a]/80 backdrop-blur-md text-slate-200 border border-slate-700 font-extrabold text-sm uppercase tracking-wider px-8 py-4 rounded hover:text-white hover:border-yellow-500/50 transition-all duration-200 shadow-lg"
+                  className="bg-[#03000a]/80 backdrop-blur-md text-slate-200 border border-slate-700 font-extrabold text-sm uppercase tracking-wider px-8 py-4 rounded hover:text-white hover:border-slate-300/50 transition-all duration-200 shadow-lg"
                 >
                   Discover How It Works
                 </button>
@@ -885,86 +896,35 @@ function App() {
             </div>
           </div>
 
-          {/* Main Landing Content Container */}
-          <div className="flex-1 flex flex-col justify-center py-16 px-8 lg:px-16 max-w-none w-full space-y-24">
+          {/* Infinite Scroll "Powered By" Banner */}
+          <div className="w-full bg-[#030305] border-y border-white/5 py-5 overflow-hidden relative z-10 flex">
+            <div className="absolute inset-y-0 left-0 w-16 sm:w-32 bg-gradient-to-r from-[#030305] to-transparent z-10 pointer-events-none" />
+            <div className="absolute inset-y-0 right-0 w-16 sm:w-32 bg-gradient-to-l from-[#030305] to-transparent z-10 pointer-events-none" />
             
-            {/* Live Network Stats Dashboard */}
-            <div className="grid gap-6 grid-cols-2 lg:grid-cols-4 relative z-10 border-b border-slate-955 pb-16">
-            {[
-              { label: "Network Status", val: "Connected (Sepolia)" },
-              { label: "FHE Engine", val: "Zama fhEVM v2.0" },
-              { label: "MPC Threshold", val: "5 / 7 Quorum" },
-              { label: "Gas Limit per Tx", val: "10,000,000" }
-            ].map((stat, i) => (
-              <div key={i} className="bg-[#030305] border border-slate-950 p-6 rounded-lg text-left space-y-1">
-                <span className="text-[9px] font-bold text-slate-500 uppercase tracking-widest font-mono">{stat.label}</span>
-                <p className="text-sm font-black text-slate-200">{stat.val}</p>
-              </div>
-            ))}
-          </div>
-
-          {/* Public Voting vs Our Voting System Comparison Card */}
-          <div className="bg-[#030305] border border-slate-950 rounded-2xl overflow-hidden shadow-2xl relative z-10">
-            <div className="grid md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-slate-955">
-              {/* Left Column: Public Voting (Traditional) */}
-              <div className="p-8 sm:p-12 space-y-6 text-left opacity-75">
-                <div className="flex items-center gap-2 text-xs font-mono font-bold text-slate-500 uppercase tracking-wider">
-                  <Eye className="h-4 w-4" />
-                  Public Polls (Traditional)
+            <div className="flex animate-marquee whitespace-nowrap min-w-max items-center gap-16 px-8">
+              {[...Array(4)].map((_, i) => (
+                <div key={i} className="flex items-center gap-16">
+                  {[
+                    { name: 'ZAMA FHEVM', icon: Shield },
+                    { name: 'SEPOLIA', icon: Globe },
+                    { name: 'ALCHEMY', icon: Zap },
+                    { name: 'HARDHAT', icon: HardHat },
+                    { name: 'ETHERS.JS', icon: Code },
+                    { name: 'REACT', icon: Atom },
+                    { name: 'TAILWIND', icon: Wind }
+                  ].map((tech, j) => (
+                    <div key={j} className="flex items-center gap-3 opacity-60 hover:opacity-100 transition-opacity">
+                      <tech.icon className="h-5 w-5 text-slate-400" />
+                      <span className="text-xs font-black text-slate-400 uppercase tracking-[0.2em]">{tech.name}</span>
+                    </div>
+                  ))}
                 </div>
-                <h3 className="text-2xl sm:text-3xl font-black text-white">
-                  Transparent by default
-                </h3>
-                <ul className="space-y-4 font-mono text-xs sm:text-sm text-slate-400">
-                  <li className="flex items-center gap-3">
-                    <span className="h-1.5 w-1.5 rounded-full bg-rose-500" />
-                    <span>Votes are fully visible to anyone on-chain</span>
-                  </li>
-                  <li className="flex items-center gap-3">
-                    <span className="h-1.5 w-1.5 rounded-full bg-rose-500" />
-                    <span>Wallet addresses are linked to choices</span>
-                  </li>
-                  <li className="flex items-center gap-3">
-                    <span className="h-1.5 w-1.5 rounded-full bg-rose-500" />
-                    <span>Intermediate results leak during the voting process</span>
-                  </li>
-                  <li className="flex items-center gap-3">
-                    <span className="h-1.5 w-1.5 rounded-full bg-rose-500" />
-                    <span>Vulnerable to voter coercion & bribery</span>
-                  </li>
-                </ul>
-              </div>
-
-              {/* Right Column: Our Voting System (CipherBallot) */}
-              <div className="p-8 sm:p-12 space-y-6 text-left relative group">
-                <div className="flex items-center gap-2 text-xs font-mono font-bold text-[#FFD208] uppercase tracking-wider">
-                  <Lock className="h-4 w-4" />
-                  CipherBallot (FHE Shielded)
-                </div>
-                <h3 className="text-2xl sm:text-3xl font-black text-white">
-                  Encrypted & Verifiable
-                </h3>
-                <ul className="space-y-4 font-mono text-xs sm:text-sm text-slate-300">
-                  <li className="flex items-center gap-3">
-                    <span className="h-1.5 w-1.5 rounded-full bg-[#FFD208]" />
-                    <span>Votes are encrypted on-chain (never seen)</span>
-                  </li>
-                  <li className="flex items-center gap-3">
-                    <span className="h-1.5 w-1.5 rounded-full bg-[#FFD208]" />
-                    <span>Voter identities are cryptographically sealed</span>
-                  </li>
-                  <li className="flex items-center gap-3">
-                    <span className="h-1.5 w-1.5 rounded-full bg-[#FFD208]" />
-                    <span>Tallies remain hidden until the election ends</span>
-                  </li>
-                  <li className="flex items-center gap-3">
-                    <span className="h-1.5 w-1.5 rounded-full bg-[#FFD208]" />
-                    <span>Mathematically secure against voter coercion</span>
-                  </li>
-                </ul>
-              </div>
+              ))}
             </div>
           </div>
+
+          {/* Main Landing Content Container */}
+          <div className="flex-1 flex flex-col justify-center py-16 px-8 lg:px-16 max-w-none w-full space-y-24">
 
           {/* Animated Workflow Showcase (anime.js) */}
           <VotingWorkflowShowcase />
@@ -972,10 +932,10 @@ function App() {
           {/* Fleek-inspired Technical Breakdown */}
           <div className="grid gap-16 lg:grid-cols-2 items-center border-b border-slate-955 pb-16 relative z-10">
             {/* Column 1: Interactive SVG Layer Diagram */}
-            <div className="relative flex h-96 w-full items-center justify-center bg-[#030305] border border-slate-950 rounded-2xl overflow-hidden shadow-2xl p-6">
-              <div className="absolute inset-0 bg-gradient-to-tr from-yellow-500/5 to-transparent opacity-50 pointer-events-none" />
+            <div className="relative flex h-96 w-full items-center justify-center bg-[#030305] border border-slate-950 rounded-2xl overflow-hidden shadow-2xl">
+              <div className="absolute inset-0 bg-gradient-to-tr from-slate-300/5 to-transparent opacity-50 pointer-events-none" />
               
-              <img src="/architecture-stack.png" alt="Decentralized Confidential Infrastructure Layers" className="w-full h-full object-contain relative z-10" />
+              <img src="/architecture-stack.png" alt="Decentralized Confidential Infrastructure Layers" className="w-full h-full object-cover object-center scale-[1.15] relative z-10" />
               
               <div className="absolute bottom-4 left-4 font-mono text-[9px] text-slate-550 uppercase tracking-widest z-20">
                 // Cryptographic Stack layers
@@ -1003,7 +963,7 @@ function App() {
                   "ZERO-TRUST IDENTITY SEALING"
                 ].map((bullet, i) => (
                   <div key={i} className="flex items-center gap-2.5">
-                    <span className="text-[#FFD208]">⚡</span>
+                    <span className="text-[#FFFFFF]">⚡</span>
                     <span>{bullet}</span>
                   </div>
                 ))}
@@ -1014,7 +974,7 @@ function App() {
           {/* Interactive Code / FHEVM Core Mechanic Section */}
           <div className="grid gap-16 lg:grid-cols-2 items-center border-b border-slate-955 pb-16 relative z-10">
             <div className="space-y-6 text-left">
-              <span className="text-[10px] font-bold text-[#FFD208] uppercase tracking-widest font-mono">Core FHE VM Primitive</span>
+              <span className="text-[10px] font-bold text-[#FFFFFF] uppercase tracking-widest font-mono">Core FHE VM Primitive</span>
               <h2 className="text-3xl font-black text-white leading-tight">
                 COMPUTE DIRECTLY ON ENCRYPTED DATA
               </h2>
@@ -1023,15 +983,15 @@ function App() {
               </p>
               <ul className="space-y-3 font-mono text-[11px] text-slate-300">
                 <li className="flex items-center gap-2.5">
-                  <span className="h-1.5 w-1.5 rounded-full bg-[#FFD208]" />
+                  <span className="h-1.5 w-1.5 rounded-full bg-[#FFFFFF]" />
                   <code>FHE.eq()</code> — Encrypted comparison (returns ebool)
                 </li>
                 <li className="flex items-center gap-2.5">
-                  <span className="h-1.5 w-1.5 rounded-full bg-[#FFD208]" />
+                  <span className="h-1.5 w-1.5 rounded-full bg-[#FFFFFF]" />
                   <code>FHE.select()</code> — Encrypted conditional selector
                 </li>
                 <li className="flex items-center gap-2.5">
-                  <span className="h-1.5 w-1.5 rounded-full bg-[#FFD208]" />
+                  <span className="h-1.5 w-1.5 rounded-full bg-[#FFFFFF]" />
                   <code>FHE.add()</code> — Encrypted addition tallying
                 </li>
               </ul>
@@ -1042,7 +1002,7 @@ function App() {
               
               <div className="flex items-center gap-1.5 mb-4 border-b border-slate-955 pb-3">
                 <div className="h-2.5 w-2.5 rounded-full bg-rose-500" />
-                <div className="h-2.5 w-2.5 rounded-full bg-amber-500" />
+                <div className="h-2.5 w-2.5 rounded-full bg-slate-400" />
                 <div className="h-2.5 w-2.5 rounded-full bg-emerald-500" />
                 <span className="text-[10px] text-slate-500 ml-2">Election.sol</span>
               </div>
@@ -1060,7 +1020,7 @@ function App() {
                     );
                   });
                 })()}
-                <span className="text-[#FFD208] animate-pulse font-bold">|</span>
+                <span className="text-[#FFFFFF] animate-pulse font-bold">|</span>
               </pre>
             </div>
           </div>
@@ -1068,7 +1028,7 @@ function App() {
           {/* Cryptographic Protocol Flowchart */}
           <div className="space-y-8 border-b border-slate-955 pb-16 relative z-10 text-left">
             <div className="text-center max-w-lg mx-auto space-y-2">
-              <span className="text-[10px] font-bold text-[#FFD208] uppercase tracking-widest font-mono">Process Pipeline</span>
+              <span className="text-[10px] font-bold text-[#FFFFFF] uppercase tracking-widest font-mono">Process Pipeline</span>
               <h2 className="text-3xl font-black text-white">THE CRYPTOGRAPHIC FLOW</h2>
               <p className="text-xs text-slate-500 font-medium">How CipherBallot processes your identity and ballot end-to-end.</p>
             </div>
@@ -1081,7 +1041,7 @@ function App() {
                 { title: "4. MPC Decryption", desc: "KMS MPC nodes decrypt only the final sums, leaving ballots hidden forever." }
               ].map((step, idx) => (
                 <div key={idx} className="bg-[#030305] border border-slate-950 p-6 rounded-lg space-y-3 relative">
-                  <div className="absolute -top-3 -left-3 h-7 w-7 rounded-full bg-[#FFD208] text-black font-black flex items-center justify-center text-xs">
+                  <div className="absolute -top-3 -left-3 h-7 w-7 rounded-full bg-[#FFFFFF] text-black font-black flex items-center justify-center text-xs">
                     {idx + 1}
                   </div>
                   <h4 className="text-xs font-bold text-white uppercase tracking-wide pt-2">{step.title}</h4>
@@ -1094,14 +1054,14 @@ function App() {
           {/* Cryptographic Guarantees Grid */}
           <div className="space-y-8 relative z-10">
             <div className="text-center max-w-lg mx-auto space-y-2">
-              <span className="text-[10px] font-bold text-[#FFD208] uppercase tracking-widest font-mono">Security Guarantees</span>
+              <span className="text-[10px] font-bold text-[#FFFFFF] uppercase tracking-widest font-mono">Security Guarantees</span>
               <h2 className="text-3xl font-black text-white">WHY CIPHERBALLOT?</h2>
               <p className="text-xs text-slate-500 font-medium">CipherBallot guarantees trust in every single ballot, preserving anonymity.</p>
             </div>
 
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-              <div className="bg-black border border-slate-950 hover:border-[#FFD208]/20 p-6 rounded transition duration-200 text-left space-y-4">
-                <div className="h-10 w-10 flex items-center justify-center rounded bg-yellow-500/5 border border-yellow-500/10 text-[#FFD208]">
+              <div className="bg-black border border-slate-950 hover:border-[#FFFFFF]/20 p-6 rounded transition duration-200 text-left space-y-4">
+                <div className="h-10 w-10 flex items-center justify-center rounded bg-slate-300/5 border border-slate-300/10 text-[#FFFFFF]">
                   <Lock className="h-5 w-5" />
                 </div>
                 <h3 className="text-sm font-bold text-white uppercase tracking-wide">End-to-End Encryption</h3>
@@ -1110,8 +1070,8 @@ function App() {
                 </p>
               </div>
 
-              <div className="bg-black border border-slate-955 hover:border-[#FFD208]/20 p-6 rounded transition duration-200 text-left space-y-4">
-                <div className="h-10 w-10 flex items-center justify-center rounded bg-yellow-500/5 border border-yellow-500/10 text-[#FFD208]">
+              <div className="bg-black border border-slate-955 hover:border-[#FFFFFF]/20 p-6 rounded transition duration-200 text-left space-y-4">
+                <div className="h-10 w-10 flex items-center justify-center rounded bg-slate-300/5 border border-slate-300/10 text-[#FFFFFF]">
                   <EyeOff className="h-5 w-5" />
                 </div>
                 <h3 className="text-sm font-bold text-white uppercase tracking-wide">Voter Privacy</h3>
@@ -1120,8 +1080,8 @@ function App() {
                 </p>
               </div>
 
-              <div className="bg-black border border-slate-955 hover:border-[#FFD208]/20 p-6 rounded transition duration-200 text-left space-y-4">
-                <div className="h-10 w-10 flex items-center justify-center rounded bg-yellow-500/5 border border-yellow-500/10 text-[#FFD208]">
+              <div className="bg-black border border-slate-955 hover:border-[#FFFFFF]/20 p-6 rounded transition duration-200 text-left space-y-4">
+                <div className="h-10 w-10 flex items-center justify-center rounded bg-slate-300/5 border border-slate-300/10 text-[#FFFFFF]">
                   <Cpu className="h-5 w-5" />
                 </div>
                 <h3 className="text-sm font-bold text-white uppercase tracking-wide">On-Chain Verifiability</h3>
@@ -1130,8 +1090,8 @@ function App() {
                 </p>
               </div>
 
-              <div className="bg-black border border-slate-955 hover:border-[#FFD208]/20 p-6 rounded transition duration-200 text-left space-y-4">
-                <div className="h-10 w-10 flex items-center justify-center rounded bg-yellow-500/5 border border-yellow-500/10 text-[#FFD208]">
+              <div className="bg-black border border-slate-955 hover:border-[#FFFFFF]/20 p-6 rounded transition duration-200 text-left space-y-4">
+                <div className="h-10 w-10 flex items-center justify-center rounded bg-slate-300/5 border border-slate-300/10 text-[#FFFFFF]">
                   <ShieldAlert className="h-5 w-5" />
                 </div>
                 <h3 className="text-sm font-bold text-white uppercase tracking-wide">Sybil Protection</h3>
@@ -1145,7 +1105,7 @@ function App() {
           {/* Simulated Audit Ledger Feed */}
           <div className="space-y-8 border-t border-slate-955 pt-16 relative z-10">
             <div className="text-center max-w-lg mx-auto space-y-2">
-              <span className="text-[10px] font-bold text-[#FFD208] uppercase tracking-widest font-mono">Live Audit Feed</span>
+              <span className="text-[10px] font-bold text-[#FFFFFF] uppercase tracking-widest font-mono">Live Audit Feed</span>
               <h2 className="text-3xl font-black text-white">CRYPTOGRAPHIC LEDGER</h2>
               <p className="text-xs text-slate-500 font-medium">Real-time audit trail of zero-knowledge & homomorphic transactions.</p>
             </div>
@@ -1154,7 +1114,7 @@ function App() {
               {/* Terminal Header */}
               <div className="bg-slate-950 border-b border-slate-955 px-4 py-3 flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <div className="h-3 w-3 rounded-full bg-yellow-500/30 animate-pulse" />
+                  <div className="h-3 w-3 rounded-full bg-slate-300/30 animate-pulse" />
                   <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">sepolia-ledger-feed.sh</span>
                 </div>
                 <span className="text-[10px] text-emerald-400 font-semibold bg-emerald-500/10 px-2 py-0.5 rounded">
@@ -1168,7 +1128,7 @@ function App() {
                   <div key={idx} className="p-4 flex flex-col md:flex-row md:items-center justify-between gap-4 hover:bg-slate-950/40 transition">
                     <div className="flex items-center gap-4">
                       <span className="text-slate-500 font-bold">TX</span>
-                      <span className="text-yellow-400 font-bold select-all">{item.tx}</span>
+                      <span className="text-slate-200 font-bold select-all">{item.tx}</span>
                       <span className="text-slate-300 font-semibold uppercase text-[10px] bg-slate-900 border border-slate-800 px-2 py-0.5 rounded">
                         {item.type}
                       </span>
@@ -1211,7 +1171,7 @@ function App() {
       {/* Share Card Modal */}
       {showShareModal && selectedElection && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-          <div className="bg-[#0b0b0f] border border-yellow-500/20 rounded-2xl max-w-lg w-full max-h-[92vh] flex flex-col overflow-hidden shadow-2xl">
+          <div className="bg-[#0b0b0f] border border-slate-300/20 rounded-2xl max-w-lg w-full max-h-[92vh] flex flex-col overflow-hidden shadow-2xl">
             {/* Sticky Modal Header */}
             <div className="p-5 border-b border-slate-900/60 flex justify-between items-start relative shrink-0">
               <div className="space-y-0.5 pr-8">
@@ -1238,7 +1198,7 @@ function App() {
       )}
 
       {/* Footer */}
-      <footer className="border-t border-yellow-500/10 bg-[#060608] py-10 mt-auto">
+      <footer className="border-t border-slate-300/10 bg-[#060608] py-10 mt-auto">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="flex items-center gap-2">
             <img src="/logo.png" alt="CipherBallot Logo" className="h-6 w-6 object-contain" />
@@ -1253,7 +1213,7 @@ function App() {
                 setActiveTab('docs');
                 window.scrollTo({ top: 0, behavior: 'smooth' });
               }}
-              className="hover:text-[#FFD208] transition duration-150"
+              className="hover:text-[#FFFFFF] transition duration-150"
             >
               Documents
             </button>
@@ -1261,7 +1221,7 @@ function App() {
               href="https://github.com/shuhaib90/cipherballot" 
               target="_blank" 
               rel="noopener noreferrer" 
-              className="hover:text-[#FFD208] transition duration-150 flex items-center gap-1"
+              className="hover:text-[#FFFFFF] transition duration-150 flex items-center gap-1"
             >
               <Github className="h-3.5 w-3.5" /> GitHub
             </a>
@@ -1269,7 +1229,7 @@ function App() {
               href="https://linkedin.com/in/shuhaib90" 
               target="_blank" 
               rel="noopener noreferrer" 
-              className="hover:text-[#FFD208] transition duration-150 flex items-center gap-1"
+              className="hover:text-[#FFFFFF] transition duration-150 flex items-center gap-1"
             >
               <Linkedin className="h-3.5 w-3.5" /> Founder's LinkedIn
             </a>
@@ -1277,7 +1237,7 @@ function App() {
               href="https://x.com/shuhaib90" 
               target="_blank" 
               rel="noopener noreferrer" 
-              className="hover:text-[#FFD208] transition duration-150 flex items-center gap-1"
+              className="hover:text-[#FFFFFF] transition duration-150 flex items-center gap-1"
             >
               <Twitter className="h-3.5 w-3.5" /> X
             </a>

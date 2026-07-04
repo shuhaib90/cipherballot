@@ -123,7 +123,7 @@ export function Documentation() {
               <p>
                 For rapid evaluation, you can import the following burner private key directly into MetaMask. It has been pre-registered as both a <strong>Voter</strong> and an <strong>Election Commissioner / Officer</strong>, providing instant access to vote, approve citizen requests, deploy new elections, and reveal encrypted results on Sepolia.
               </p>
-              <div className="bg-slate-950 text-yellow-300 p-4 rounded-xl text-xs font-mono select-all overflow-x-auto border border-slate-800 leading-normal text-center">
+              <div className="bg-slate-950 text-white p-4 rounded-xl text-xs font-mono select-all overflow-x-auto border border-slate-800 leading-normal text-center">
                 0xc17e050709c8c16336e212b3bbcf44ddb263f14517a66e4b70b86b88c27e2f6e
               </div>
             </section>
@@ -243,7 +243,7 @@ export function Documentation() {
                     <button
                       onClick={() => scrollToSection(item.id)}
                       className={`hover:text-slate-700 transition duration-150 ${
-                        activeSection === item.id ? 'text-amber-600 border-l-2 border-amber-500 pl-2 font-bold' : ''
+                        activeSection === item.id ? 'text-slate-500 border-l-2 border-slate-400 pl-2 font-bold' : ''
                       }`}
                     >
                       {item.label}

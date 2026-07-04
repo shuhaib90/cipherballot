@@ -160,12 +160,12 @@ export function ResultsDashboard({
                   key={idx}
                   className={`p-4 rounded-xl border relative overflow-hidden transition-all duration-200 ${
                     isWinner
-                      ? 'border-yellow-500/30 bg-yellow-500/5'
+                      ? 'border-slate-300/30 bg-slate-300/5'
                       : 'border-slate-800/60 bg-slate-950/20'
                   }`}
                 >
                   {isWinner && (
-                    <div className="absolute top-0 right-0 p-2 text-amber-400 animate-pulse">
+                    <div className="absolute top-0 right-0 p-2 text-slate-200 animate-pulse">
                       <Trophy className="h-5 w-5" />
                     </div>
                   )}
@@ -184,7 +184,7 @@ export function ResultsDashboard({
                         <h4 className="text-sm font-bold text-slate-200 flex items-center gap-2">
                           {candidate.name}
                           {isWinner && (
-                            <span className="text-[9px] font-extrabold text-amber-400 bg-amber-400/10 border border-amber-400/20 px-1.5 py-0.5 rounded uppercase">
+                            <span className="text-[9px] font-extrabold text-slate-200 bg-slate-200/10 border border-slate-200/20 px-1.5 py-0.5 rounded uppercase">
                               Winner
                             </span>
                           )}
@@ -201,7 +201,7 @@ export function ResultsDashboard({
                   <div className="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
                     <div
                       className={`h-full rounded-full transition-all duration-500 ${
-                        isWinner ? 'bg-yellow-500' : 'bg-slate-600'
+                        isWinner ? 'bg-slate-300' : 'bg-slate-600'
                       }`}
                       style={{ width: `${percentage}%` }}
                     ></div>
@@ -233,7 +233,7 @@ export function ResultsDashboard({
                     <p className="text-[11px] text-slate-400">{candidate.party}</p>
                   </div>
                 </div>
-                <div className="flex items-center gap-2 text-xs text-yellow-400 font-semibold bg-yellow-500/5 border border-yellow-500/10 px-3 py-1.5 rounded-lg">
+                <div className="flex items-center gap-2 text-xs text-slate-200 font-semibold bg-slate-300/5 border border-slate-300/10 px-3 py-1.5 rounded-lg">
                   <Lock className="h-3.5 w-3.5" />
                   <span>Confidential Tally</span>
                 </div>
@@ -246,10 +246,10 @@ export function ResultsDashboard({
       {/* Decrypt Controls (only for Closed status and not yet revealed) */}
       {status === 'Closed' && !resultsRevealed && (
         <div className="border-t border-slate-800/60 pt-6">
-          <div className="rounded-xl border border-yellow-500/20 bg-yellow-500/5 p-4 flex flex-col md:flex-row items-center justify-between gap-4">
+          <div className="rounded-xl border border-slate-300/20 bg-slate-300/5 p-4 flex flex-col md:flex-row items-center justify-between gap-4">
             <div className="text-center md:text-left">
               <h4 className="text-sm font-bold text-slate-200 flex items-center justify-center md:justify-start gap-1.5">
-                <Award className="h-4.5 w-4.5 text-yellow-400" />
+                <Award className="h-4.5 w-4.5 text-slate-200" />
                 Decryption Phase Activated
               </h4>
               <p className="text-[11px] text-slate-400 mt-1">
@@ -268,7 +268,7 @@ export function ResultsDashboard({
           </div>
 
           {revealStep && (
-            <div className="mt-3 p-3 rounded-lg bg-slate-950 border border-slate-800 text-[10px] font-mono text-yellow-300 leading-relaxed">
+            <div className="mt-3 p-3 rounded-lg bg-slate-950 border border-slate-800 text-[10px] font-mono text-white leading-relaxed">
               {revealStep}
             </div>
           )}

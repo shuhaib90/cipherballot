@@ -9,12 +9,12 @@
   --globe-stroke-2: rgba(255, 210, 8, 0.08);
   --globe-stroke-3: rgba(255, 210, 8, 0.25);
   --globe-stroke-4: rgba(255, 210, 8, 0.2);
-  --globe-node-glow: #FFD208;
+  --globe-node-glow: #FFFFFF;
 }
 
 @layer base {
   body {
-    @apply bg-[#000000] text-slate-100 antialiased font-sans selection:bg-yellow-500/30 overflow-x-hidden;
+    @apply bg-[#000000] text-slate-100 antialiased font-sans selection:bg-slate-300/30 overflow-x-hidden;
     background-image: 
       radial-gradient(circle at 50% -20%, rgba(255, 210, 8, 0.12) 0%, transparent 50%),
       radial-gradient(circle at 0% 100%, rgba(255, 210, 8, 0.04) 0%, transparent 40%),
@@ -29,30 +29,30 @@
 
 /* Zama Glassmorphism Panel */
 .glass-panel {
-  @apply bg-[#0d0d0d]/80 backdrop-blur-xl border border-yellow-500/10 rounded-2xl shadow-[0_8px_32px_0_rgba(255,210,8,0.02)] transition-all duration-300;
+  @apply bg-[#0d0d0d]/80 backdrop-blur-xl border border-slate-300/10 rounded-2xl shadow-[0_8px_32px_0_rgba(255,210,8,0.02)] transition-all duration-300;
 }
 
 .glass-panel:hover {
-  @apply border-yellow-500/15 shadow-[0_8px_32px_0_rgba(255,210,8,0.04)];
+  @apply border-slate-300/15 shadow-[0_8px_32px_0_rgba(255,210,8,0.04)];
 }
 
 /* Zama Yellow & Black Buttons */
 .btn-primary {
-  @apply px-6 py-2.5 bg-gradient-to-r from-[#FFD208] to-[#E5B800] hover:from-[#FFE042] hover:to-[#FFD208] text-black font-extrabold rounded-full transition-all duration-300 shadow-[0_4px_20px_rgba(255,210,8,0.2)] hover:shadow-[0_4px_25px_rgba(255,210,8,0.35)] hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100;
+  @apply px-6 py-2.5 bg-gradient-to-r from-[#FFFFFF] to-[#E2E8F0] hover:from-[#FFFFFF] hover:to-[#FFFFFF] text-black font-extrabold rounded-full transition-all duration-300 shadow-[0_4px_20px_rgba(255,210,8,0.2)] hover:shadow-[0_4px_25px_rgba(255,210,8,0.35)] hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100;
 }
 
 .btn-secondary {
-  @apply px-6 py-2.5 bg-[#141414]/60 hover:bg-[#1f1f1f]/80 text-[#FFD208] hover:text-yellow-300 font-bold rounded-full transition-all duration-300 border border-[#FFD208]/20 hover:border-[#FFD208]/40 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed;
+  @apply px-6 py-2.5 bg-[#141414]/60 hover:bg-[#1f1f1f]/80 text-[#FFFFFF] hover:text-white font-bold rounded-full transition-all duration-300 border border-[#FFFFFF]/20 hover:border-[#FFFFFF]/40 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed;
 }
 
 /* Glow Border Card */
 .glow-card {
-  @apply relative rounded-2xl bg-gradient-to-b from-[#141414] to-[#080808] border border-yellow-500/10 p-6 overflow-hidden transition-all duration-300;
+  @apply relative rounded-2xl bg-gradient-to-b from-[#141414] to-[#080808] border border-slate-300/10 p-6 overflow-hidden transition-all duration-300;
 }
 
 .glow-card::before {
   content: '';
-  @apply absolute top-0 left-0 w-full h-full bg-gradient-to-r from-yellow-500/0 via-yellow-500/5 to-yellow-500/0 opacity-0 transition-opacity duration-300 pointer-events-none;
+  @apply absolute top-0 left-0 w-full h-full bg-gradient-to-r from-slate-300/0 via-slate-300/5 to-slate-300/0 opacity-0 transition-opacity duration-300 pointer-events-none;
 }
 
 .glow-card:hover::before {
@@ -60,21 +60,21 @@
 }
 
 .glow-card:hover {
-  @apply border-yellow-500/20 transform -translate-y-1 shadow-[0_12px_40px_rgba(255,210,8,0.05)];
+  @apply border-slate-300/20 transform -translate-y-1 shadow-[0_12px_40px_rgba(255,210,8,0.05)];
 }
 
 /* Input Fields */
 .input-field {
-  @apply w-full px-4 py-3 bg-[#0d0d0d]/80 border border-yellow-900/30 rounded-xl text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-[#FFD208]/20 focus:border-[#FFD208]/50 transition duration-200;
+  @apply w-full px-4 py-3 bg-[#0d0d0d]/80 border border-slate-800/30 rounded-xl text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-[#FFFFFF]/20 focus:border-[#FFFFFF]/50 transition duration-200;
 }
 
 /* Gradient Text */
 .gradient-text {
-  @apply bg-gradient-to-r from-white via-slate-100 to-yellow-300 bg-clip-text text-transparent;
+  @apply bg-gradient-to-r from-white via-slate-100 to-white bg-clip-text text-transparent;
 }
 
 .gradient-text-purple {
-  @apply bg-gradient-to-r from-[#FFD208] via-yellow-300 to-amber-400 bg-clip-text text-transparent;
+  @apply bg-gradient-to-r from-[#FFFFFF] via-white to-slate-200 bg-clip-text text-transparent;
 }
 
 /* Custom Scrollbar */
@@ -88,7 +88,7 @@
 }
 
 ::-webkit-scrollbar-thumb {
-  @apply bg-yellow-950/20 rounded-full hover:bg-yellow-900/40;
+  @apply bg-slate-900/20 rounded-full hover:bg-slate-800/40;
 }
 
 /* Animations */
@@ -128,6 +128,15 @@
 
 .animate-code-scan {
   animation: code-scan 6s linear infinite;
+}
+
+@keyframes marquee {
+  0% { transform: translateX(0%); }
+  100% { transform: translateX(-100%); }
+}
+
+.animate-marquee {
+  animation: marquee 30s linear infinite;
 }
 
 /* Premium Light Mode Styles */
@@ -298,13 +307,13 @@ html.light .border-slate-800\/80 {
   border-color: #e2e8f0 !important;
 }
 
-html.light .border-yellow-500\/10 {
+html.light .border-slate-300\/10 {
   border-color: rgba(245, 158, 11, 0.15) !important;
 }
 
 html.light .text-yellow-450,
 html.light .text-yellow-455,
-html.light .text-yellow-400 {
+html.light .text-slate-200 {
   color: #b45309 !important;
 }
 
@@ -312,15 +321,15 @@ html.light .bg-gradient-to-b.from-\[\#141414\].to-\[\#080808\] {
   background-image: linear-gradient(to bottom, #ffffff, #f8fafc) !important;
 }
 
-html.light .bg-gradient-to-tr.from-yellow-500\/5.to-transparent {
+html.light .bg-gradient-to-tr.from-slate-300\/5.to-transparent {
   background-image: linear-gradient(to top right, rgba(245, 158, 11, 0.05), transparent) !important;
 }
 
-html.light .bg-yellow-500\/5 {
+html.light .bg-slate-300\/5 {
   background-color: rgba(245, 158, 11, 0.03) !important;
 }
 
-html.light .bg-yellow-500\/\[0\.01\] {
+html.light .bg-slate-300\/\[0\.01\] {
   background-color: rgba(245, 158, 11, 0.01) !important;
 }
 
@@ -328,7 +337,7 @@ html.light .bg-slate-50\/50 {
   background-color: rgba(241, 245, 249, 0.5) !important;
 }
 
-html.light .hover\:bg-yellow-950\/10:hover {
+html.light .hover\:bg-slate-900\/10:hover {
   background-color: rgba(245, 158, 11, 0.08) !important;
 }
 
@@ -348,19 +357,19 @@ html.light .bg-\[\#0b071a\]\/30 {
   background-color: rgba(241, 245, 249, 0.5) !important;
 }
 
-html.light .text-\[\#FFD208\] {
+html.light .text-\[\#FFFFFF\] {
   color: #b45309 !important;
 }
 
-html.light .bg-gradient-to-r.from-white.to-yellow-300 {
+html.light .bg-gradient-to-r.from-white.to-white {
   background-image: linear-gradient(to right, #0f172a, #b45309) !important;
 }
 
-html.light .bg-gradient-to-r.from-white.via-slate-100.to-yellow-300 {
+html.light .bg-gradient-to-r.from-white.via-slate-100.to-white {
   background-image: linear-gradient(to right, #0f172a, #334155, #b45309) !important;
 }
 
-html.light .bg-gradient-to-r.from-white.via-yellow-200.to-yellow-400 {
+html.light .bg-gradient-to-r.from-white.via-yellow-200.to-slate-200 {
   background-image: linear-gradient(to right, #0f172a, #b45309, #d97706) !important;
 }
 
@@ -493,13 +502,13 @@ html.light .border-slate-800\/80 {
   border-color: #e2e8f0 !important;
 }
 
-html.light .border-yellow-500\/10 {
+html.light .border-slate-300\/10 {
   border-color: rgba(245, 158, 11, 0.15) !important;
 }
 
 html.light .text-yellow-450,
 html.light .text-yellow-455,
-html.light .text-yellow-400 {
+html.light .text-slate-200 {
   color: #b45309 !important;
 }
 
@@ -507,15 +516,15 @@ html.light .bg-gradient-to-b.from-\[\#141414\].to-\[\#080808\] {
   background-image: linear-gradient(to bottom, #ffffff, #f8fafc) !important;
 }
 
-html.light .bg-gradient-to-tr.from-yellow-500\/5.to-transparent {
+html.light .bg-gradient-to-tr.from-slate-300\/5.to-transparent {
   background-image: linear-gradient(to top right, rgba(245, 158, 11, 0.05), transparent) !important;
 }
 
-html.light .bg-yellow-500\/5 {
+html.light .bg-slate-300\/5 {
   background-color: rgba(245, 158, 11, 0.03) !important;
 }
 
-html.light .bg-yellow-500\/\[0\.01\] {
+html.light .bg-slate-300\/\[0\.01\] {
   background-color: rgba(245, 158, 11, 0.01) !important;
 }
 
@@ -523,7 +532,7 @@ html.light .bg-slate-50\/50 {
   background-color: rgba(241, 245, 249, 0.5) !important;
 }
 
-html.light .hover\:bg-yellow-950\/10:hover {
+html.light .hover\:bg-slate-900\/10:hover {
   background-color: rgba(245, 158, 11, 0.08) !important;
 }
 
@@ -543,19 +552,19 @@ html.light .bg-\[\#0b071a\]\/30 {
   background-color: rgba(241, 245, 249, 0.5) !important;
 }
 
-html.light .text-\[\#FFD208\] {
+html.light .text-\[\#FFFFFF\] {
   color: #b45309 !important;
 }
 
-html.light .bg-gradient-to-r.from-white.to-yellow-300 {
+html.light .bg-gradient-to-r.from-white.to-white {
   background-image: linear-gradient(to right, #0f172a, #b45309) !important;
 }
 
-html.light .bg-gradient-to-r.from-white.via-slate-100.to-yellow-300 {
+html.light .bg-gradient-to-r.from-white.via-slate-100.to-white {
   background-image: linear-gradient(to right, #0f172a, #334155, #b45309) !important;
 }
 
-html.light .bg-gradient-to-r.from-white.via-yellow-200.to-yellow-400 {
+html.light .bg-gradient-to-r.from-white.via-yellow-200.to-slate-200 {
   background-image: linear-gradient(to right, #0f172a, #b45309, #d97706) !important;
 }
 
@@ -591,7 +600,7 @@ html.light .border-indigo-900\/30 {
   border-color: rgba(99, 102, 241, 0.2) !important;
 }
 
-html.light .bg-amber-950\/5 {
+html.light .bg-slate-900\/5 {
   background-color: rgba(245, 158, 11, 0.05) !important;
 }
 

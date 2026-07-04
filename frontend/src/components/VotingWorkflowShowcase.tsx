@@ -2,13 +2,15 @@ import { useEffect, useRef, useState } from 'react';
 // @ts-ignore
 import { animate, stagger } from 'animejs';
 
+import { Link, Shield, CheckCircle, Ticket, Vote, Fingerprint, Lock, ShieldCheck, Zap, Activity } from 'lucide-react';
+
 interface WorkflowStep {
   id: number;
   title: string;
   subtitle: string;
   description: string;
   code: { lang: string; lines: { text: string; color: string }[] };
-  icon: string;
+  icon: React.ElementType;
   accentColor: string;
 }
 
@@ -26,13 +28,13 @@ const WORKFLOW_STEPS: WorkflowStep[] = [
         { text: 'const signer = await provider.getSigner();', color: '#e2e8f0' },
         { text: '', color: '' },
         { text: '// 2. Load FHEVM WASM Encryption Module', color: '#6b7280' },
-        { text: 'const fhevmInstance = await createFhevmInstance({', color: '#FFD208' },
+        { text: 'const fhevmInstance = await createFhevmInstance({', color: '#FFFFFF' },
         { text: '  networkUrl: "https://devnet.zama.ai",', color: '#e2e8f0' },
         { text: '  gatewayUrl: "https://gateway.zama.ai"', color: '#e2e8f0' },
-        { text: '});', color: '#FFD208' },
+        { text: '});', color: '#FFFFFF' },
       ]
     },
-    icon: '🔗',
+    icon: Link,
     accentColor: '#3b82f6'
   },
   {
@@ -45,18 +47,18 @@ const WORKFLOW_STEPS: WorkflowStep[] = [
       lines: [
         { text: '// Encrypt identity document client-side', color: '#6b7280' },
         { text: 'function submitIdentityRequest(', color: '#c084fc' },
-        { text: '  einput encryptedDoc,', color: '#FFD208' },
-        { text: '  bytes calldata inputProof,', color: '#FFD208' },
+        { text: '  einput encryptedDoc,', color: '#FFFFFF' },
+        { text: '  bytes calldata inputProof,', color: '#FFFFFF' },
         { text: '  bytes32 commitmentHash', color: '#e2e8f0' },
         { text: ') external {', color: '#c084fc' },
-        { text: '  euint256 sealedDoc = TFHE.asEuint256(', color: '#FFD208' },
+        { text: '  euint256 sealedDoc = TFHE.asEuint256(', color: '#FFFFFF' },
         { text: '    encryptedDoc, inputProof', color: '#e2e8f0' },
-        { text: '  );', color: '#FFD208' },
+        { text: '  );', color: '#FFFFFF' },
         { text: '  // Store encrypted — never decrypted on-chain', color: '#6b7280' },
         { text: '}', color: '#c084fc' },
       ]
     },
-    icon: '🔐',
+    icon: Shield,
     accentColor: '#8b5cf6'
   },
   {
@@ -72,16 +74,16 @@ const WORKFLOW_STEPS: WorkflowStep[] = [
         { text: '  .reencrypt(encryptedHandle, keypair);', color: '#e2e8f0' },
         { text: '', color: '' },
         { text: '// Sign approval message off-chain', color: '#6b7280' },
-        { text: 'const msgHash = solidityPackedKeccak256(', color: '#FFD208' },
+        { text: 'const msgHash = solidityPackedKeccak256(', color: '#FFFFFF' },
         { text: '  ["address", "uint256", "bytes32"],', color: '#e2e8f0' },
         { text: '  [citizen, electionId, commitHash]', color: '#e2e8f0' },
-        { text: ');', color: '#FFD208' },
+        { text: ');', color: '#FFFFFF' },
         { text: 'const signature = await signer.signMessage(', color: '#34d399' },
         { text: '  getBytes(msgHash)', color: '#e2e8f0' },
         { text: ');', color: '#34d399' },
       ]
     },
-    icon: '✅',
+    icon: CheckCircle,
     accentColor: '#10b981'
   },
   {
@@ -94,19 +96,19 @@ const WORKFLOW_STEPS: WorkflowStep[] = [
       lines: [
         { text: '// Mint soulbound voter eligibility pass', color: '#6b7280' },
         { text: 'function mintVoterPass(', color: '#c084fc' },
-        { text: '  einput encIdentity,', color: '#FFD208' },
+        { text: '  einput encIdentity,', color: '#FFFFFF' },
         { text: '  bytes calldata identityProof,', color: '#e2e8f0' },
         { text: '  bytes calldata commissionSig', color: '#34d399' },
         { text: ') external {', color: '#c084fc' },
         { text: '  require(verifySignature(commissionSig));', color: '#f87171' },
         { text: '  uint256 tokenId = ++_tokenIdCounter;', color: '#e2e8f0' },
-        { text: '  _safeMint(msg.sender, tokenId);', color: '#FFD208' },
+        { text: '  _safeMint(msg.sender, tokenId);', color: '#FFFFFF' },
         { text: '  // Renders dynamic on-chain SVG card', color: '#6b7280' },
         { text: '}', color: '#c084fc' },
       ]
     },
-    icon: '🎫',
-    accentColor: '#FFD208'
+    icon: Ticket,
+    accentColor: '#FFFFFF'
   },
   {
     id: 5,
@@ -118,20 +120,20 @@ const WORKFLOW_STEPS: WorkflowStep[] = [
       lines: [
         { text: '// Cast encrypted vote (never visible)', color: '#6b7280' },
         { text: 'function castVote(', color: '#c084fc' },
-        { text: '  einput encryptedChoice,', color: '#FFD208' },
+        { text: '  einput encryptedChoice,', color: '#FFFFFF' },
         { text: '  bytes calldata proof', color: '#e2e8f0' },
         { text: ') external {', color: '#c084fc' },
-        { text: '  euint8 choice = TFHE.asEuint8(', color: '#FFD208' },
+        { text: '  euint8 choice = TFHE.asEuint8(', color: '#FFFFFF' },
         { text: '    encryptedChoice, proof);', color: '#e2e8f0' },
         { text: '  for (uint8 i = 0; i < count; i++) {', color: '#c084fc' },
-        { text: '    ebool match = TFHE.eq(choice, i);', color: '#FFD208' },
-        { text: '    tallies[i] = TFHE.add(tallies[i],', color: '#FFD208' },
+        { text: '    ebool match = TFHE.eq(choice, i);', color: '#FFFFFF' },
+        { text: '    tallies[i] = TFHE.add(tallies[i],', color: '#FFFFFF' },
         { text: '      TFHE.select(match, 1, 0));', color: '#e2e8f0' },
         { text: '  }', color: '#c084fc' },
         { text: '}', color: '#c084fc' },
       ]
     },
-    icon: '🗳️',
+    icon: Vote,
     accentColor: '#f472b6'
   }
 ];
@@ -140,7 +142,6 @@ export function VotingWorkflowShowcase() {
   const [activeStep, setActiveStep] = useState(0);
   const [typedChars, setTypedChars] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);
-  const particlesRef = useRef<HTMLDivElement>(null);
   const stepRefs = useRef<(HTMLDivElement | null)[]>([]);
   const codeBlockRef = useRef<HTMLDivElement>(null);
   const timelineRef = useRef<HTMLDivElement>(null);
@@ -192,39 +193,6 @@ export function VotingWorkflowShowcase() {
       });
     }
 
-    // Spawn floating particles
-    if (particlesRef.current) {
-      const container = particlesRef.current;
-      // Clear old particles
-      container.innerHTML = '';
-
-      const step = WORKFLOW_STEPS[activeStep];
-      for (let i = 0; i < 12; i++) {
-        const particle = document.createElement('div');
-        particle.className = 'absolute rounded-full pointer-events-none';
-        particle.style.width = `${Math.random() * 4 + 2}px`;
-        particle.style.height = particle.style.width;
-        particle.style.backgroundColor = step.accentColor;
-        particle.style.opacity = '0';
-        particle.style.left = `${Math.random() * 100}%`;
-        particle.style.top = `${Math.random() * 100}%`;
-        container.appendChild(particle);
-
-        animate(particle, {
-          translateY: [0, -(Math.random() * 80 + 40)],
-          translateX: [0, (Math.random() - 0.5) * 60],
-          opacity: [0.8, 0],
-          scale: [1, 0.3],
-          duration: Math.random() * 2000 + 1500,
-          delay: Math.random() * 800,
-          easing: 'easeOutExpo',
-          onComplete: () => {
-            if (particle.parentNode) particle.parentNode.removeChild(particle);
-          }
-        });
-      }
-    }
-
     // Animate timeline progress dots
     if (timelineRef.current) {
       const dots = timelineRef.current.querySelectorAll('.timeline-dot');
@@ -271,7 +239,7 @@ export function VotingWorkflowShowcase() {
 
       {/* Section Header */}
       <div className="text-center max-w-lg mx-auto space-y-2 animate-on-scroll">
-        <span className="text-[10px] font-bold text-[#FFD208] uppercase tracking-widest font-mono">
+        <span className="text-[10px] font-bold text-[#FFFFFF] uppercase tracking-widest font-mono">
           Animated Workflow
         </span>
         <h2 className="text-3xl font-black text-white">
@@ -294,17 +262,17 @@ export function VotingWorkflowShowcase() {
               <div
                 className={`timeline-dot h-8 w-8 sm:h-10 sm:w-10 rounded-full flex items-center justify-center text-sm sm:text-base font-black transition-all duration-300 border-2 ${
                   idx === activeStep
-                    ? 'border-[#FFD208] bg-[#FFD208]/15 text-[#FFD208] shadow-[0_0_20px_rgba(255,210,8,0.3)]'
+                    ? 'border-[#FFFFFF] bg-[#FFFFFF]/15 text-[#FFFFFF] shadow-[0_0_20px_rgba(255,210,8,0.3)]'
                     : idx < activeStep
                     ? 'border-emerald-500/40 bg-emerald-500/10 text-emerald-400'
                     : 'border-slate-800 bg-slate-950 text-slate-600'
                 }`}
               >
-                {idx < activeStep ? '✓' : step.icon}
+                {idx < activeStep ? <CheckCircle className="h-4 w-4 sm:h-5 sm:w-5" /> : <step.icon className="h-4 w-4 sm:h-5 sm:w-5" />}
               </div>
               {/* Label */}
               <span className={`text-[8px] sm:text-[9px] font-bold uppercase tracking-wider transition-colors duration-200 whitespace-nowrap ${
-                idx === activeStep ? 'text-[#FFD208]' : 'text-slate-600'
+                idx === activeStep ? 'text-[#FFFFFF]' : 'text-slate-600'
               }`}>
                 {step.subtitle}
               </span>
@@ -328,9 +296,6 @@ export function VotingWorkflowShowcase() {
           ref={el => { stepRefs.current[activeStep] = el; }}
           className="relative bg-[#030305] border border-slate-950 rounded-2xl p-8 sm:p-10 space-y-6 text-left overflow-hidden"
         >
-          {/* Particle container */}
-          <div ref={particlesRef} className="absolute inset-0 overflow-hidden pointer-events-none" />
-
           {/* Glow background */}
           <div
             className="absolute top-0 right-0 w-64 h-64 rounded-full blur-[100px] opacity-15 pointer-events-none transition-colors duration-500"
@@ -346,7 +311,7 @@ export function VotingWorkflowShowcase() {
                 backgroundColor: `${currentStep.accentColor}10`,
               }}
             >
-              {currentStep.icon}
+              <currentStep.icon className="h-6 w-6" style={{ color: currentStep.accentColor }} />
             </div>
             <div>
               <span className="text-[9px] font-bold uppercase tracking-widest font-mono" style={{ color: currentStep.accentColor }}>
@@ -363,58 +328,78 @@ export function VotingWorkflowShowcase() {
             {currentStep.description}
           </p>
 
-          {/* Animated Data Flow Diagram */}
-          <div className="relative pt-4">
-            <svg viewBox="0 0 400 60" className="w-full h-[60px]">
-              {/* Flow Line */}
-              <line x1="20" y1="30" x2="380" y2="30" stroke="rgba(255,255,255,0.06)" strokeWidth="2" />
-              
-              {/* Animated pulse traveling along the line */}
-              <circle r="4" fill={currentStep.accentColor} opacity="0.8">
-                <animateMotion dur="2s" repeatCount="indefinite" path="M 20 30 L 380 30" />
-              </circle>
-              <circle r="8" fill={currentStep.accentColor} opacity="0.2">
-                <animateMotion dur="2s" repeatCount="indefinite" path="M 20 30 L 380 30" />
-              </circle>
+          {/* Wallet Popup Simulator */}
+          <div className="relative pt-6 flex justify-center">
+            <div className="bg-[#111318] border border-slate-800 rounded-xl w-[260px] sm:w-[280px] shadow-2xl overflow-hidden flex flex-col font-sans">
+              {/* Wallet Header */}
+              <div className="bg-[#1a1d24] px-4 py-2 border-b border-slate-800 flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div className="h-4 w-4 rounded-full bg-gradient-to-tr from-blue-500 to-purple-500 flex items-center justify-center">
+                    <Shield className="h-2 w-2 text-white" />
+                  </div>
+                  <span className="text-[10px] font-bold text-slate-300">CipherWallet</span>
+                </div>
+                <div className="flex items-center gap-1.5 bg-slate-800/50 px-2 py-0.5 rounded-full">
+                  <div className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                  <span className="text-[8px] text-slate-400 font-bold uppercase">Sepolia</span>
+                </div>
+              </div>
 
-              {/* Node: Wallet */}
-              <g>
-                <rect x="5" y="15" width="30" height="30" rx="6" fill={activeStep >= 0 ? `${currentStep.accentColor}20` : 'rgba(255,255,255,0.03)'} stroke={activeStep >= 0 ? currentStep.accentColor : 'rgba(255,255,255,0.1)'} strokeWidth="1.5" />
-                <text x="20" y="34" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">W</text>
-              </g>
+              {/* Wallet Content */}
+              <div className="p-4 flex flex-col items-center text-center space-y-4">
+                
+                {/* Dynamic icon based on step */}
+                <div className="relative flex items-center justify-center">
+                  <div className="absolute inset-0 rounded-full animate-ping opacity-20" style={{ backgroundColor: currentStep.accentColor }} />
+                  <div className="h-12 w-12 rounded-full flex items-center justify-center shadow-inner border border-white/5" style={{ backgroundColor: `${currentStep.accentColor}15` }}>
+                    {activeStep === 0 && <Link className="h-6 w-6" style={{ color: currentStep.accentColor }} />}
+                    {activeStep === 1 && <Fingerprint className="h-6 w-6" style={{ color: currentStep.accentColor }} />}
+                    {activeStep === 2 && <ShieldCheck className="h-6 w-6" style={{ color: currentStep.accentColor }} />}
+                    {activeStep === 3 && <Zap className="h-6 w-6" style={{ color: currentStep.accentColor }} />}
+                    {activeStep === 4 && <Lock className="h-6 w-6" style={{ color: currentStep.accentColor }} />}
+                  </div>
+                </div>
 
-              {/* Node: FHE */}
-              <g>
-                <rect x="95" y="15" width="30" height="30" rx="6" fill={activeStep >= 1 ? `${currentStep.accentColor}20` : 'rgba(255,255,255,0.03)'} stroke={activeStep >= 1 ? currentStep.accentColor : 'rgba(255,255,255,0.1)'} strokeWidth="1.5" />
-                <text x="110" y="34" textAnchor="middle" fill="white" fontSize="9" fontWeight="bold">FHE</text>
-              </g>
+                <div className="space-y-1">
+                  <h4 className="text-sm font-black text-slate-200">
+                    {activeStep === 0 && "Connection Request"}
+                    {activeStep === 1 && "Sign FHE Payload"}
+                    {activeStep === 2 && "Guardian Access"}
+                    {activeStep === 3 && "Mint Transaction"}
+                    {activeStep === 4 && "Encrypt Ballot"}
+                  </h4>
+                  <p className="text-[9px] text-slate-500 px-2">
+                    {activeStep === 0 && "cipherballot.com wants to connect to your wallet."}
+                    {activeStep === 1 && "Encrypting identity details locally before transmission."}
+                    {activeStep === 2 && "Verifying threshold signature from KMS Guardians."}
+                    {activeStep === 3 && "Executing smart contract to mint Soulbound Pass."}
+                    {activeStep === 4 && "Zero-knowledge proofs and homomorphic encryption."}
+                  </p>
+                </div>
 
-              {/* Node: Guardian */}
-              <g>
-                <rect x="185" y="15" width="30" height="30" rx="6" fill={activeStep >= 2 ? `${currentStep.accentColor}20` : 'rgba(255,255,255,0.03)'} stroke={activeStep >= 2 ? currentStep.accentColor : 'rgba(255,255,255,0.1)'} strokeWidth="1.5" />
-                <text x="200" y="34" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">G</text>
-              </g>
+                <div className="bg-[#0b0c10] w-full rounded p-2 text-left font-mono text-[8px] text-slate-500 overflow-hidden h-12 flex items-center border border-slate-900/50">
+                  <span className="animate-pulse">
+                    {activeStep === 0 && "0x7a3...c912 -> Auth"}
+                    {activeStep === 1 && "0xEncryptedDocData..."}
+                    {activeStep === 2 && "Pending Guardian Sig..."}
+                    {activeStep === 3 && "Gas Est: 0.002 ETH"}
+                    {activeStep === 4 && "TFHE.add(tallies[i], 1)"}
+                  </span>
+                </div>
 
-              {/* Node: NFT */}
-              <g>
-                <rect x="275" y="15" width="30" height="30" rx="6" fill={activeStep >= 3 ? `${currentStep.accentColor}20` : 'rgba(255,255,255,0.03)'} stroke={activeStep >= 3 ? currentStep.accentColor : 'rgba(255,255,255,0.1)'} strokeWidth="1.5" />
-                <text x="290" y="34" textAnchor="middle" fill="white" fontSize="9" fontWeight="bold">NFT</text>
-              </g>
-
-              {/* Node: Vote */}
-              <g>
-                <rect x="365" y="15" width="30" height="30" rx="6" fill={activeStep >= 4 ? `${currentStep.accentColor}20` : 'rgba(255,255,255,0.03)'} stroke={activeStep >= 4 ? currentStep.accentColor : 'rgba(255,255,255,0.1)'} strokeWidth="1.5" />
-                <text x="380" y="34" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">V</text>
-              </g>
-            </svg>
-
-            {/* Node labels */}
-            <div className="flex justify-between px-1 text-[7px] font-bold text-slate-600 uppercase tracking-wider font-mono">
-              <span>Wallet</span>
-              <span>Encrypt</span>
-              <span>Approve</span>
-              <span>Mint</span>
-              <span>Vote</span>
+                <div className="w-full pt-2">
+                  <button 
+                    className="w-full py-2 rounded text-[10px] font-bold text-black transition-colors"
+                    style={{ backgroundColor: currentStep.accentColor }}
+                  >
+                    {activeStep === 0 && "Connect"}
+                    {activeStep === 1 && "Sign & Encrypt"}
+                    {activeStep === 2 && "Approve Request"}
+                    {activeStep === 3 && "Confirm Mint"}
+                    {activeStep === 4 && "Cast Shielded Vote"}
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -440,7 +425,7 @@ export function VotingWorkflowShowcase() {
           <div className="bg-slate-950 border-b border-slate-900 px-5 py-3.5 flex items-center justify-between shrink-0">
             <div className="flex items-center gap-2">
               <div className="h-2.5 w-2.5 rounded-full bg-rose-500" />
-              <div className="h-2.5 w-2.5 rounded-full bg-amber-500" />
+              <div className="h-2.5 w-2.5 rounded-full bg-slate-400" />
               <div className="h-2.5 w-2.5 rounded-full bg-emerald-500" />
               <span className="text-[10px] text-slate-500 ml-2 font-mono font-bold">{currentStep.code.lang}</span>
             </div>
@@ -471,7 +456,7 @@ export function VotingWorkflowShowcase() {
                       </span>
                       <span style={{ color: line.color }}>{visibleText}</span>
                       {remaining <= 0 && remaining > -line.text.length && (
-                        <span className="text-[#FFD208] animate-pulse font-bold ml-0.5">|</span>
+                        <span className="text-[#FFFFFF] animate-pulse font-bold ml-0.5">|</span>
                       )}
                     </div>
                   );
@@ -501,13 +486,15 @@ export function VotingWorkflowShowcase() {
             onClick={() => setActiveStep(idx)}
             className={`p-3 sm:p-4 rounded-xl border text-center transition-all duration-300 group ${
               idx === activeStep
-                ? 'border-[#FFD208]/40 bg-[#FFD208]/5 shadow-[0_0_15px_rgba(255,210,8,0.1)]'
+                ? 'border-[#FFFFFF]/40 bg-[#FFFFFF]/5 shadow-[0_0_15px_rgba(255,210,8,0.1)]'
                 : 'border-slate-900 bg-[#030305] hover:border-slate-800'
             }`}
           >
-            <div className="text-lg sm:text-xl mb-1">{step.icon}</div>
+            <div className="flex justify-center mb-1">
+              <step.icon className="h-5 w-5 sm:h-6 sm:w-6" />
+            </div>
             <div className={`text-[7px] sm:text-[8px] font-bold uppercase tracking-wider transition-colors ${
-              idx === activeStep ? 'text-[#FFD208]' : 'text-slate-600 group-hover:text-slate-400'
+              idx === activeStep ? 'text-[#FFFFFF]' : 'text-slate-600 group-hover:text-slate-400'
             }`}>
               {step.subtitle}
             </div>

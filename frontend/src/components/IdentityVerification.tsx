@@ -445,7 +445,7 @@ export function IdentityVerification({
     const electionIdStr = String(activeElectionId);
     
     return (
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 320" className="w-full max-w-[480px] rounded-3xl shadow-2xl border border-yellow-500/20">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 320" className="w-full max-w-[480px] rounded-3xl shadow-2xl border border-slate-300/20">
         <defs>
           <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
             <stop offset="0%" stopColor="#0f0926" />
@@ -510,7 +510,7 @@ export function IdentityVerification({
             <img 
               src={nftImage} 
               alt="Voter Pass NFT" 
-              className="w-full max-w-[480px] aspect-[500/320] object-contain rounded-3xl shadow-2xl shadow-[#FFD208]/5 border border-yellow-500/15" 
+              className="w-full max-w-[480px] aspect-[500/320] object-contain rounded-3xl shadow-2xl shadow-[#FFFFFF]/5 border border-slate-300/15" 
             />
           ) : (
             getSvgPreview()
@@ -520,9 +520,9 @@ export function IdentityVerification({
         {/* Actions Console */}
         <div className="w-full space-y-4">
           {!isNftMinted ? (
-            <div className="glass-panel p-5 w-full border-[#FFD208]/20 bg-black/45 space-y-4 text-left">
+            <div className="glass-panel p-5 w-full border-[#FFFFFF]/20 bg-black/45 space-y-4 text-left">
               <div className="flex items-start gap-3">
-                <div className="h-9 w-9 rounded-xl bg-yellow-500/10 border border-yellow-500/20 flex items-center justify-center shrink-0 text-[#FFD208]">
+                <div className="h-9 w-9 rounded-xl bg-slate-300/10 border border-slate-300/20 flex items-center justify-center shrink-0 text-[#FFFFFF]">
                   <Lock className="h-4.5 w-4.5" />
                 </div>
                 <div className="space-y-1">
@@ -542,7 +542,7 @@ export function IdentityVerification({
               <button
                 onClick={handleMintVoterPass}
                 disabled={isNftMinting}
-                className="w-full bg-[#FFD208] text-black font-extrabold text-xs uppercase tracking-widest py-3.5 rounded-xl hover:bg-yellow-450 transition flex items-center justify-center gap-2"
+                className="w-full bg-[#FFFFFF] text-black font-extrabold text-xs uppercase tracking-widest py-3.5 rounded-xl hover:bg-yellow-450 transition flex items-center justify-center gap-2"
               >
                 {isNftMinting ? (
                   <>
@@ -649,10 +649,10 @@ export function IdentityVerification({
   if (citizenStatus.isPending) {
     return (
       <div className="max-w-xl mx-auto py-12 px-4 sm:px-6">
-        <div className="glass-panel p-8 text-center space-y-6 border-amber-500/20 bg-amber-950/5">
+        <div className="glass-panel p-8 text-center space-y-6 border-slate-400/20 bg-slate-900/5">
           <div className="flex justify-center">
-            <div className="h-16 w-16 rounded-full bg-amber-500/10 flex items-center justify-center border border-amber-500/30 animate-pulse-slow">
-              <Clock className="h-10 w-10 text-amber-400" />
+            <div className="h-16 w-16 rounded-full bg-slate-400/10 flex items-center justify-center border border-slate-400/30 animate-pulse-slow">
+              <Clock className="h-10 w-10 text-slate-200" />
             </div>
           </div>
           <div className="space-y-2">
@@ -669,7 +669,7 @@ export function IdentityVerification({
               <span className="text-slate-500 font-semibold uppercase tracking-wider text-[10px]">
                 Request Status:
               </span>
-              <span className="px-2 py-0.5 text-[9px] bg-amber-500/10 text-amber-400 border border-amber-500/20 rounded font-bold uppercase tracking-wider">
+              <span className="px-2 py-0.5 text-[9px] bg-slate-400/10 text-slate-200 border border-slate-400/20 rounded font-bold uppercase tracking-wider">
                 ● Under Review
               </span>
             </div>
