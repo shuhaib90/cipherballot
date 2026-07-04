@@ -826,11 +826,11 @@ function App() {
         </main>
       ) : (
         /* Zama-style Premium Landing Page Hub */
-        <main className="flex-1 flex flex-col justify-center py-16 px-8 lg:px-16 max-w-none w-full space-y-24 bg-black relative overflow-hidden">
+        <main className="flex-1 flex flex-col w-full bg-black relative overflow-hidden">
 
           {/* Hero Section */}
           <div 
-            className="pt-24 pb-32 relative overflow-hidden z-10 rounded-2xl p-8 sm:p-12 border-b border-slate-955 flex flex-col items-center justify-center text-center shadow-2xl"
+            className="w-full min-h-[80vh] pt-16 relative overflow-hidden z-10 flex flex-col items-center justify-center text-center px-8"
             style={{ 
               backgroundImage: 'url(/hero-bg.jpg)', 
               backgroundSize: 'cover', 
@@ -885,8 +885,11 @@ function App() {
             </div>
           </div>
 
-          {/* Live Network Stats Dashboard */}
-          <div className="grid gap-6 grid-cols-2 lg:grid-cols-4 relative z-10 border-b border-slate-955 pb-16">
+          {/* Main Landing Content Container */}
+          <div className="flex-1 flex flex-col justify-center py-16 px-8 lg:px-16 max-w-none w-full space-y-24">
+            
+            {/* Live Network Stats Dashboard */}
+            <div className="grid gap-6 grid-cols-2 lg:grid-cols-4 relative z-10 border-b border-slate-955 pb-16">
             {[
               { label: "Network Status", val: "Connected (Sepolia)" },
               { label: "FHE Engine", val: "Zama fhEVM v2.0" },
