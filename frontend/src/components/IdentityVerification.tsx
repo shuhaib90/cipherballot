@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { ShieldCheck, CheckCircle2, Clock, XCircle, Copy, Check, FileText, ChevronRight, Lock, RefreshCw, Camera, User } from 'lucide-react';
+import { ShieldCheck, CheckCircle2, Clock, XCircle, Copy, Check, FileText, ChevronRight, Lock, RefreshCw } from 'lucide-react';
 import { ethers } from 'ethers';
 import type { CitizenStatus, DocumentType, IdentityFormData } from '../utils/types';
 import { DOCUMENT_TYPE_LABELS } from '../utils/types';
 import { FHE_IDENTITY_REGISTRY_ADDRESS, VOTER_PASS_ADDRESS } from '../utils/contract';
 import FHEIdentityRegistryABI from '../abis/FHEIdentityRegistry.json';
+import VoterEligibilityPassABI from '../abis/VoterEligibilityPass.json';
 
 
 
@@ -96,13 +97,12 @@ export function IdentityVerification({
   // FHE Decryption of own submitted document
   const [decryptedDoc, setDecryptedDoc] = useState<{ docType: string; content: string } | null>(null);
   const [isDecryptingDoc, setIsDecryptingDoc] = useState<boolean>(false);
-  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
 
   // Voter Eligibility Pass NFT States
   const [isNftMinted, setIsNftMinted] = useState<boolean>(false);
   const [isNftMinting, setIsNftMinting] = useState<boolean>(false);
   const [nftTokenId, setNftTokenId] = useState<number | null>(null);
-  const [nftMetadata, setNftMetadata] = useState<any | null>(null);
+  const [nftImage, setNftImage] = useState<string | null>(null);
   const [nftError, setNftError] = useState<string>('');
 
   const activeElectionId = selectedElection ? Number(selectedElection.electionId) : 1;
@@ -117,8 +117,21 @@ export function IdentityVerification({
           const tokenId = await getVoterPassTokenId(address, activeElectionId);
           setNftTokenId(tokenId);
           if (tokenId > 0) {
-            const meta = await getVoterPassMetadata(tokenId);
-            setNftMetadata(meta);
+            
+            // Fetch tokenURI image
+            try {
+              const { readProvider: sharedProvider } = await import('../hooks/useContract');
+              const passContract = new ethers.Contract(VOTER_PASS_ADDRESS, VoterEligibilityPassABI.abi, sharedProvider);
+              const uri = await passContract.tokenURI(tokenId);
+              if (uri.startsWith('data:application/json;base64,')) {
+                const base64Json = uri.substring('data:application/json;base64,'.length);
+                const decoded = atob(base64Json);
+                const obj = JSON.parse(decoded);
+                if (obj.image) setNftImage(obj.image);
+              }
+            } catch (e) {
+              console.error("Failed to load on-chain SVG image:", e);
+            }
           }
         } else {
           // Fallback to check global pass (electionId = 0)
@@ -127,13 +140,26 @@ export function IdentityVerification({
             const globalTokenId = await getVoterPassTokenId(address, 0);
             setNftTokenId(globalTokenId);
             if (globalTokenId > 0) {
-              const meta = await getVoterPassMetadata(globalTokenId);
-              setNftMetadata(meta);
               setIsNftMinted(true); // Treat global pass as minted
+              
+              // Fetch tokenURI image
+              try {
+                const { readProvider: sharedProvider } = await import('../hooks/useContract');
+                const passContract = new ethers.Contract(VOTER_PASS_ADDRESS, VoterEligibilityPassABI.abi, sharedProvider);
+                const uri = await passContract.tokenURI(globalTokenId);
+                if (uri.startsWith('data:application/json;base64,')) {
+                  const base64Json = uri.substring('data:application/json;base64,'.length);
+                  const decoded = atob(base64Json);
+                  const obj = JSON.parse(decoded);
+                  if (obj.image) setNftImage(obj.image);
+                }
+              } catch (e) {
+                console.error("Failed to load on-chain SVG image:", e);
+              }
             }
           } else {
             setNftTokenId(null);
-            setNftMetadata(null);
+            setNftImage(null);
           }
         }
       } catch (err) {
@@ -246,16 +272,7 @@ export function IdentityVerification({
     }
   };
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setAvatarUrl(reader.result as string);
-      };
-      reader.readAsDataURL(file);
-    }
-  };
+
 
   const handleDecryptSelfDoc = async (requestId: number) => {
     if (!fhevmInstance) {
@@ -423,10 +440,54 @@ export function IdentityVerification({
     }
   };
 
-  // 1. STATE 1: Already Registered
+  const getSvgPreview = () => {
+    const tokenIdStr = nftTokenId ? `#${String(nftTokenId).padStart(4, '0')}` : '#PENDING';
+    const electionIdStr = String(activeElectionId);
+    
+    return (
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 320" className="w-full max-w-[480px] rounded-3xl shadow-2xl border border-yellow-500/20">
+        <defs>
+          <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#0f0926" />
+            <stop offset="100%" stopColor="#241147" />
+          </linearGradient>
+          <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#FFE57F" />
+            <stop offset="100%" stopColor="#FFC107" />
+          </linearGradient>
+        </defs>
+        <rect x="0" y="0" width="500" height="320" rx="20" fill="url(#bgGrad)" stroke="url(#goldGrad)" strokeWidth="2" />
+        <circle cx="450" cy="50" r="100" fill="none" stroke="rgba(224, 64, 251, 0.15)" strokeWidth="1.5" />
+        <circle cx="450" cy="50" r="70" fill="none" stroke="rgba(255, 193, 7, 0.1)" strokeWidth="1.5" />
+        <text x="35" y="55" fill="#FFE57F" fontFamily="system-ui, -apple-system, sans-serif" fontSize="20" fontWeight="800" letterSpacing="1">CIPHERBALLOT</text>
+        <text x="35" y="75" fill="rgba(255, 255, 255, 0.5)" fontFamily="system-ui, -apple-system, sans-serif" fontSize="9" fontWeight="600" letterSpacing="1.5">FHE SOULBOUND VEPass</text>
+        <rect x="35" y="110" width="45" height="35" rx="6" fill="#ffe57f" opacity="0.85" />
+        <path d="M 35 127.5 L 80 127.5 M 57.5 110 L 57.5 145" stroke="#0f0926" strokeWidth="1" />
+        <rect x="380" y="35" width="85" height="24" rx="12" fill="rgba(0, 230, 118, 0.15)" stroke="#00E676" strokeWidth="1" />
+        <text x="422.5" y="49" fill="#00E676" fontFamily="system-ui, -apple-system, sans-serif" fontSize="9" fontWeight="bold" textAnchor="middle">@ VERIFIED</text>
+        <text x="35" y="195" fill="rgba(255, 255, 255, 0.5)" fontFamily="system-ui, -apple-system, sans-serif" fontSize="8" fontWeight="700" letterSpacing="0.5">STATUS</text>
+        <text x="35" y="212" fill="#FFFFFF" fontFamily="system-ui, -apple-system, sans-serif" fontSize="12" fontWeight="800">
+          {isNftMinted ? 'ACTIVE PASS' : 'APPROVED'}
+        </text>
+        <text x="180" y="195" fill="rgba(255, 255, 255, 0.5)" fontFamily="system-ui, -apple-system, sans-serif" fontSize="8" fontWeight="700" letterSpacing="0.5">ELECTION ID</text>
+        <text x="180" y="212" fill="#FFFFFF" fontFamily="system-ui, -apple-system, sans-serif" fontSize="12" fontWeight="800">
+          {electionIdStr}
+        </text>
+        <text x="300" y="195" fill="rgba(255, 255, 255, 0.5)" fontFamily="system-ui, -apple-system, sans-serif" fontSize="8" fontWeight="700" letterSpacing="0.5">PASS ID</text>
+        <text x="300" y="212" fill="#FFE57F" fontFamily="system-ui, -apple-system, sans-serif" fontSize="12" fontWeight="800">
+          {tokenIdStr}
+        </text>
+        <line x1="35" y1="250" x2="465" y2="250" stroke="rgba(255, 255, 255, 0.1)" strokeWidth="1" />
+        <text x="35" y="280" fill="rgba(255, 255, 255, 0.4)" fontFamily="system-ui, -apple-system, sans-serif" fontSize="8" fontWeight="600">BOUND TO REGISTERED WALLET</text>
+        <text x="465" y="280" fill="#E040FB" fontFamily="system-ui, -apple-system, sans-serif" fontSize="9" fontWeight="bold" textAnchor="end" letterSpacing="1">ZAMA FHEVM</text>
+      </svg>
+    );
+  };
+
+  // 1. STATE 1: Already Registered (Whitelisted / Approved)
   if (citizenStatus.isRegistered || citizenStatus.isVerified) {
     return (
-      <div className="max-w-4xl mx-auto py-8 px-4 sm:px-6 space-y-8">
+      <div className="max-w-xl mx-auto py-8 px-4 sm:px-6 space-y-8 flex flex-col items-center">
         
         {/* Success Header */}
         <div className="text-center space-y-3">
@@ -434,264 +495,87 @@ export function IdentityVerification({
             <CheckCircle2 className="h-6 w-6" />
           </div>
           <h2 className="text-3xl font-extrabold tracking-tight text-slate-100">
-            Your FHE Pass is Whitelisted
+            {isNftMinted ? 'VEPass Soulbound NFT Minted' : 'Your FHE Pass is Whitelisted'}
           </h2>
-          <p className="text-sm text-slate-400 max-w-lg mx-auto">
-            Congratulations! Your cryptographic voter passport is verified and whitelisted. You can customize, preview, and download your physical/digital FHE Pass below.
+          <p className="text-sm text-slate-400 max-w-sm mx-auto">
+            {isNftMinted 
+              ? 'Your cryptographic voter pass is successfully minted and bound on-chain to your wallet address.' 
+              : 'Your cryptographic identity request is approved. Mint your on-chain Soulbound pass card below to authorize voting.'}
           </p>
         </div>
 
-        {/* Customization and Preview Panel */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-          
-          {/* Left Column: Avatar Customization */}
-          <div className="lg:col-span-4 space-y-5">
-            <div className="glass-panel p-6 space-y-4">
-              <h3 className="text-xs font-bold text-yellow-400 uppercase tracking-widest block border-b border-slate-900 pb-2">
-                Customize Avatar
-              </h3>
-              
-              <p className="text-[11px] text-slate-400 leading-relaxed">
-                Upload a custom photo or avatar to render directly onto your cryptographic FHE identity card.
-              </p>
+        {/* Dynamic NFT Card Image Display */}
+        <div className="w-full flex justify-center">
+          {isNftMinted && nftImage ? (
+            <img 
+              src={nftImage} 
+              alt="Voter Pass NFT" 
+              className="w-full max-w-[480px] aspect-[500/320] object-contain rounded-3xl shadow-2xl shadow-[#FFD208]/5 border border-yellow-500/15" 
+            />
+          ) : (
+            getSvgPreview()
+          )}
+        </div>
 
-              {/* Photo Upload Box */}
-              <div className="space-y-4 pt-2">
-                <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-slate-800 hover:border-yellow-500/30 rounded-xl cursor-pointer bg-[#070414]/30 hover:bg-[#070414]/60 transition duration-200">
-                  <div className="flex flex-col items-center justify-center pt-5 pb-6 space-y-2 text-center px-4">
-                    <Camera className="h-6 w-6 text-slate-400" />
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-slate-350">
-                      {avatarUrl ? 'Change Avatar' : 'Upload Avatar'}
-                    </span>
-                  </div>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleImageUpload}
-                    className="hidden"
-                  />
-                </label>
-
-                {avatarUrl && (
-                  <button
-                    onClick={() => setAvatarUrl(null)}
-                    className="w-full py-2 bg-rose-500/10 border border-rose-500/20 rounded-xl text-[10px] font-bold uppercase text-rose-400 hover:bg-rose-500/15 transition"
-                  >
-                    Remove Photo
-                  </button>
-                )}
-              </div>
-            </div>
-
-            {/* Go Vote Button */}
-            <button
-              onClick={() => setActiveTab('elections')}
-              className="w-full btn-primary py-3.5 flex items-center justify-center gap-2 text-sm"
-            >
-              Enter Shielded Polls
-              <ChevronRight className="h-4 w-4" />
-            </button>
-          </div>
-
-          {/* Right Column: Physical Ticket Preview & Download */}
-          <div className="lg:col-span-8 space-y-6 text-center flex flex-col items-center">
-            
-            {/* Ticket Preview Card Container */}
-            <div className={`w-full max-w-[480px] rounded-3xl p-6 font-sans shadow-2xl relative select-none border transition-all duration-300 ${
-              isNftMinted 
-                ? 'bg-gradient-to-br from-[#0c0d16] via-[#13162b] to-[#080912] border-[#FFD208] text-white shadow-[#FFD208]/10' 
-                : 'bg-gradient-to-br from-slate-200 via-slate-50 to-slate-300 border-slate-400 text-slate-900 shadow-slate-950/20'
-            }`}>
-              
-              {/* Star decoration effect behind ticket notches */}
-              <div className={`absolute inset-0 opacity-10 pointer-events-none bg-[radial-gradient(#000000_1.5px,transparent_1.5px)] [background-size:20px_20px] rounded-3xl ${isNftMinted ? 'invert' : ''}`}></div>
-
-              {/* Notch Cutouts (Colored to blend with container backdrop) */}
-              <div className="absolute top-[130px] -left-3.5 w-7 h-7 rounded-full bg-[#030305] dark:bg-[#030305] light:bg-slate-50 border-r border-slate-400"></div>
-              <div className="absolute top-[130px] -right-3.5 w-7 h-7 rounded-full bg-[#030305] dark:bg-[#030305] light:bg-slate-50 border-l border-slate-400"></div>
-
-              {/* Notch Cutouts Bottom */}
-              <div className="absolute bottom-[108px] -left-3.5 w-7 h-7 rounded-full bg-[#030305] dark:bg-[#030305] light:bg-slate-50 border-r border-slate-400"></div>
-              <div className="absolute bottom-[108px] -right-3.5 w-7 h-7 rounded-full bg-[#030305] dark:bg-[#030305] light:bg-slate-50 border-l border-slate-400"></div>
-
-              {/* Inner Layout */}
-              <div className="flex flex-col space-y-5 relative">
-                
-                {/* Header Section */}
-                <div className={`w-full border-b pb-3 text-center ${isNftMinted ? 'border-slate-800' : 'border-slate-350'}`}>
-                  <h4 className={`font-mono text-xl font-black tracking-[4px] uppercase flex items-center justify-center gap-1 ${isNftMinted ? 'text-white' : 'text-slate-900'}`}>
-                    CipherBallot <span className="text-[10px] font-bold align-super">®</span>
-                  </h4>
-                  <p className={`text-[8px] font-black uppercase tracking-widest mt-0.5 ${isNftMinted ? 'text-slate-450' : 'text-slate-500'}`}>
-                    FHE SHIELDED VOTING PROTOCOL
+        {/* Actions Console */}
+        <div className="w-full space-y-4">
+          {!isNftMinted ? (
+            <div className="glass-panel p-5 w-full border-[#FFD208]/20 bg-black/45 space-y-4 text-left">
+              <div className="flex items-start gap-3">
+                <div className="h-9 w-9 rounded-xl bg-yellow-500/10 border border-yellow-500/20 flex items-center justify-center shrink-0 text-[#FFD208]">
+                  <Lock className="h-4.5 w-4.5" />
+                </div>
+                <div className="space-y-1">
+                  <h4 className="text-xs font-bold text-slate-200 uppercase tracking-wider">Mint Eligibility Pass NFT</h4>
+                  <p className="text-[10px] text-slate-450 leading-relaxed font-medium">
+                    Lock in your voting eligibility. Minting encrypts your national identifier and document class on-chain as a soulbound token, binding voting rights strictly to your wallet address.
                   </p>
                 </div>
-
-                {/* Body section: Avatar (Left) + Details (Right) */}
-                <div className="flex flex-col sm:flex-row gap-5 items-center sm:items-start text-left">
-                  
-                  {/* Left Column: Vertical Image Container */}
-                  <div className="flex items-center gap-2.5">
-                    {/* Vertical barcode text */}
-                    <div className={`font-mono text-[7.5px] font-bold uppercase tracking-wider select-none [writing-mode:vertical-lr] rotate-180 h-[140px] text-center ${isNftMinted ? 'text-slate-400' : 'text-slate-500'}`}>
-                      CB-PASS-{citizenStatus.requestId || '02'}-FHE-SEALED
-                    </div>
-                    
-                    {/* Avatar Display */}
-                    <div className={`h-[140px] w-[120px] bg-[#090d16] rounded-xl flex items-center justify-center shrink-0 shadow-inner overflow-hidden relative border ${isNftMinted ? 'border-slate-800' : 'border-slate-300'}`}>
-                      {avatarUrl ? (
-                        <img src={avatarUrl} alt="Avatar" className="h-full w-full object-cover" />
-                      ) : (
-                        <div className="flex flex-col items-center gap-1.5 text-center text-slate-500 p-2">
-                          <User className="h-7 w-7 text-slate-450" />
-                          <span className="text-[7.5px] font-bold uppercase tracking-wider leading-none">Photo<br/>Placeholder</span>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Right Column: Metadata */}
-                  <div className="flex-1 grid grid-cols-2 gap-x-4 gap-y-3.5 text-xs font-mono">
-                    <div className="col-span-2 space-y-0.5">
-                      <span className={`text-[8px] font-bold block uppercase ${isNftMinted ? 'text-slate-400' : 'text-slate-500'}`}>[name]</span>
-                      <span className={`text-[11px] font-bold block truncate ${isNftMinted ? 'text-white' : 'text-slate-900'}`}>CIPHERBALLOT CITIZEN</span>
-                    </div>
-
-                    <div className="space-y-0.5">
-                      <span className={`text-[8px] font-bold block uppercase ${isNftMinted ? 'text-slate-400' : 'text-slate-500'}`}>[status]</span>
-                      <span className={`text-[9.5px] font-black block flex items-center gap-1 ${isNftMinted ? 'text-[#FFD208]' : 'text-emerald-600'}`}>
-                        <span className={`h-1.5 w-1.5 rounded-full animate-pulse ${isNftMinted ? 'bg-[#FFD208]' : 'bg-emerald-500'}`}></span>
-                        {isNftMinted ? 'ACTIVE NFT' : 'FHE VERIFIED'}
-                      </span>
-                    </div>
-
-                    <div className="space-y-0.5">
-                      <span className={`text-[8px] font-bold block uppercase ${isNftMinted ? 'text-slate-400' : 'text-slate-500'}`}>[pass id]</span>
-                      <span className={`text-[10px] font-bold block ${isNftMinted ? 'text-white' : 'text-slate-900'}`}>
-                        #{nftTokenId ? String(nftTokenId).padStart(4, '0') : String(citizenStatus.requestId || 2).padStart(4, '0')}
-                      </span>
-                    </div>
-
-                    <div className="col-span-2 space-y-0.5">
-                      <span className={`text-[8px] font-bold block uppercase ${isNftMinted ? 'text-slate-400' : 'text-slate-500'}`}>[wallet address]</span>
-                      <span className={`text-[9.5px] font-bold block truncate select-all ${isNftMinted ? 'text-white' : 'text-slate-900'}`}>
-                        {address.substring(0, 16)}...{address.substring(address.length - 12)}
-                      </span>
-                    </div>
-
-                    <div className="space-y-0.5">
-                      <span className={`text-[8px] font-bold block uppercase ${isNftMinted ? 'text-slate-400' : 'text-slate-500'}`}>[authority]</span>
-                      <span className={`text-[9.5px] font-bold block truncate ${isNftMinted ? 'text-slate-350' : 'text-slate-700'}`}>GUARDIANS</span>
-                    </div>
-
-                    <div className="space-y-0.5">
-                      <span className={`text-[8px] font-bold block uppercase ${isNftMinted ? 'text-slate-400' : 'text-slate-500'}`}>{isNftMinted ? '[minted]' : '[encryption]'}</span>
-                      <span className={`text-[9.5px] font-bold block truncate ${isNftMinted ? 'text-white' : 'text-slate-700'}`}>
-                        {isNftMinted 
-                          ? (nftMetadata ? new Date(nftMetadata.mintedAt * 1000).toLocaleDateString() : '08/2026')
-                          : 'ZAMA FHEVM'}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Dashed Separator */}
-                <div className={`border-t border-dashed pt-1 ${isNftMinted ? 'border-slate-800' : 'border-slate-350'}`}></div>
-
-                {/* Bottom Row: Barcode & Digital Signature */}
-                <div className="flex justify-between items-end text-left pt-1">
-                  
-                  {/* Barcode and Block height details */}
-                  <div className="space-y-2">
-                    {/* SVG Barcode */}
-                    <svg className={`w-[120px] h-[28px] fill-current ${isNftMinted ? 'text-[#FFD208]' : 'text-slate-900'}`}>
-                      {[1, 2, 4, 1, 3, 2, 1, 4, 2, 3, 1, 2, 4, 1, 3, 2, 1, 4, 2, 1, 3, 2].map((w, idx) => {
-                        const xOffset = [1, 2, 4, 1, 3, 2, 1, 4, 2, 3, 1, 2, 4, 1, 3, 2, 1, 4, 2, 1, 3, 2]
-                          .slice(0, idx)
-                          .reduce((sum, val) => sum + val + 2, 0);
-                        return (
-                          <rect key={idx} x={xOffset} y={0} width={w} height={28} />
-                        );
-                      })}
-                    </svg>
-                    <span className={`text-[7.5px] font-bold font-mono block tracking-wider uppercase ${isNftMinted ? 'text-slate-400' : 'text-slate-500'}`}>
-                      BLOCKCHAIN ID: {citizenStatus.requestId || '0002'}
-                    </span>
-                  </div>
-
-                  {/* Digital Signature */}
-                  <div className="space-y-1 text-right">
-                    <span className={`text-[8px] font-bold block uppercase ${isNftMinted ? 'text-slate-400' : 'text-slate-500'}`}>[signature]</span>
-                    <span className={`font-mono text-xs italic font-bold tracking-tight block ${isNftMinted ? 'text-white' : 'text-slate-900'}`}>
-                      ~ Network Guardians ~
-                    </span>
-                    <div className={`flex gap-3 text-[8.5px] font-mono ${isNftMinted ? 'text-slate-450' : 'text-slate-500'}`}>
-                      <div>
-                        <span>[issued] </span>
-                        <span className={`font-bold ${isNftMinted ? 'text-slate-350' : 'text-slate-700'}`}>08/2026</span>
-                      </div>
-                      <div>
-                        <span>[expires] </span>
-                        <span className={`font-bold ${isNftMinted ? 'text-slate-350' : 'text-slate-700'}`}>08/2126</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
               </div>
-            </div>
-
-            {/* MINT NFT CONSOLE / STATUS CHECK */}
-            {!isNftMinted ? (
-              <div className="glass-panel p-5 max-w-[480px] w-full border-[#FFD208]/20 bg-black/45 space-y-4 text-left">
-                <div className="flex items-start gap-3">
-                  <div className="h-9 w-9 rounded-xl bg-yellow-500/10 border border-yellow-500/20 flex items-center justify-center shrink-0 text-[#FFD208]">
-                    <Lock className="h-4.5 w-4.5" />
-                  </div>
-                  <div className="space-y-1">
-                    <h4 className="text-xs font-bold text-slate-200 uppercase tracking-wider">Mint Eligibility Pass NFT</h4>
-                    <p className="text-[10px] text-slate-450 leading-relaxed font-medium">
-                      Lock in your voting eligibility. Minting encrypts your national identifier and document class on-chain as a soulbound token, binding voting rights strictly to your wallet address.
-                    </p>
-                  </div>
+              
+              {nftError && (
+                <div className="p-3 bg-rose-500/10 border border-rose-500/20 text-rose-400 rounded-xl text-[10px] font-semibold font-mono leading-relaxed">
+                  {nftError}
                 </div>
-                
-                {nftError && (
-                  <div className="p-3 bg-rose-500/10 border border-rose-500/20 text-rose-400 rounded-xl text-[10px] font-semibold font-mono leading-relaxed">
-                    {nftError}
-                  </div>
+              )}
+
+              <button
+                onClick={handleMintVoterPass}
+                disabled={isNftMinting}
+                className="w-full bg-[#FFD208] text-black font-extrabold text-xs uppercase tracking-widest py-3.5 rounded-xl hover:bg-yellow-450 transition flex items-center justify-center gap-2"
+              >
+                {isNftMinting ? (
+                  <>
+                    <RefreshCw className="h-3.5 w-3.5 animate-spin" />
+                    MINTING NFT PASS...
+                  </>
+                ) : (
+                  <>
+                    <ShieldCheck className="h-3.5 w-3.5" />
+                    MINT VEPass NFT
+                  </>
                 )}
-
-                <button
-                  onClick={handleMintVoterPass}
-                  disabled={isNftMinting}
-                  className="w-full bg-[#FFD208] text-black font-extrabold text-xs uppercase tracking-widest py-3.5 rounded-xl hover:bg-yellow-450 transition flex items-center justify-center gap-2"
-                >
-                  {isNftMinting ? (
-                    <>
-                      <RefreshCw className="h-3.5 w-3.5 animate-spin" />
-                      MINTING NFT PASS...
-                    </>
-                  ) : (
-                    <>
-                      <ShieldCheck className="h-3.5 w-3.5" />
-                      MINT VEPass NFT
-                    </>
-                  )}
-                </button>
-              </div>
-            ) : (
-              <div className="glass-panel p-4 max-w-[480px] w-full border-emerald-500/20 bg-emerald-500/[0.01] flex items-center gap-3 text-left">
+              </button>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              <div className="glass-panel p-4 w-full border-emerald-500/20 bg-emerald-500/[0.01] flex items-center gap-3 text-left">
                 <Check className="h-5 w-5 text-emerald-400 shrink-0" />
                 <div className="space-y-0.5">
                   <h4 className="text-xs font-bold text-emerald-400 uppercase">VEPass Soulbound NFT Minted</h4>
                   <p className="text-[10px] text-slate-400 font-medium">Your pass has been securely bound to your address. You are fully authorized to vote in active shielded polls.</p>
                 </div>
               </div>
-            )}
 
-          </div>
-
+              <button
+                onClick={() => setActiveTab('elections')}
+                className="w-full btn-primary py-4 flex items-center justify-center gap-2 text-xs uppercase tracking-widest font-extrabold"
+              >
+                Enter Shielded Polls
+                <ChevronRight className="h-4.5 w-4.5" />
+              </button>
+            </div>
+          )}
         </div>
 
       </div>
