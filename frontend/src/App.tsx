@@ -3,7 +3,6 @@ import { ethers } from 'ethers';
 import { Header } from './components/Header';
 import { VoterStatus } from './components/VoterStatus';
 import { VotingBooth } from './components/VotingBooth';
-import { ResultsDashboard } from './components/ResultsDashboard';
 import { CommissionPanel } from './components/CommissionPanel';
 import { IdentityVerification } from './components/IdentityVerification';
 import { HowItWorks } from './components/HowItWorks';
@@ -806,13 +805,8 @@ function App() {
                       isFheReady={!!fhevmInstance}
                       onCastVote={handleVoteCast}
                       loading={contractLoading}
-                    />
-
-                    <ResultsDashboard
-                      election={selectedElection}
                       onRevealResults={handleReveal}
                       onDecryptAndFinalize={handleDecryptFinalize}
-                      loading={contractLoading}
                       error={contractError}
                     />
                   </>
