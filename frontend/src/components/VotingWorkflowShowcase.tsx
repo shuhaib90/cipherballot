@@ -35,7 +35,7 @@ const WORKFLOW_STEPS: WorkflowStep[] = [
       ]
     },
     icon: Link,
-    accentColor: '#3b82f6'
+    accentColor: '#cbd5e1'
   },
   {
     id: 2,
@@ -46,20 +46,20 @@ const WORKFLOW_STEPS: WorkflowStep[] = [
       lang: 'FHEIdentityRegistry.sol',
       lines: [
         { text: '// Encrypt identity document client-side', color: '#6b7280' },
-        { text: 'function submitIdentityRequest(', color: '#c084fc' },
+        { text: 'function submitIdentityRequest(', color: '#94a3b8' },
         { text: '  einput encryptedDoc,', color: '#FFFFFF' },
         { text: '  bytes calldata inputProof,', color: '#FFFFFF' },
         { text: '  bytes32 commitmentHash', color: '#e2e8f0' },
-        { text: ') external {', color: '#c084fc' },
+        { text: ') external {', color: '#94a3b8' },
         { text: '  euint256 sealedDoc = TFHE.asEuint256(', color: '#FFFFFF' },
         { text: '    encryptedDoc, inputProof', color: '#e2e8f0' },
         { text: '  );', color: '#FFFFFF' },
         { text: '  // Store encrypted — never decrypted on-chain', color: '#6b7280' },
-        { text: '}', color: '#c084fc' },
+        { text: '}', color: '#94a3b8' },
       ]
     },
     icon: Shield,
-    accentColor: '#8b5cf6'
+    accentColor: '#e2e8f0'
   },
   {
     id: 3,
@@ -78,13 +78,13 @@ const WORKFLOW_STEPS: WorkflowStep[] = [
         { text: '  ["address", "uint256", "bytes32"],', color: '#e2e8f0' },
         { text: '  [citizen, electionId, commitHash]', color: '#e2e8f0' },
         { text: ');', color: '#FFFFFF' },
-        { text: 'const signature = await signer.signMessage(', color: '#34d399' },
+        { text: 'const signature = await signer.signMessage(', color: '#cbd5e1' },
         { text: '  getBytes(msgHash)', color: '#e2e8f0' },
-        { text: ');', color: '#34d399' },
+        { text: ');', color: '#cbd5e1' },
       ]
     },
     icon: CheckCircle,
-    accentColor: '#10b981'
+    accentColor: '#94a3b8'
   },
   {
     id: 4,
@@ -95,20 +95,20 @@ const WORKFLOW_STEPS: WorkflowStep[] = [
       lang: 'VoterEligibilityPass.sol',
       lines: [
         { text: '// Mint soulbound voter eligibility pass', color: '#6b7280' },
-        { text: 'function mintVoterPass(', color: '#c084fc' },
+        { text: 'function mintVoterPass(', color: '#94a3b8' },
         { text: '  einput encIdentity,', color: '#FFFFFF' },
         { text: '  bytes calldata identityProof,', color: '#e2e8f0' },
-        { text: '  bytes calldata commissionSig', color: '#34d399' },
-        { text: ') external {', color: '#c084fc' },
-        { text: '  require(verifySignature(commissionSig));', color: '#f87171' },
+        { text: '  bytes calldata commissionSig', color: '#cbd5e1' },
+        { text: ') external {', color: '#94a3b8' },
+        { text: '  require(verifySignature(commissionSig));', color: '#cbd5e1' },
         { text: '  uint256 tokenId = ++_tokenIdCounter;', color: '#e2e8f0' },
         { text: '  _safeMint(msg.sender, tokenId);', color: '#FFFFFF' },
         { text: '  // Renders dynamic on-chain SVG card', color: '#6b7280' },
-        { text: '}', color: '#c084fc' },
+        { text: '}', color: '#94a3b8' },
       ]
     },
     icon: Ticket,
-    accentColor: '#FFFFFF'
+    accentColor: '#ffffff'
   },
   {
     id: 5,
@@ -119,22 +119,22 @@ const WORKFLOW_STEPS: WorkflowStep[] = [
       lang: 'Election.sol',
       lines: [
         { text: '// Cast encrypted vote (never visible)', color: '#6b7280' },
-        { text: 'function castVote(', color: '#c084fc' },
+        { text: 'function castVote(', color: '#94a3b8' },
         { text: '  einput encryptedChoice,', color: '#FFFFFF' },
         { text: '  bytes calldata proof', color: '#e2e8f0' },
-        { text: ') external {', color: '#c084fc' },
+        { text: ') external {', color: '#94a3b8' },
         { text: '  euint8 choice = TFHE.asEuint8(', color: '#FFFFFF' },
         { text: '    encryptedChoice, proof);', color: '#e2e8f0' },
-        { text: '  for (uint8 i = 0; i < count; i++) {', color: '#c084fc' },
+        { text: '  for (uint8 i = 0; i < count; i++) {', color: '#94a3b8' },
         { text: '    ebool match = TFHE.eq(choice, i);', color: '#FFFFFF' },
         { text: '    tallies[i] = TFHE.add(tallies[i],', color: '#FFFFFF' },
         { text: '      TFHE.select(match, 1, 0));', color: '#e2e8f0' },
-        { text: '  }', color: '#c084fc' },
-        { text: '}', color: '#c084fc' },
+        { text: '  }', color: '#94a3b8' },
+        { text: '}', color: '#94a3b8' },
       ]
     },
     icon: Vote,
-    accentColor: '#f472b6'
+    accentColor: '#cbd5e1'
   }
 ];
 
@@ -256,15 +256,15 @@ export function VotingWorkflowShowcase() {
           <div key={step.id} className="flex items-center">
             <button
               onClick={() => setActiveStep(idx)}
-              className={`relative flex flex-col items-center gap-2 group transition-all duration-300 px-2 sm:px-4`}
+              className="relative flex flex-col items-center gap-2 group transition-all duration-300 px-2 sm:px-4"
             >
               {/* Dot */}
               <div
                 className={`timeline-dot h-8 w-8 sm:h-10 sm:w-10 rounded-full flex items-center justify-center text-sm sm:text-base font-black transition-all duration-300 border-2 ${
                   idx === activeStep
-                    ? 'border-[#FFFFFF] bg-[#FFFFFF]/15 text-[#FFFFFF] shadow-[0_0_20px_rgba(255,210,8,0.3)]'
+                    ? 'border-[#FFFFFF] bg-[#FFFFFF]/15 text-[#FFFFFF] shadow-[0_0_20px_rgba(255,255,255,0.2)]'
                     : idx < activeStep
-                    ? 'border-emerald-500/40 bg-emerald-500/10 text-emerald-400'
+                    ? 'border-slate-500/40 bg-slate-500/10 text-slate-300'
                     : 'border-slate-800 bg-slate-950 text-slate-600'
                 }`}
               >
@@ -277,11 +277,11 @@ export function VotingWorkflowShowcase() {
                 {step.subtitle}
               </span>
             </button>
-
+ 
             {/* Connector Line */}
             {idx < WORKFLOW_STEPS.length - 1 && (
               <div className={`h-[2px] w-4 sm:w-8 lg:w-12 transition-colors duration-500 ${
-                idx < activeStep ? 'bg-emerald-500/40' : 'bg-slate-800'
+                idx < activeStep ? 'bg-slate-500/40' : 'bg-slate-800'
               }`} />
             )}
           </div>
