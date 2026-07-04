@@ -975,36 +975,9 @@ function App() {
             <div className="relative flex h-96 w-full items-center justify-center bg-[#030305] border border-slate-950 rounded-2xl overflow-hidden shadow-2xl p-6">
               <div className="absolute inset-0 bg-gradient-to-tr from-yellow-500/5 to-transparent opacity-50 pointer-events-none" />
               
-              <svg viewBox="0 0 400 300" className="w-full h-full text-slate-400 font-mono text-[10px]">
-                {/* Layer 3: Client Shield */}
-                <g>
-                  <rect x="50" y="40" width="300" height="50" rx="6" fill="rgba(255, 210, 8, 0.03)" stroke="rgba(255, 210, 8, 0.3)" strokeWidth="1.5" />
-                  <text x="200" y="70" textAnchor="middle" fill="#f8fafc" className="font-bold">LAYER 03 // CLIENT SHIELD (WASM)</text>
-                  <circle cx="75" cy="65" r="4" fill="#FFD208" className="animate-pulse" />
-                </g>
-
-                {/* Connection Line 1 */}
-                <line x1="200" y1="90" x2="200" y2="130" stroke="rgba(255, 210, 8, 0.3)" strokeWidth="1.5" strokeDasharray="4,4" />
-
-                {/* Layer 2: FHEVM Mempool */}
-                <g>
-                  <rect x="50" y="130" width="300" height="50" rx="6" fill="rgba(255, 210, 8, 0.03)" stroke="rgba(255, 210, 8, 0.3)" strokeWidth="1.5" />
-                  <text x="200" y="160" textAnchor="middle" fill="#f8fafc" className="font-bold">LAYER 02 // ON-CHAIN TFHE TALLYING</text>
-                  <circle cx="75" cy="155" r="4" fill="#FFD208" className="animate-pulse" />
-                </g>
-
-                {/* Connection Line 2 */}
-                <line x1="200" y1="180" x2="200" y2="220" stroke="rgba(255, 210, 8, 0.3)" strokeWidth="1.5" strokeDasharray="4,4" />
-
-                {/* Layer 1: KMS Threshold Decryption */}
-                <g>
-                  <rect x="50" y="220" width="300" height="50" rx="6" fill="rgba(255, 210, 8, 0.03)" stroke="rgba(255, 210, 8, 0.3)" strokeWidth="1.5" />
-                  <text x="200" y="250" textAnchor="middle" fill="#f8fafc" className="font-bold">LAYER 01 // THRESHOLD KMS DECRYPTION</text>
-                  <circle cx="75" cy="245" r="4" fill="#FFD208" className="animate-pulse" />
-                </g>
-              </svg>
+              <img src="/architecture-stack.png" alt="Decentralized Confidential Infrastructure Layers" className="w-full h-full object-contain relative z-10" />
               
-              <div className="absolute bottom-4 left-4 font-mono text-[9px] text-slate-550 uppercase tracking-widest">
+              <div className="absolute bottom-4 left-4 font-mono text-[9px] text-slate-550 uppercase tracking-widest z-20">
                 // Cryptographic Stack layers
               </div>
             </div>
