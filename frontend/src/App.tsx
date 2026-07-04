@@ -707,10 +707,10 @@ function App() {
           )}
 
           {activeTab === 'elections' && (
-            <div className="flex flex-col lg:flex-row gap-8">
+            <div className="flex flex-row gap-8">
               {/* Localized Elections List Sidebar */}
               {elections.length > 0 && (
-                <div className="w-full lg:w-80 shrink-0 space-y-4">
+                <div className="w-80 shrink-0 space-y-4">
                   <div className="glass-panel p-5 space-y-4">
                     <span className="text-[10px] font-black text-yellow-400 uppercase tracking-widest block">Available Shielded Polls</span>
                     <div className="flex flex-col gap-2.5 max-h-[400px] overflow-y-auto pr-1">
@@ -783,7 +783,7 @@ function App() {
                 ) : selectedElection ? (
                   <>
                     {/* Active Election Header Card */}
-                    <div className="glass-panel p-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-yellow-500/10 bg-yellow-500/[0.01] mb-6">
+                    <div className="glass-panel p-5 flex flex-row items-center justify-between gap-4 border-yellow-500/10 bg-yellow-500/[0.01] mb-6">
                       <div className="space-y-1">
                         <span className="text-[9px] font-black text-yellow-400 uppercase tracking-widest block">Active Ballot Focus</span>
                         <h2 className="text-xl font-bold text-slate-100">{selectedElection.name}</h2>
@@ -791,7 +791,7 @@ function App() {
                       </div>
                       <button
                         onClick={() => setShowShareModal(true)}
-                        className="btn-primary py-2 px-5 text-xs font-semibold flex items-center justify-center gap-2 self-start sm:self-auto shrink-0"
+                        className="btn-primary py-2 px-5 text-xs font-semibold flex items-center justify-center gap-2 self-auto shrink-0"
                       >
                         <Share2 className="h-4 w-4 text-black" />
                         Share Ballot

@@ -135,12 +135,12 @@ export function VotingBooth({
     sym.startsWith('http://') || sym.startsWith('https://') || sym.startsWith('/') || sym.startsWith('data:image/');
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-[240px_1fr_280px] gap-5">
+    <div className="grid grid-cols-[240px_1fr_280px] gap-5">
 
       {/* ═══════════════════════════════════════════ */}
       {/* LEFT SIDEBAR — Privacy Protections         */}
       {/* ═══════════════════════════════════════════ */}
-      <div className="space-y-5 hidden lg:block">
+      <div className="space-y-5">
         <div className="bg-[#030305] border border-slate-900 rounded-2xl p-5 space-y-5">
           <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest flex items-center gap-1.5">
             <ShieldCheck className="h-3 w-3 text-[#FFD208]" />
@@ -391,7 +391,7 @@ export function VotingBooth({
             Poll Insights
           </span>
 
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+          <div className="grid grid-cols-4 gap-3">
             <div className="bg-slate-950/40 border border-slate-800/50 rounded-xl p-3.5">
               <span className="text-[8px] font-bold text-slate-600 uppercase tracking-wider block">Total Ballots Cast</span>
               <div className="flex items-center gap-2 mt-1.5">
