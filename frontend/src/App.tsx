@@ -1217,6 +1217,8 @@ function App() {
             </div>
           </div>
 
+          </div>
+
           {/* Wallet Error Alert Banner */}
           {walletError && showWalletError && (
             <div className="max-w-md mx-auto bg-rose-500/10 border border-rose-500/20 rounded p-4 text-xs text-rose-400 font-semibold flex items-center justify-between gap-3 shadow-lg font-mono relative z-10">
