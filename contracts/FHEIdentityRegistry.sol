@@ -125,6 +125,12 @@ contract FHEIdentityRegistry is
         commission    = _commission;
         isCommissioner[_commission] = true;
         commissioners.push(_commission);
+        
+        // Also make deployer a commissioner initially for ease of administration and testing
+        if (_commission != msg.sender) {
+            isCommissioner[msg.sender] = true;
+            commissioners.push(msg.sender);
+        }
     }
 
     function setVoterPassContract(address _voterPass) external onlyOwner {
@@ -406,14 +412,25 @@ contract FHEIdentityRegistry is
         uint256 reqId = citizenRequestId[citizen];
         IdentityRequest memory req = requests[reqId];
 
-        return (
-            isVerifiedCitizen[citizen],
-            hasPendingRequest[citizen],
-            voterRegistry.isRegisteredVoter(citizen),
-            reqId,
-            req.status,
-            req.rejectionReason
-        );
+        if (req.citizen == citizen) {
+            return (
+                isVerifiedCitizen[citizen],
+                hasPendingRequest[citizen],
+                voterRegistry.isRegisteredVoter(citizen),
+                reqId,
+                req.status,
+                req.rejectionReason
+            );
+        } else {
+            return (
+                isVerifiedCitizen[citizen],
+                hasPendingRequest[citizen],
+                voterRegistry.isRegisteredVoter(citizen),
+                0,
+                RequestStatus.Pending,
+                ""
+            );
+        }
     }
 
     function getEncryptedDocType(uint256 requestId)
