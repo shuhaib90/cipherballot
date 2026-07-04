@@ -368,14 +368,61 @@ contract VoterEligibilityPass is
         return walletTokens[voter][electionId];
     }
     
+    function _buildSvg(uint256 tokenId, uint256 electionId) internal pure returns (string memory) {
+        return string(
+            abi.encodePacked(
+                '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 320" width="100%" height="100%">',
+                '<defs>',
+                '<linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">',
+                '<stop offset="0%" stop-color="#0f0926" />',
+                '<stop offset="100%" stop-color="#241147" />',
+                '</linearGradient>',
+                '<linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">',
+                '<stop offset="0%" stop-color="#FFE57F" />',
+                '<stop offset="100%" stop-color="#FFC107" />',
+                '</linearGradient>',
+                '</defs>',
+                '<rect x="0" y="0" width="500" height="320" rx="20" fill="url(#bgGrad)" stroke="url(#goldGrad)" stroke-width="2" />',
+                '<circle cx="450" cy="50" r="100" fill="none" stroke="rgba(224, 64, 251, 0.15)" stroke-width="1.5" />',
+                '<circle cx="450" cy="50" r="70" fill="none" stroke="rgba(255, 193, 7, 0.1)" stroke-width="1.5" />',
+                '<text x="35" y="55" fill="#FFE57F" font-family="system-ui, -apple-system, sans-serif" font-size="20" font-weight="800" letter-spacing="1">CIPHERBALLOT</text>',
+                '<text x="35" y="75" fill="rgba(255, 255, 255, 0.5)" font-family="system-ui, -apple-system, sans-serif" font-size="9" font-weight="600" letter-spacing="1.5">FHE SOULBOUND VEPass</text>',
+                '<rect x="35" y="110" width="45" height="35" rx="6" fill="#ffe57f" opacity="0.85" />',
+                '<path d="M 35 127.5 L 80 127.5 M 57.5 110 L 57.5 145" stroke="#0f0926" stroke-width="1" />',
+                '<rect x="380" y="35" width="85" height="24" rx="12" fill="rgba(0, 230, 118, 0.15)" stroke="#00E676" stroke-width="1" />',
+                '<text x="422.5" y="49" fill="#00E676" font-family="system-ui, -apple-system, sans-serif" font-size="9" font-weight="bold" text-anchor="middle">@ VERIFIED</text>',
+                '<text x="35" y="195" fill="rgba(255, 255, 255, 0.5)" font-family="system-ui, -apple-system, sans-serif" font-size="8" font-weight="700" letter-spacing="0.5">STATUS</text>',
+                '<text x="35" y="212" fill="#FFFFFF" font-family="system-ui, -apple-system, sans-serif" font-size="12" font-weight="800">ACTIVE PASS</text>',
+                '<text x="180" y="195" fill="rgba(255, 255, 255, 0.5)" font-family="system-ui, -apple-system, sans-serif" font-size="8" font-weight="700" letter-spacing="0.5">ELECTION ID</text>',
+                '<text x="180" y="212" fill="#FFFFFF" font-family="system-ui, -apple-system, sans-serif" font-size="12" font-weight="800">',
+                Strings.toString(electionId),
+                '</text>',
+                '<text x="300" y="195" fill="rgba(255, 255, 255, 0.5)" font-family="system-ui, -apple-system, sans-serif" font-size="8" font-weight="700" letter-spacing="0.5">PASS ID</text>',
+                '<text x="300" y="212" fill="#FFE57F" font-family="system-ui, -apple-system, sans-serif" font-size="12" font-weight="800">#',
+                Strings.toString(tokenId),
+                '</text>',
+                '<line x1="35" y1="250" x2="465" y2="250" stroke="rgba(255, 255, 255, 0.1)" stroke-width="1" />',
+                '<text x="35" y="280" fill="rgba(255, 255, 255, 0.4)" font-family="system-ui, -apple-system, sans-serif" font-size="8" font-weight="600">BOUND TO REGISTERED WALLET</text>',
+                '<text x="465" y="280" fill="#E040FB" font-family="system-ui, -apple-system, sans-serif" font-size="9" font-weight="bold" text-anchor="end" letter-spacing="1">ZAMA FHEVM</text>',
+                '</svg>'
+            )
+        );
+    }
+
     function tokenURI(uint256 tokenId)
         public
         view
         override
         returns (string memory)
     {
+        _requireOwned(tokenId);
         VoterPassMetadata memory meta = passMetadata[tokenId];
         
+        string memory svg = _buildSvg(tokenId, meta.electionId);
+        string memory imageUri = string(
+            abi.encodePacked("data:image/svg+xml;base64,", Base64.encode(bytes(svg)))
+        );
+
         string memory json = Base64.encode(
             bytes(
                 string(
@@ -386,7 +433,9 @@ contract VoterEligibilityPass is
                         'Proves voter registration for election ID ',
                         Strings.toString(meta.electionId),
                         '. Non-transferable and bound to voter wallet.",',
-                        '"image":"ipfs://QmVoterPassImage",',
+                        '"image":"',
+                        imageUri,
+                        '",',
                         '"attributes":[',
                         '{"trait_type":"Election ID","value":"',
                         Strings.toString(meta.electionId),
@@ -404,11 +453,6 @@ contract VoterEligibilityPass is
             )
         );
         
-        return string(
-            abi.encodePacked(
-                "data:application/json;base64,",
-                json
-            )
-        );
+        return string(abi.encodePacked("data:application/json;base64,", json));
     }
 }
