@@ -13,6 +13,7 @@ import { useWallet } from './hooks/useWallet';
 import { useFhevm } from './hooks/useFhevm';
 import { useContract, type ElectionDetails } from './hooks/useContract';
 import { InteractiveNetworkGlobe } from './components/InteractiveNetworkGlobe';
+import { VotingWorkflowShowcase } from './components/VotingWorkflowShowcase';
 import { X, ShieldCheck, RefreshCw, Lock, Cpu, Eye, EyeOff, ShieldAlert, ArrowRight, Share2, Github, Linkedin, Twitter } from 'lucide-react';
 import type { CitizenStatus } from './utils/types';
 
@@ -1021,6 +1022,9 @@ function App() {
               </div>
             </div>
           </div>
+
+          {/* Animated Workflow Showcase (anime.js) */}
+          <VotingWorkflowShowcase />
 
           {/* Fleek-inspired Technical Breakdown */}
           <div className="grid gap-16 lg:grid-cols-2 items-center border-b border-slate-955 pb-16 relative z-10">
