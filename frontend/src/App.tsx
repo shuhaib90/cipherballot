@@ -11,9 +11,10 @@ import { ElectionShareCard } from './components/ElectionShareCard';
 import { useWallet } from './hooks/useWallet';
 import { useFhevm } from './hooks/useFhevm';
 import { useContract, type ElectionDetails } from './hooks/useContract';
-import { InteractiveNetworkGlobe } from './components/InteractiveNetworkGlobe';
+
 import { VotingWorkflowShowcase } from './components/VotingWorkflowShowcase';
-import { X, ShieldCheck, RefreshCw, Lock, Cpu, Eye, EyeOff, ShieldAlert, ArrowRight, Share2, Github, Linkedin, Twitter } from 'lucide-react';
+import { ArrowRight, ShieldCheck, Cpu, Lock, Share2, RefreshCw, Eye, EyeOff, ShieldAlert, X, Github, Linkedin, Twitter } from 'lucide-react';
+import { ScrambleText } from './components/ScrambleText';
 import type { CitizenStatus } from './utils/types';
 
 import VoterRegistryABI from './abis/VoterRegistry.json';
@@ -24,44 +25,6 @@ import {
   FHE_IDENTITY_REGISTRY_ADDRESS,
   DEMO_ELECTION_ADDRESS
 } from './utils/contract';
-
-const REAL_PROJECT_CODE_LINES = [
-  "// SPDX-License-Identifier: BSD-3-Clause-Clear",
-  "pragma solidity ^0.8.24;",
-  "",
-  "import \"fhevm/lib/TFHE.sol\";",
-  "import \"./VoterRegistry.sol\";",
-  "",
-  "contract Election {",
-  "    string public name;",
-  "    string public description;",
-  "    ",
-  "    // Encrypted tallies for candidates",
-  "    mapping(uint8 => euint32) internal encryptedTallies;",
-  "    mapping(address => bool) public hasVoted;",
-  "    ",
-  "    constructor(string memory _name, string[] memory _candidates) {",
-  "        name = _name;",
-  "        for (uint8 i = 0; i < _candidates.length; i++) {",
-  "            encryptedTallies[i] = TFHE.asEuint32(0);",
-  "        }",
-  "    }",
-  "    ",
-  "    function castVote(bytes calldata encryptedChoice, bytes calldata proof) external {",
-  "        require(!hasVoted[msg.sender], \"Already voted\");",
-  "        euint8 choice = TFHE.asEuint8(encryptedChoice);",
-  "        TFHE.req(TFHE.isSenderAllowed(choice));",
-  "        ",
-  "        for (uint8 i = 0; i < candidateCount; i++) {",
-  "            ebool isChosen = TFHE.eq(choice, TFHE.asEuint8(i));",
-  "            euint32 inc = TFHE.select(isChosen, TFHE.asEuint32(1), TFHE.asEuint32(0));",
-  "            encryptedTallies[i] = TFHE.add(encryptedTallies[i], inc);",
-  "        }",
-  "        hasVoted[msg.sender] = true;",
-  "    }",
-  "}",
-  "// End of FHE Cryptographic Ballot Protocol"
-];
 
 const CODE_TOKENS = [
   { text: "// 1. Retrieve encrypted choice from user\n", className: "text-slate-550" },
@@ -866,46 +829,34 @@ function App() {
         <main className="flex-1 flex flex-col justify-center py-16 px-8 lg:px-16 max-w-none w-full space-y-24 bg-black relative overflow-hidden">
 
           {/* Hero Section */}
-          <div className="grid lg:grid-cols-12 gap-16 pt-12 border-b border-slate-955 pb-16 relative overflow-hidden z-10 rounded-2xl p-8 sm:p-12 items-center">
-            
-            {/* Live Code Backdrop (Scoped to Hero Section) */}
-            <div className="absolute inset-0 pointer-events-none select-none overflow-hidden opacity-[0.18] flex justify-between px-12 z-0">
-              <div className="w-1/3 font-mono text-[10px] text-yellow-450 space-y-1 select-none animate-scroll-up">
-                {[...REAL_PROJECT_CODE_LINES, ...REAL_PROJECT_CODE_LINES, ...REAL_PROJECT_CODE_LINES, ...REAL_PROJECT_CODE_LINES].map((line, idx) => (
-                  <div key={idx} className="whitespace-nowrap">{line}</div>
-                ))}
-              </div>
-              <div className="w-1/3 font-mono text-[10px] text-yellow-455 space-y-1 select-none animate-scroll-up [animation-delay:-15s] hidden md:block">
-                {[...REAL_PROJECT_CODE_LINES, ...REAL_PROJECT_CODE_LINES, ...REAL_PROJECT_CODE_LINES, ...REAL_PROJECT_CODE_LINES].map((line, idx) => (
-                  <div key={idx} className="whitespace-nowrap">{line}</div>
-                ))}
-              </div>
-              <div className="w-1/3 font-mono text-[10px] text-yellow-455 space-y-1 select-none animate-scroll-up [animation-delay:-30s] hidden lg:block">
-                {[...REAL_PROJECT_CODE_LINES, ...REAL_PROJECT_CODE_LINES, ...REAL_PROJECT_CODE_LINES, ...REAL_PROJECT_CODE_LINES].map((line, idx) => (
-                  <div key={idx} className="whitespace-nowrap">{line}</div>
-                ))}
-              </div>
-            </div>
-
+          <div 
+            className="pt-24 pb-32 relative overflow-hidden z-10 rounded-2xl p-8 sm:p-12 border-b border-slate-955 flex flex-col items-center justify-center text-center shadow-2xl"
+            style={{ 
+              backgroundImage: 'url(/hero-bg.jpg)', 
+              backgroundSize: 'cover', 
+              backgroundPosition: 'center',
+              backgroundRepeat: 'no-repeat'
+            }}
+          >
             {/* Glass Blur Overlay */}
-            <div className="absolute inset-0 bg-black/65 backdrop-blur-[1.5px] z-[1] pointer-events-none" />
+            <div className="absolute inset-0 bg-[#03000a]/60 backdrop-blur-[2px] z-[1] pointer-events-none" />
 
-            {/* Left Column: Hero Text */}
-            <div className="lg:col-span-7 space-y-6 text-left relative z-10">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded border border-yellow-500/20 bg-yellow-500/5 text-xs font-mono font-bold text-[#FFD208] uppercase tracking-wider">
+            {/* Content: Hero Text */}
+            <div className="space-y-8 relative z-10 max-w-4xl mx-auto flex flex-col items-center">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded border border-yellow-500/20 bg-yellow-500/5 text-xs font-mono font-bold text-[#FFD208] uppercase tracking-wider backdrop-blur-md shadow-lg">
                 <ShieldCheck className="h-3.5 w-3.5" />
                 Fully Homomorphic Encryption (FHE)
               </div>
               
-              <h1 className="text-5xl font-black tracking-tight sm:text-7xl font-sans text-white leading-none">
-                LAUNCH <span className="text-[#FFD208]">SHIELDED</span> POLLS
+              <h1 className="text-5xl font-black tracking-tight sm:text-7xl md:text-8xl font-sans text-white leading-tight drop-shadow-2xl">
+                LAUNCH <ScrambleText text="SHIELDED" className="text-[#FFD208] inline-block min-w-[280px]" /> POLLS
               </h1>
               
-              <p className="text-slate-400 text-sm sm:text-base leading-relaxed font-medium max-w-2xl">
+              <p className="text-slate-300 text-sm sm:text-lg leading-relaxed font-medium max-w-3xl drop-shadow-xl bg-black/20 p-4 rounded-xl backdrop-blur-sm border border-white/5">
                 CipherBallot is a next-generation decentralized voting system powered by Zama's FHEVM. It allows ballots to remain cryptographically sealed during computation, ensuring absolute privacy while remaining fully verifiable on-chain.
               </p>
 
-              <div className="flex flex-wrap items-center gap-4 pt-4">
+              <div className="flex flex-wrap justify-center items-center gap-4 pt-6">
                 <button
                   onClick={() => {
                     if (isConnected) {
@@ -915,7 +866,7 @@ function App() {
                       setActiveTab('register');
                     }
                   }}
-                  className="bg-[#FFD208] text-black font-extrabold text-xs uppercase tracking-wider px-6 py-3.5 rounded hover:bg-yellow-400 transition-colors duration-200 flex items-center gap-2"
+                  className="bg-[#FFD208] text-black font-extrabold text-sm uppercase tracking-wider px-8 py-4 rounded hover:bg-yellow-400 transition-colors duration-200 flex items-center gap-2 shadow-[0_0_20px_rgba(255,210,8,0.3)] hover:shadow-[0_0_30px_rgba(255,210,8,0.5)]"
                 >
                   Get Started <ArrowRight className="h-4 w-4" />
                 </button>
@@ -926,16 +877,11 @@ function App() {
                       connect();
                     }
                   }}
-                  className="bg-transparent text-slate-300 border border-slate-800 font-extrabold text-xs uppercase tracking-wider px-6 py-3.5 rounded hover:text-white hover:border-yellow-500/30 transition-all duration-200"
+                  className="bg-[#03000a]/80 backdrop-blur-md text-slate-200 border border-slate-700 font-extrabold text-sm uppercase tracking-wider px-8 py-4 rounded hover:text-white hover:border-yellow-500/50 transition-all duration-200 shadow-lg"
                 >
                   Discover How It Works
                 </button>
               </div>
-            </div>
-
-            {/* Right Column: High-Tech Web3 Interactive Globe */}
-            <div className="lg:col-span-5 flex justify-center items-center relative z-10">
-              <InteractiveNetworkGlobe />
             </div>
           </div>
 
