@@ -1,7 +1,7 @@
 import { ethers } from "hardhat";
 
 async function main() {
-  const identityRegistryAddress = "0x293657B337335D86a7e0c3DDF58dBB987fa39CBF";
+  const identityRegistryAddress = "0xf961257585090A2A8282671360f03e041157B68F";
   const identityRegistry = await ethers.getContractAt("FHEIdentityRegistry", identityRegistryAddress);
 
   const requestCount = await identityRegistry.requestCount();

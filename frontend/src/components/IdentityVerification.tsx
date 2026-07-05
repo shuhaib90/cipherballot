@@ -182,7 +182,7 @@ export function IdentityVerification({
 
       // 3. Fetch commitment hash from contract (reuse shared readProvider)
       let commitmentHash = submittedCommitment;
-      if (!commitmentHash && citizenStatus.requestId) {
+      if (!commitmentHash && typeof citizenStatus.requestId === 'number') {
         try {
           // Import readProvider from useContract to avoid creating new provider instances
           const { readProvider: sharedProvider, fallbackProvider: fbProvider } = await import('../hooks/useContract');
