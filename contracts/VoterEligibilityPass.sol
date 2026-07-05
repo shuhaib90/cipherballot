@@ -238,11 +238,17 @@ contract VoterEligibilityPass is
         uint256 electionId
     ) external view returns (bool) {
         uint256 tokenId = walletTokens[voter][electionId];
-        if (tokenId == 0) return false;
+        if (tokenId == 0) {
+            // Fallback: Check if the voter has a global pass (electionId = 0)
+            tokenId = walletTokens[voter][0];
+            if (tokenId == 0) return false;
+        }
         if (ownerOf(tokenId) != voter) return false;
         if (passMetadata[tokenId].originalMinter != voter) return false;
         if (!passMetadata[tokenId].isActive) return false;
-        if (passMetadata[tokenId].electionId != electionId) return false;
+        
+        uint256 tokenElecId = passMetadata[tokenId].electionId;
+        if (tokenElecId != electionId && tokenElecId != 0) return false;
         return true;
     }
     
@@ -259,10 +265,15 @@ contract VoterEligibilityPass is
         }
         
         uint256 tokenId = walletTokens[voter][electionId];
-        require(tokenId != 0, "No pass found");
-        require(!passMetadata[tokenId].hasBeenUsedToVote, "Already used to vote");
-        
-        passMetadata[tokenId].hasBeenUsedToVote = true;
+        if (tokenId == 0) {
+            // Fallback: Check if the voter has a global pass (electionId = 0)
+            tokenId = walletTokens[voter][0];
+            require(tokenId != 0, "No pass found");
+            // Global passes can be reused in different elections, so we don't enforce hasBeenUsedToVote = false
+        } else {
+            require(!passMetadata[tokenId].hasBeenUsedToVote, "Already used to vote");
+            passMetadata[tokenId].hasBeenUsedToVote = true;
+        }
         
         emit VoterPassUsedToVote(tokenId, voter, electionId);
         
