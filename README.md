@@ -384,11 +384,11 @@ All contracts deployed and verified. View source code on Etherscan.
 
 | Contract | Address |
 |---|---|
-| **VoterRegistry** | `0x03198fBa67791A2e88ce5Ca7B1805597730d7895` |
-| **VoterEligibilityPass** | `0x05DD2aaCDdF7042C603a23D39d5F362A0C9d7a86` |
-| **ElectionFactory** | `0x95A734487a02BbEbb4971386C797459e9AC069F5` |
-| **FHEIdentityRegistry** | `0xf961257585090A2A8282671360f03e041157B68F` |
-| **Demo Election** | `0x06f3547872c584e2D677D0a556Ca23713d66aE85` |
+| **VoterRegistry** | [`0x03198fBa67791A2e88ce5Ca7B1805597730d7895`](https://sepolia.etherscan.io/address/0x03198fBa67791A2e88ce5Ca7B1805597730d7895) |
+| **VoterEligibilityPass** | [`0x05DD2aaCDdF7042C603a23D39d5F362A0C9d7a86`](https://sepolia.etherscan.io/address/0x05DD2aaCDdF7042C603a23D39d5F362A0C9d7a86) |
+| **ElectionFactory** | [`0x95A734487a02BbEbb4971386C797459e9AC069F5`](https://sepolia.etherscan.io/address/0x95A734487a02BbEbb4971386C797459e9AC069F5) |
+| **FHEIdentityRegistry** | [`0xf961257585090A2A8282671360f03e041157B68F`](https://sepolia.etherscan.io/address/0xf961257585090A2A8282671360f03e041157B68F) |
+| **Demo Election** | [`0x06f3547872c584e2D677D0a556Ca23713d66aE85`](https://sepolia.etherscan.io/address/0x06f3547872c584e2D677D0a556Ca23713d66aE85) |
 
 ---
 
@@ -491,7 +491,7 @@ cd frontend && npm install && cd ..
 # Root: .env
 cat > .env << EOF
 PRIVATE_KEY=0x[your-sepolia-wallet-private-key]
-SEPOLIA_RPC_URL=https://eth-sepolia.g.alchemy.com/v2/rCMBmb19ivP-P9yRADms9
+SEPOLIA_RPC_URL=https://eth-sepolia.g.alchemy.com/v2/YOUR_ALCHEMY_API_KEY
 ETHERSCAN_API_KEY=[your-etherscan-api-key]
 EOF
 
@@ -499,7 +499,7 @@ EOF
 cat > frontend/.env.production << EOF
 VITE_NETWORK=sepolia
 VITE_CHAIN_ID=11155111
-VITE_RPC_URL=https://eth-sepolia.g.alchemy.com/v2/rCMBmb19ivP-P9yRADms9
+VITE_RPC_URL=https://eth-sepolia.g.alchemy.com/v2/YOUR_ALCHEMY_API_KEY
 VITE_RELAYER_URL=https://relayer.testnet.zama.cloud
 VITE_VOTER_REGISTRY_ADDRESS=0x03198fBa67791A2e88ce5Ca7B1805597730d7895
 VITE_VOTER_PASS_ADDRESS=0x05DD2aaCDdF7042C603a23D39d5F362A0C9d7a86
