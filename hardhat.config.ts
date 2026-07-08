@@ -21,9 +21,17 @@ const config: HardhatUserConfig = {
     deployer: 0,
   },
   etherscan: {
-    apiKey: {
-      sepolia: vars.get("ETHERSCAN_API_KEY", ""),
-    },
+    apiKey: process.env.ETHERSCAN_API_KEY || vars.get("ETHERSCAN_API_KEY", ""),
+    customChains: [
+      {
+        network: "sepolia",
+        chainId: 11155111,
+        urls: {
+          apiURL: "https://api.etherscan.io/v2/api?chainid=11155111",
+          browserURL: "https://sepolia.etherscan.io",
+        },
+      },
+    ],
   },
   gasReporter: {
     currency: "USD",
